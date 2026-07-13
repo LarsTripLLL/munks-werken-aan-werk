@@ -1,5 +1,3 @@
-# munks-werken-aan-werk
-Munks Werken aan Werk
 # Werken aan Werk
 
 > Digitale ondersteuning voor het hybride traject **Werken aan Werk** van **Munks**.
