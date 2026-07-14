@@ -308,6 +308,26 @@ De herkenbaarheid van het programma wordt versterkt.
 
 - DOC-001 Product Definition
 
+## D014 – Mijn omgeving als persoonlijke hub
+
+**Aanleiding**
+
+De termen *Profiel* en *Persoonlijke gegevens* sluiten onvoldoende aan bij de beleving van de doelgroep. Jongeren zoeken niet naar hun persoonsgegevens, maar naar een centrale plek waar alle informatie over hun traject samenkomt.
+
+**Besluit**
+
+De vierde knop in de onderste navigatie krijgt de naam **Mijn omgeving**. Vanuit deze omgeving heeft de jongere toegang tot persoonlijke informatie, documenten, afspraken, doelen, begeleiding en instellingen.
+
+**Impact**
+
+De navigatie sluit beter aan bij de belevingswereld van jongeren. De naam **Mijn omgeving** biedt ruimte om de persoonlijke omgeving in de toekomst uit te breiden, zonder dat de navigatiestructuur hoeft te veranderen.
+
+**Gerelateerd aan**
+
+- DOC-003 Product Backlog
+- DOC-004 User Flows
+- DOC-005 UX Specification
+
 ---
 
 # Reviewstatus
@@ -325,3 +345,4 @@ De herkenbaarheid van het programma wordt versterkt.
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste versie opgesteld. |
 | 0.2 | Juli 2026 | Structuur verbeterd, D001 en D002 aangepast, verwijzingen naar projectdocumenten toegevoegd. |
+| 0.3 | Juli 2026 | Aanpassing 4de knop navigatie naar "Mijn  omgeving" |
