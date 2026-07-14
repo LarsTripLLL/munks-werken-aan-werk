@@ -4,10 +4,19 @@
 Werken aan Werk
 
 **Versie**  
-0.1
+0.2
 
 **Status**  
-Concept
+Concept (in review)
+
+**Auteur**  
+OpenAI ChatGPT
+
+**Product Owner**  
+Lars van Borssum Waalkes
+
+**Inhoudelijke review**  
+Brita
 
 **Laatste wijziging**  
 Juli 2026
@@ -42,7 +51,7 @@ Hierdoor blijft de jongere betrokken tussen de groepsbijeenkomsten en individuel
 
 ## Primaire doelgroep
 
-De app is ontwikkeld voor jongeren van ongeveer 16 tot 27 jaar die deelnemen aan het begeleidingsprogramma **Werken aan Werk** van Munks.
+De app is ontwikkeld voor **jongeren van 16 tot en met 27 jaar** die deelnemen aan het begeleidingsprogramma **Werken aan Werk** van Munks.
 
 De doelgroep is divers in achtergrond, opleidingsniveau en ondersteuningsvraag. Wat deelnemers gemeen hebben, is dat zij ondersteuning nodig hebben bij het zetten van een passende volgende stap richting **werk, opleiding of participatie**.
 
@@ -96,23 +105,27 @@ De volgende ontwerpprincipes vormen de basis voor alle ontwerp- en ontwikkelkeuz
 
 De app wordt ontworpen vanuit de behoeften van de jongere. Iedere ontwerpkeuze draagt bij aan een begrijpelijke, toegankelijke en positieve gebruikerservaring.
 
-## 2. De app ondersteunt de begeleiding
+## 2. De regie blijft bij de begeleider
 
-De app ondersteunt het contact tussen jongere en begeleider. Persoonlijke begeleiding blijft altijd leidend.
+De app ondersteunt de begeleiding, maar de regie over het traject en de begeleiding blijft bij de begeleider. Persoonlijk contact is en blijft de basis van Werken aan Werk.
 
 ## 3. De route is gezamenlijk, de ontwikkeling is persoonlijk
 
 Iedere deelnemer volgt dezelfde opbouw van het traject. Binnen iedere stap is ruimte voor persoonlijke doelen, keuzes en ontwikkeling.
 
-## 4. Overzicht geeft rust
+## 4. Structuur geeft ruimte
+
+De app biedt een duidelijke structuur die houvast geeft en ruimte laat voor persoonlijke keuzes en maatwerk binnen het traject.
+
+## 5. Overzicht geeft rust
 
 De app toont alleen informatie die op dat moment relevant is. Hierdoor weet de jongere altijd waar hij of zij staat en wat de volgende stap is.
 
-## 5. Perspectief motiveert
+## 6. Perspectief motiveert
 
 Iedere stap in de app draagt bij aan het ervaren van vooruitgang en perspectief. Niet iedereen heeft hetzelfde einddoel, maar iedereen werkt aan een passende volgende stap.
 
-## 6. Eenvoud in taal en ontwerp
+## 7. Eenvoud in taal en ontwerp
 
 De app gebruikt duidelijke taal, herkenbare iconen en een rustige vormgeving. Informatie is kort, begrijpelijk en sluit aan bij de belevingswereld van jongeren.
 
@@ -142,7 +155,7 @@ Biedt één centrale plek voor persoonlijke informatie die relevant is binnen he
 
 ### Over mij
 
-Geeft inzicht in persoonlijke gegevens, doelen, talenten, begeleider en contactgegevens.
+Geeft inzicht in persoonlijke gegevens, doelen, wat bij mij past, begeleider en contactgegevens.
 
 ### Dashboard begeleider
 
@@ -194,8 +207,21 @@ De eerste versie van de app wordt tijdens de pilot geëvalueerd met jongeren, be
 
 ---
 
+## Reviewstatus
+
+| Reviewer | Status |
+|-----------|--------|
+| Lars van Borssum Waalkes | Akkoord |
+| Brita | Feedback verwerkt – in review |
+
+---
+
 ## Wijzigingshistorie
 
+| Versie | Datum | Wijziging |
+|---------|--------|-----------|
+| 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
+| 0.2 | Juli 2026 | Feedback van Brita verwerkt: doelgroep aangescherpt, "Structuur geeft ruimte" en ontwerpprincipe "De regie blijft bij de begeleider". |
 | Versie | Datum | Wijziging |
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
