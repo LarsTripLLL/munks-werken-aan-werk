@@ -7,7 +7,7 @@ Werken aan Werk
 0.1
 
 **Status**  
-Concept
+Concept.
 
 **Auteur**  
 OpenAI ChatGPT
