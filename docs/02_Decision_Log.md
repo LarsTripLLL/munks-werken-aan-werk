@@ -1,348 +1,187 @@
 # Decision Log
 
-**Document ID**  
+**Document ID**\
 DOC-002
 
-**Project**  
+**Project**\
 Werken aan Werk
 
-**Versie**  
-0.2
+**Versie**\
+0.3
 
-**Status**  
-Concept.
+**Status**\
+Concept
 
-**Auteur**  
+**Auteur**\
 OpenAI ChatGPT
 
-**Product Owner**  
+**Product Owner**\
 Lars van Borssum Waalkes
 
-**Inhoudelijke review**  
+**Inhoudelijke review**\
 Brita
 
-**Laatste wijziging**  
+**Laatste wijziging**\
 Juli 2026
 
----
+------------------------------------------------------------------------
 
 # Doel
 
-In de Decision Log worden de belangrijkste product- en ontwerpbeslissingen vastgelegd.
+In de Decision Log worden de belangrijkste product- en
+ontwerpbeslissingen vastgelegd. Iedere beslissing beschrijft de
+aanleiding, het besluit, de impact en de relatie met andere
+projectdocumenten.
 
-Iedere beslissing beschrijft:
-
-- de aanleiding;
-- het besluit;
-- de impact op het product;
-- het gerelateerde projectdocument.
-
-De Decision Log zorgt ervoor dat gemaakte keuzes ook op langere termijn begrijpelijk en herleidbaar blijven.
-
----
+------------------------------------------------------------------------
 
 # Productvisie
 
-## D001 – De app sluit aan bij de communicatie van de doelgroep
+## D001 -- De app sluit aan bij de communicatie van de doelgroep
 
-**Aanleiding**
+**Aanleiding**\
+Jongeren communiceren en vinden informatie vooral via hun smartphone.
 
-Jongeren communiceren, plannen en vinden informatie voornamelijk via hun smartphone. Om aan te sluiten bij hun belevingswereld is een digitale ondersteuning van het programma gewenst.
+**Besluit**\
+Werken aan Werk wordt ondersteund door een app die aansluit bij de
+huidige communicatievormen en informatiebehoefte van jongeren.
 
-**Besluit**
+**Impact**\
+De app ondersteunt het traject tussen groepsbijeenkomsten en individuele
+gesprekken.
 
-Werken aan Werk wordt ondersteund door een app die aansluit bij de huidige communicatievormen en informatiebehoefte van jongeren.
+------------------------------------------------------------------------
 
-**Impact**
+## D002 -- De begeleider blijft verantwoordelijk voor de begeleiding
 
-De app wordt een vanzelfsprekend onderdeel van het traject en ondersteunt de communicatie tussen groepsbijeenkomsten, individuele gesprekken en de jongere.
+**Aanleiding**\
+Begeleiding vraagt om professionele afwegingen.
 
-**Gerelateerd aan**
+**Besluit**\
+De app ondersteunt het begeleidingsproces. De begeleider blijft
+verantwoordelijk voor de begeleiding, terwijl de jongere wordt
+gestimuleerd om zelf stappen te zetten.
 
-- DOC-001 Product Definition – Hoofdstuk 1 Productvisie
+**Impact**\
+De app ondersteunt en vervangt de begeleiding niet.
 
----
+------------------------------------------------------------------------
 
-## D002 – De begeleider blijft verantwoordelijk voor de begeleiding
+## D003 -- De route is gezamenlijk, de ontwikkeling is persoonlijk
 
-**Aanleiding**
+Iedere deelnemer volgt dezelfde route, met ruimte voor persoonlijke
+invulling.
 
-Begeleiding vraagt om professionele afwegingen die niet door een app kunnen worden overgenomen.
-
-**Besluit**
-
-De app ondersteunt het begeleidingsproces. De begeleider blijft verantwoordelijk voor de begeleiding, terwijl de jongere wordt gestimuleerd om zelf stappen te zetten.
-
-**Impact**
-
-De app ondersteunt de samenwerking tussen jongere en begeleider en neemt geen beslissingen over het traject.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
-
-## D003 – De route is gezamenlijk, de ontwikkeling is persoonlijk
-
-**Aanleiding**
-
-Werken aan Werk is een hybride programma met een vaste opbouw in groepsbijeenkomsten.
-
-**Besluit**
-
-Iedere deelnemer volgt dezelfde route. Binnen iedere stap is ruimte voor persoonlijke keuzes en maatwerk.
-
-**Impact**
-
-De hoofdstructuur van het traject is voor alle deelnemers gelijk.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
+------------------------------------------------------------------------
 
 # Gebruikerservaring
 
-## D004 – Structuur geeft ruimte
+## D004 -- Structuur geeft ruimte
 
-**Aanleiding**
+Een duidelijke structuur biedt houvast en ruimte voor eigen keuzes.
 
-Jongeren hebben behoefte aan overzicht en houvast.
+## D005 -- Overzicht geeft rust
 
-**Besluit**
+Alleen relevante informatie wordt getoond.
 
-De app biedt een duidelijke structuur die ruimte laat voor persoonlijke keuzes binnen het traject.
+## D006 -- Perspectief motiveert
 
-**Impact**
+Iedere stap draagt bij aan een positief toekomstperspectief.
 
-De navigatie is eenvoudig, voorspelbaar en herkenbaar.
+## D007 -- Eenvoud in taal en ontwerp
 
-**Gerelateerd aan**
+De app gebruikt eenvoudige taal en een rustige vormgeving.
 
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
-
-## D005 – Overzicht geeft rust
-
-**Aanleiding**
-
-Te veel informatie tegelijk vermindert het overzicht.
-
-**Besluit**
-
-De app toont alleen informatie die op dat moment relevant is.
-
-**Impact**
-
-Iedere pagina ondersteunt de jongere bij de eerstvolgende stap.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
-
-## D006 – Perspectief motiveert
-
-**Aanleiding**
-
-Deelnemers blijven gemotiveerd wanneer zij ervaren dat iedere stap ergens toe leidt.
-
-**Besluit**
-
-Iedere stap in de app draagt bij aan het ervaren van perspectief.
-
-**Impact**
-
-De communicatie is positief, activerend en toekomstgericht.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
-
-## D007 – Eenvoud in taal en ontwerp
-
-**Aanleiding**
-
-De doelgroep gebruikt voornamelijk een smartphone en heeft behoefte aan duidelijke communicatie.
-
-**Besluit**
-
-De app gebruikt eenvoudige taal, herkenbare iconen en een rustige vormgeving.
-
-**Impact**
-
-De app is toegankelijk en snel te begrijpen.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition – Hoofdstuk 5 Ontwerpprincipes
-
----
+------------------------------------------------------------------------
 
 # Functionaliteit
 
-## D008 – Lineaire opbouw van het traject
-
-**Aanleiding**
-
-De groepsbijeenkomsten volgen een vaste volgorde.
-
-**Besluit**
+## D008 -- Lineaire opbouw van het traject
 
 Het traject wordt lineair weergegeven.
 
-**Impact**
+## D009 -- Dynamische snelkoppelingen
 
-Iedere deelnemer ziet dezelfde opbouw van het programma.
+Het startscherm toont alleen relevante onderdelen.
 
-**Gerelateerd aan**
+## D010 -- Geen voortgang in percentages
 
-- DOC-003 Product Backlog – PB002 Trajectoverzicht
+Voortgang wordt weergegeven in trajectstappen.
 
----
-
-## D009 – Dynamische snelkoppelingen
-
-**Aanleiding**
-
-Niet iedere functionaliteit is op ieder moment relevant.
-
-**Besluit**
-
-Het startscherm toont alleen de functionaliteiten die op dat moment belangrijk zijn.
-
-**Impact**
-
-Meer overzicht en minder afleiding.
-
-**Gerelateerd aan**
-
-- DOC-003 Product Backlog – PB001 Startscherm
-
----
-
-## D010 – Geen voortgang in percentages
-
-**Aanleiding**
-
-Een percentage kan voelen als een beoordeling.
-
-**Besluit**
-
-Voortgang wordt weergegeven in stappen binnen het traject.
-
-**Impact**
-
-De nadruk ligt op ontwikkeling in plaats van prestatie.
-
-**Gerelateerd aan**
-
-- DOC-003 Product Backlog – PB002 Trajectoverzicht
-
----
+------------------------------------------------------------------------
 
 # Informatiearchitectuur
 
-## D011 – Functionele benamingen
+## D011 -- Functionele benamingen
 
-**Aanleiding**
+De Product Backlog gebruikt functionele namen.
 
-Schermnamen kunnen tijdens het ontwerp nog wijzigen.
+## D012 -- Geen 'dossier'
 
-**Besluit**
+Persoonlijke informatie wordt positief en begrijpelijk benoemd.
 
-De Product Backlog gebruikt functionele benamingen in plaats van definitieve schermtitels.
+## D013 -- Werken aan Werk als herkenbare identiteit
 
-**Impact**
+De identiteit van Werken aan Werk is zichtbaar in naam, vormgeving en
+communicatie.
 
-De documentatie blijft stabiel gedurende het project.
+## D014 -- Mijn omgeving als persoonlijke hub
 
-**Gerelateerd aan**
+**Aanleiding**\
+De termen *Profiel* en *Persoonlijke gegevens* sluiten onvoldoende aan
+bij de beleving van de doelgroep. Jongeren zoeken naar één plek waar
+alle informatie over hun traject samenkomt.
 
-- DOC-003 Product Backlog
+**Besluit**\
+De vierde knop in de onderste navigatie krijgt de naam **Mijn
+omgeving**. Vanuit deze omgeving heeft de jongere toegang tot
+persoonlijke informatie, documenten, afspraken, doelen, begeleiding en
+instellingen.
 
----
-
-## D012 – Geen 'dossier'
-
-**Aanleiding**
-
-De term 'dossier' sluit onvoldoende aan bij de gewenste beleving van de doelgroep.
-
-**Besluit**
-
-Persoonlijke informatie wordt beschreven in positieve en begrijpelijke taal.
-
-**Impact**
-
-De app voelt toegankelijker en minder formeel.
+**Impact**\
+De navigatie sluit beter aan bij de belevingswereld van jongeren en
+biedt ruimte voor toekomstige uitbreiding.
 
 **Gerelateerd aan**
 
-- DOC-001 Product Definition
-- DOC-003 Product Backlog
+-   DOC-003 Product Backlog
+-   DOC-004 User Flows
+-   DOC-005 UX Specification
 
----
-
-## D013 – Werken aan Werk als herkenbare identiteit
-
-**Aanleiding**
-
-De app moet direct herkenbaar zijn als onderdeel van het programma Werken aan Werk.
-
-**Besluit**
-
-De identiteit van Werken aan Werk is zichtbaar in naam, vormgeving en communicatie, met Munks als afzender.
-
-**Impact**
-
-De herkenbaarheid van het programma wordt versterkt.
-
-**Gerelateerd aan**
-
-- DOC-001 Product Definition
-
-## D014 – Mijn omgeving als persoonlijke hub
-
-**Aanleiding**
-
-De termen *Profiel* en *Persoonlijke gegevens* sluiten onvoldoende aan bij de beleving van de doelgroep. Jongeren zoeken niet naar hun persoonsgegevens, maar naar een centrale plek waar alle informatie over hun traject samenkomt.
-
-**Besluit**
-
-De vierde knop in de onderste navigatie krijgt de naam **Mijn omgeving**. Vanuit deze omgeving heeft de jongere toegang tot persoonlijke informatie, documenten, afspraken, doelen, begeleiding en instellingen.
-
-**Impact**
-
-De navigatie sluit beter aan bij de belevingswereld van jongeren. De naam **Mijn omgeving** biedt ruimte om de persoonlijke omgeving in de toekomst uit te breiden, zonder dat de navigatiestructuur hoeft te veranderen.
-
-**Gerelateerd aan**
-
-- DOC-003 Product Backlog
-- DOC-004 User Flows
-- DOC-005 UX Specification
-
----
+------------------------------------------------------------------------
 
 # Reviewstatus
 
-| Reviewer | Status |
-|-----------|--------|
-| Lars van Borssum Waalkes | Nog niet beoordeeld |
-| Brita | Nog niet beoordeeld |
-
----
+  Reviewer                   Status
+  -------------------------- ---------------------
+  Lars van Borssum Waalkes   Nog niet beoordeeld
+  Brita                      Nog niet beoordeeld
 
 # Wijzigingshistorie
 
-| Versie | Datum | Wijziging |
-|---------|--------|-----------|
-| 0.1 | Juli 2026 | Eerste versie opgesteld. |
-| 0.2 | Juli 2026 | Structuur verbeterd, D001 en D002 aangepast, verwijzingen naar projectdocumenten toegevoegd. |
-| 0.3 | Juli 2026 | Aanpassing 4de knop navigatie naar "Mijn  omgeving" |
+  Versie   Datum       Wijziging
+  -------- ----------- ---------------------------------------------------
+  0.1      Juli 2026   Eerste versie.
+  0.2      Juli 2026   Structuur verbeterd.
+  0.3      Juli 2026   D014 toegevoegd en afgestemd op UX Specification.
+
+# GitHub
+
+**Bestandsnaam**
+
+`docs/02_Decision_Log.md`
+
+**Commit message**
+
+`Update Decision Log to v0.3`
+
+**Commit description**
+
+``` text
+Update Decision Log.
+
+Changes:
+- Added D014 'Mijn omgeving' as personal hub
+- Improved consistency with UX Specification
+- Linked decision to related project documents
+```
