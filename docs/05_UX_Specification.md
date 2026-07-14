@@ -60,7 +60,7 @@ Jongere
 ## Inhoud
 
 - Logo Werken aan Werk
-- Persoonlijke begroeting
+- Dynamische welkomsttekst
 - Volgende stap
 - Eerstvolgende afspraak
 - Dynamische snelkoppelingen
@@ -73,15 +73,34 @@ Jongere
 - Open bericht
 - Open persoonlijke informatie
 
+## Dynamische welkomsttekst
+
+Bij iedere nieuwe gebruikerssessie toont de app één welkomsttekst uit een vaste verzameling.
+
+**Ontwerpuitgangspunten**
+
+- De tekst wordt willekeurig geselecteerd.
+- Dezelfde tekst wordt niet twee sessies achter elkaar getoond.
+- De gekozen tekst blijft gedurende de sessie zichtbaar.
+- De teksten zijn warm, uitnodigend en niet-oordelend.
+- De verzameling welkomstteksten is centraal te beheren.
+
+**Voorbeelden**
+
+- Fijn dat je er bent.
+- Welkom terug.
+- Mooi dat je weer even kijkt.
+- Klaar om verder te kijken?
+- Vandaag kun je weer een stap zetten.
+- Neem rustig de tijd om verder te gaan.
+
 ## Ontwerpuitgangspunten
 
-- Rustige uitstraling
-- Eén duidelijke hoofdactie
-- Maximaal vier snelkoppelingen
-- Geen overbodige informatie
-
----
-
+- Rustige uitstraling.
+- Eén duidelijke hoofdactie.
+- Maximaal vier dynamische snelkoppelingen.
+- Geen overbodige informatie.
+- De belangrijkste informatie staat bovenaan het scherm.
 # UX002 – Trajectoverzicht
 
 ## Doel
@@ -251,3 +270,4 @@ Begeleider
 | Versie | Datum | Wijziging |
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste versie UX Specification opgesteld. |
+| 0.2 | Juli 2026 | Dynamische welkomsttekst toegevoegd aan UX001 inclusief ontwerpuitgangspunten en voorbeelden. |
