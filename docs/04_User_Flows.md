@@ -10,7 +10,7 @@ Werken aan Werk
 0.2
 
 **Status**  
-Concept.
+Concept
 
 **Auteur**  
 OpenAI ChatGPT
@@ -57,7 +57,7 @@ De jongere krijgt direct overzicht en weet wat op dit moment belangrijk is.
 ### Flow
 
 1. Jongere opent de app.
-2. Het startscherm wordt geopend.
+2. Het Home scherm wordt geopend.
 3. De jongere ziet:
    - de volgende stap;
    - de eerstvolgende afspraak;

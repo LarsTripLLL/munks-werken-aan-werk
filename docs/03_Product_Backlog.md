@@ -7,7 +7,7 @@ Werken aan Werk
 0.1
 
 **Status**  
-Concept.
+Concept
 
 **Auteur**  
 OpenAI ChatGPT
@@ -53,7 +53,7 @@ De Product Backlog is een levend document en wordt gedurende de ontwikkeling aan
 
 | ID | Functionaliteit | Stakeholder | Doel | Prioriteit | Status |
 |----|-----------------|-------------|------|------------|--------|
-| PB001 | Startscherm | Jongere | De jongere direct overzicht en richting bieden. | Must Have | Open |
+| PB001 | Home | Jongere | De jongere direct overzicht en richting bieden. | Must Have | Open |
 | PB002 | Trajectoverzicht | Jongere | Inzicht geven in de route van het programma. | Must Have | Open |
 | PB003 | Trajectstap | Jongere | Informatie, opdrachten en ondersteuning per stap aanbieden. | Must Have | Open |
 | PB004 | Persoonlijke informatie | Jongere | Alle relevante persoonlijke informatie binnen het traject bundelen. | Must Have | Open |
