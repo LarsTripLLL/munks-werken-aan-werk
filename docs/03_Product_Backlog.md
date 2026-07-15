@@ -99,3 +99,14 @@ De Product Backlog is een levend document en wordt gedurende de ontwikkeling aan
 | Versie | Datum | Wijziging |
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste versie van de Product Backlog opgesteld. |
+
+
+### PB001 Aanvulling
+
+**Functionele eis**: De titel van de hoofdkaart op Home is contextafhankelijk.
+
+**Acceptatiecriteria**
+- Eerste keer → Je eerste stap
+- Actief traject → Je volgende stap
+- Laatste trajectfase → Nog één stap
+- Afgerond → Passende afsluitende titel

@@ -170,7 +170,7 @@ Niet:
 Wel:
 
 - Hier kun je verder.
-- Je volgende stap.
+- Je eerste stap / Je volgende stap (contextafhankelijk).
 - Dit is nog niet gelukt.
 - Wil je hier hulp bij?
 - Fijn dat je er bent.
@@ -1524,3 +1524,15 @@ Changes:
 - Documented open scope decisions before development
 - Aligned the specification with Product Definition, Decision Log, Product Backlog and User Flows
 ```
+
+
+## Contextuele titels
+
+De titel van de hoofdkaart op Home sluit aan bij de fase van het traject.
+
+- Je eerste stap
+- Je volgende stap
+- Nog één stap
+- Kijk terug op je traject
+
+De welkomstteksten sluiten eveneens aan op de fase van het traject.

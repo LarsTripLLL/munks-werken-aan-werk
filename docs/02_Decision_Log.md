@@ -185,3 +185,13 @@ Changes:
 - Improved consistency with UX Specification
 - Linked decision to related project documents
 ```
+
+
+## D015 – Contextuele titels ondersteunen de fase van het traject
+
+**Besluit**: De titel van de hoofdkaart op Home wordt bepaald door de fase van het traject.
+
+- Eerste keer: **Je eerste stap**
+- Actief traject: **Je volgende stap**
+- Laatste fase: **Nog één stap**
+- Afgerond: **Kijk terug op je traject**

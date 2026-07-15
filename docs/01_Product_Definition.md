@@ -228,3 +228,14 @@ De eerste versie van de app wordt tijdens de pilot geëvalueerd met jongeren, be
 | Versie | Datum | Wijziging |
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
+
+
+## Contextuele communicatie
+
+De app sluit aan bij de fase waarin de jongere zich bevindt. Teksten en uitnodigingen worden waar passend aangepast aan de actuele situatie, zodat de communicatie persoonlijk, herkenbaar en ondersteunend blijft.
+
+Voorbeelden:
+- Je eerste stap
+- Je volgende stap
+- Nog één stap
+- Kijk terug op je traject
