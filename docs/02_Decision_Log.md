@@ -7,7 +7,7 @@ DOC-002
 Werken aan Werk
 
 **Versie**\
-0.3
+0.4
 
 **Status**\
 Concept
@@ -150,6 +150,73 @@ biedt ruimte voor toekomstige uitbreiding.
 
 ------------------------------------------------------------------------
 
+## D015 -- Contextuele titels ondersteunen de fase van het traject
+
+**Aanleiding**\
+Een vaste titel zoals **Je volgende stap** sluit niet altijd aan bij de
+fase waarin de jongere zich bevindt. Bij de start van het traject is er
+nog geen eerdere stap gezet.
+
+**Besluit**\
+De titel van de hoofdkaart op Home wordt bepaald door de fase van het
+traject:
+
+-   eerste keer of traject nog niet gestart: **Je eerste stap**;
+-   actief traject: **Je volgende stap**;
+-   laatste fase: **Nog één stap**;
+-   afgerond traject: **Kijk terug op je traject**.
+
+**Impact**\
+De communicatie op Home sluit beter aan bij de actuele situatie en voelt
+persoonlijker en natuurlijker.
+
+**Gerelateerd aan**
+
+-   DOC-001 Product Definition
+-   DOC-003 Product Backlog
+-   DOC-005 UX Specification
+
+------------------------------------------------------------------------
+
+## D016 -- AI-assistent opgenomen als Must Have in de MVP
+
+**Aanleiding**\
+Uit de inhoudelijke review door Brita blijkt dat laagdrempelige digitale
+ondersteuning tussen begeleidingsmomenten een kernonderdeel van Werken
+aan Werk moet zijn. Jongeren moeten praktische ondersteuning kunnen
+krijgen en vragen kunnen stellen die zij niet direct aan hun begeleider
+willen voorleggen.
+
+**Besluit**\
+De **AI-assistent** wordt opgenomen als Must Have binnen de MVP. De
+AI-assistent ondersteunt jongeren bij het zoeken naar vacatures,
+opleidingen en cursussen, het controleren en verbeteren van een cv, de
+voorbereiding op sollicitaties, uitleg over trajectopdrachten en het
+stellen van laagdrempelige of meer anonieme vragen.
+
+De AI-assistent is een aanvulling op de begeleiding en vervangt de
+begeleider niet. De assistent neemt geen beslissingen over het traject,
+geeft geen diagnoses of professionele hulpverleningsadviezen en verwijst
+bij persoonlijke, complexe of onveilige situaties naar de begeleider of
+een passende hulp- of noodroute.
+
+**Impact**\
+De MVP-scope wordt uitgebreid. Home krijgt een duidelijk maar
+ondersteunend toegangspunt tot de AI-assistent. De UX Specification
+beschrijft de AI-assistent als UX007, inclusief functies, grenzen,
+privacy, veiligheid en overdracht naar menselijke begeleiding. De
+Product Definition en Product Backlog moeten met dit besluit in
+overeenstemming worden gebracht.
+
+**Gerelateerd aan**
+
+-   DOC-001 Product Definition
+-   DOC-003 Product Backlog
+-   DOC-004 User Flows
+-   DOC-005 UX Specification
+
+------------------------------------------------------------------------
+
 # Reviewstatus
 
   Reviewer                   Status
@@ -164,6 +231,7 @@ biedt ruimte voor toekomstige uitbreiding.
   0.1      Juli 2026   Eerste versie.
   0.2      Juli 2026   Structuur verbeterd.
   0.3      Juli 2026   D014 toegevoegd en afgestemd op UX Specification.
+  0.4      Juli 2026   D016 toegevoegd: AI-assistent als Must Have in de MVP.
 
 # GitHub
 
@@ -173,25 +241,15 @@ biedt ruimte voor toekomstige uitbreiding.
 
 **Commit message**
 
-`Update Decision Log to v0.3`
+`Update Decision Log to v0.4`
 
 **Commit description**
 
 ``` text
-Update Decision Log.
+Add AI Assistant as an MVP requirement.
 
 Changes:
-- Added D014 'Mijn omgeving' as personal hub
-- Improved consistency with UX Specification
-- Linked decision to related project documents
+- Added D016 defining the AI Assistant as a Must Have
+- Defined the purpose, scope and boundaries of AI assistance
+- Linked the decision to related project documents
 ```
-
-
-## D015 – Contextuele titels ondersteunen de fase van het traject
-
-**Besluit**: De titel van de hoofdkaart op Home wordt bepaald door de fase van het traject.
-
-- Eerste keer: **Je eerste stap**
-- Actief traject: **Je volgende stap**
-- Laatste fase: **Nog één stap**
-- Afgerond: **Kijk terug op je traject**

@@ -7,7 +7,7 @@ DOC-005
 Werken aan Werk
 
 **Versie**  
-1.0
+1.1
 
 **Status**  
 Design Ready — inhoudelijke review vereist
@@ -67,10 +67,11 @@ Deze versie werkt de volgende onderdelen uit:
 4. Persoonlijke informatie;
 5. Mijn omgeving;
 6. Dashboard begeleider;
-7. globale navigatie;
-8. algemene interactie- en contentregels;
-9. fout-, laad- en lege toestanden;
-10. toegankelijkheid en responsief gedrag.
+7. AI-assistent;
+8. globale navigatie;
+9. algemene interactie- en contentregels;
+10. fout-, laad- en lege toestanden;
+11. toegankelijkheid en responsief gedrag.
 
 ## 3.2 Berichten: aandachtspunt voor scope
 
@@ -91,13 +92,12 @@ Dit is een openstaand scopebesluit en moet vóór de bouw worden vastgelegd in d
 
 Niet uitgewerkt als MVP-functionaliteit:
 
-- AI-ondersteuning;
 - vacaturematching;
 - uitgebreide pushnotificaties;
 - werkgeversportaal;
 - externe systeemkoppelingen;
 - uitgebreide rapportages;
-- geautomatiseerde inhoudelijke adviezen;
+- geautomatiseerde beslissingen over het traject;
 - gamification;
 - scores, ranglijsten of punten.
 
@@ -472,7 +472,8 @@ Jongere.
 - D009 Dynamische snelkoppelingen;
 - D010 Geen voortgang in percentages;
 - D013 Herkenbare identiteit;
-- D014 Mijn omgeving.
+- D014 Mijn omgeving;
+- D016 AI-assistent als Must Have.
 
 ## 13.4 Gewenste beleving
 
@@ -487,8 +488,9 @@ Van boven naar beneden:
 3. kaart **Je volgende stap**;
 4. eerstvolgende afspraak;
 5. dynamische snelkoppelingen;
-6. eventueel een relevant bericht;
-7. onderste navigatie.
+6. toegang tot de AI-assistent;
+7. eventueel een relevant bericht;
+8. onderste navigatie.
 
 ## 13.6 Header
 
@@ -579,7 +581,25 @@ Regels:
 - snelkoppelingen dupliceren niet de primaire hoofdactie;
 - alleen onderdelen tonen die beschikbaar zijn.
 
-## 13.11 Bericht van begeleider
+## 13.11 AI-assistent
+
+Home biedt een duidelijk maar ondersteunend toegangspunt tot de
+**AI-assistent**. De route en de actuele trajectstap blijven de primaire
+inhoud van Home.
+
+Het toegangspunt bevat:
+
+- titel **AI-assistent**;
+- korte uitleg, bijvoorbeeld: *Zoek een vacature of opleiding, stel een
+  vraag of laat je cv controleren.*;
+- actie **Stel een vraag**.
+
+De AI-assistent wordt niet gepresenteerd als vervanger van de
+begeleider. De interface maakt duidelijk dat antwoorden van AI afkomstig
+zijn en dat de jongere bij persoonlijke, complexe of onveilige situaties
+contact kan opnemen met de begeleider.
+
+## 13.12 Bericht van begeleider
 
 Een berichtkaart is alleen zichtbaar als er een nieuw of specifiek relevant bericht is.
 
@@ -592,15 +612,16 @@ De kaart bevat:
 
 Wanneer Berichten niet binnen de MVP valt, kan dit onderdeel worden vervangen door een informatieve begeleidersnotitie zonder gespreksoverzicht. Dit moet vóór ontwikkeling worden besloten.
 
-## 13.12 Interacties
+## 13.13 Interacties
 
 - primaire kaart openen;
 - afspraak openen;
 - snelkoppeling openen;
+- AI-assistent openen;
 - eventueel bericht openen;
 - via onderste navigatie naar andere hoofdonderdelen gaan.
 
-## 13.13 Laadtoestand
+## 13.14 Laadtoestand
 
 Bij laden worden vaste placeholders gebruikt voor:
 
@@ -611,7 +632,7 @@ Bij laden worden vaste placeholders gebruikt voor:
 
 De navigatie blijft zichtbaar.
 
-## 13.14 Lege toestanden
+## 13.15 Lege toestanden
 
 **Geen actuele stap**
 
@@ -625,7 +646,7 @@ De navigatie blijft zichtbaar.
 
 Het hele blok wordt verborgen; geen lege kaart tonen.
 
-## 13.15 Foutsituaties
+## 13.16 Foutsituaties
 
 **Home kan niet worden geladen**
 
@@ -636,7 +657,7 @@ Acties:
 - Opnieuw proberen;
 - eventueel Contact opnemen.
 
-## 13.16 Succescriteria
+## 13.17 Succescriteria
 
 Tijdens een gebruikerstest kan de jongere zonder uitleg:
 
@@ -645,14 +666,16 @@ Tijdens een gebruikerstest kan de jongere zonder uitleg:
 - uitleggen waar Traject staat;
 - uitleggen waar persoonlijke informatie staat;
 - de primaire actie starten;
+- de AI-assistent vinden en openen;
 - herkennen dat de omgeving bij Werken aan Werk hoort.
 
-## 13.17 Openstaande ontwerpvragen
+## 13.18 Openstaande ontwerpvragen
 
 - Komt Berichten definitief in de MVP-navigatie?
 - Wordt de naam van de jongere op Home gebruikt of blijft de welkomsttekst naamloos?
 - Welke vier snelkoppelingen horen bij iedere trajectfase?
 - Welke huisstijlelementen van Munks worden subtiel opgenomen?
+- Welke korte introductietekst maakt de mogelijkheden en grenzen van de AI-assistent direct duidelijk?
 
 ---
 
@@ -1359,9 +1382,205 @@ Voor de wireframes moet eerst worden gekozen welke variant onderdeel is van de M
 
 ---
 
-# 20. Responsief gedrag
+# 20. UX007 -- AI-assistent
 
-## 20.1 Jongerenomgeving
+## 20.1 Doel
+
+De AI-assistent biedt jongeren laagdrempelige ondersteuning tussen
+begeleidingsmomenten. De assistent helpt bij praktische oriëntatie,
+voorbereiding en vragen die een jongere niet direct aan de begeleider
+wil stellen.
+
+## 20.2 Doelgroep
+
+Jongere.
+
+## 20.3 Gerelateerd aan
+
+- D002 De begeleider blijft verantwoordelijk voor de begeleiding;
+- D005 Overzicht geeft rust;
+- D007 Eenvoud in taal en ontwerp;
+- D016 AI-assistent als Must Have in de MVP;
+- PB010 AI-ondersteuning, na aanpassing naar Must Have;
+- een nog toe te voegen User Flow voor de AI-assistent.
+
+## 20.4 Gewenste beleving
+
+> Ik kan laagdrempelig een vraag stellen en krijg hulp om zelf verder te
+> gaan. Ik weet wanneer ik beter contact kan opnemen met mijn begeleider.
+
+## 20.5 Kernfunctionaliteiten
+
+De AI-assistent ondersteunt minimaal bij:
+
+- zoeken naar passende vacatures;
+- zoeken naar opleidingen, cursussen en leerwerktrajecten;
+- controleren en verbeteren van een cv;
+- ondersteuning bij een motivatiebrief;
+- voorbereiden en oefenen van een sollicitatiegesprek;
+- uitleg geven over opdrachten binnen Werken aan Werk;
+- beantwoorden van algemene vragen over werk en opleiding;
+- stellen van laagdrempelige of meer anonieme vragen;
+- ondersteuning die aansluit bij de actuele trajectstap.
+
+De AI-assistent presenteert zoekresultaten feitelijk en maakt bij
+actuele informatie duidelijk uit welke bron en van welke datum die
+informatie afkomstig is.
+
+## 20.6 Startscherm van de AI-assistent
+
+Het startscherm bevat:
+
+- titel **AI-assistent**;
+- een korte uitleg over mogelijkheden en grenzen;
+- een tekstveld voor een eigen vraag;
+- herkenbare startopties, bijvoorbeeld:
+  - Zoek vacatures;
+  - Zoek een opleiding;
+  - Controleer mijn cv;
+  - Oefen een sollicitatiegesprek;
+  - Stel een andere vraag;
+- een zichtbare mogelijkheid om contact op te nemen met de begeleider.
+
+Er wordt niet gesuggereerd dat de AI een mens of de persoonlijke
+begeleider is.
+
+## 20.7 Context
+
+Waar dit veilig en functioneel passend is, kan de AI-assistent rekening
+houden met:
+
+- de actuele trajectstap;
+- informatie die de jongere bewust deelt;
+- doelen en voorkeuren die binnen het traject zijn vastgelegd;
+- een document dat de jongere voor een concrete controle uploadt.
+
+De jongere krijgt vooraf duidelijk te zien welke informatie voor het
+antwoord wordt gebruikt. De assistent gebruikt niet automatisch alle
+beschikbare dossier- of begeleidingsinformatie.
+
+## 20.8 Cv- en documentondersteuning
+
+Bij het controleren van een cv of brief:
+
+- kiest de jongere zelf het bestand of de tekst;
+- wordt uitgelegd waarvoor de inhoud wordt gebruikt;
+- blijft de oorspronkelijke inhoud beschikbaar;
+- worden wijzigingen als voorstel gepresenteerd;
+- kan de jongere voorstellen accepteren, aanpassen of negeren;
+- wordt niet beweerd dat een document foutloos is of een baan garandeert.
+
+## 20.9 Meer anoniem vragen stellen
+
+De AI-assistent verlaagt de sociale drempel om een vraag te stellen. Het
+woord **anoniem** wordt alleen gebruikt wanneer dat technisch en
+juridisch werkelijk klopt.
+
+De interface legt in begrijpelijke taal uit:
+
+- of een gesprek wordt opgeslagen;
+- wie het gesprek eventueel kan inzien;
+- welke gegevens worden gebruikt;
+- hoe een gesprek kan worden verwijderd, indien beschikbaar;
+- dat de AI geen vertrouwelijke menselijke hulpverlener is.
+
+## 20.10 Grenzen en doorverwijzen
+
+De AI-assistent:
+
+- neemt geen beslissingen over het traject;
+- vervangt de begeleider niet;
+- stelt geen diagnoses;
+- geeft geen professioneel medisch, juridisch of financieel advies;
+- doet geen toezeggingen namens Munks, een werkgever of opleiding;
+- maakt onzekerheid en beperkingen van antwoorden duidelijk;
+- verwijst bij persoonlijke, complexe of onveilige situaties naar de
+  begeleider of een passende hulp- of noodroute.
+
+Bij signalen van direct gevaar of crisis geeft de AI geen inhoudelijke
+coaching, maar toont hij de vooraf vastgestelde noodinformatie. Deze
+route moet vóór de pilot inhoudelijk en juridisch worden vastgesteld.
+
+## 20.11 Tone of voice
+
+De AI-assistent communiceert:
+
+- warm en respectvol;
+- kort en begrijpelijk;
+- zonder oordeel;
+- zonder zich menselijker voor te doen dan hij is;
+- activerend, maar niet dwingend;
+- met concrete vervolgstappen.
+
+## 20.12 Interacties
+
+- startoptie kiezen;
+- eigen vraag typen;
+- document of tekst aanbieden voor controle;
+- vervolgvraag stellen;
+- bron openen bij zoekresultaten;
+- antwoord kopiëren of bewaren waar passend;
+- gesprek wissen, indien beschikbaar;
+- contact opnemen met de begeleider.
+
+## 20.13 Laad-, lege en foutsituaties
+
+**Antwoord wordt voorbereid**
+
+> De AI-assistent kijkt met je mee.
+
+**Geen passend antwoord**
+
+> Ik kan je hier niet betrouwbaar mee helpen. Bespreek dit met je
+> begeleider.
+
+**Actuele zoekinformatie niet beschikbaar**
+
+> Actuele vacatures of opleidingen kunnen nu niet worden opgehaald.
+> Probeer het later opnieuw.
+
+**Document kan niet worden gelezen**
+
+> Dit bestand kan niet worden geopend. Probeer een ander bestand of plak
+> de tekst in het gesprek.
+
+## 20.14 Toegankelijkheid
+
+- voorgestelde vragen zijn ook met toetsenbord en schermlezer bruikbaar;
+- verzenden kan niet per ongeluk dubbel gebeuren;
+- statusmeldingen worden tekstueel aangekondigd;
+- bronnen en acties hebben duidelijke labels;
+- lange antwoorden worden opgedeeld in korte blokken;
+- belangrijke waarschuwingen staan niet alleen in kleur.
+
+## 20.15 Succescriteria
+
+Tijdens een gebruikerstest kan de jongere zonder uitleg:
+
+- de AI-assistent vanaf Home vinden;
+- herkennen dat het om AI gaat;
+- een eigen vraag stellen;
+- een vacature- of opleidingszoekopdracht starten;
+- een cv ter controle aanbieden;
+- zien wanneer een antwoord onzeker of beperkt is;
+- de begeleider bereiken als AI niet passend is;
+- uitleggen dat de AI-assistent de begeleider niet vervangt.
+
+## 20.16 Openstaande besluiten vóór ontwikkeling
+
+- Welke bronnen mogen worden gebruikt voor vacatures en opleidingen?
+- Worden gesprekken opgeslagen, en zo ja: hoe lang en voor wie zichtbaar?
+- Welke gegevens uit Mijn omgeving mag de AI gebruiken en na welke toestemming?
+- Welke documenttypen en maximale bestandsgrootte worden ondersteund?
+- Welke nood- en escalatieteksten worden gebruikt?
+- Kan de begeleider gesprekken inzien, uitsluitend met toestemming, of nooit?
+- Welke technische en organisatorische maatregelen gelden voor persoonsgegevens?
+
+---
+
+# 21. Responsief gedrag
+
+## 21.1 Jongerenomgeving
 
 - één kolom op mobiel;
 - kaarten onder elkaar;
@@ -1370,14 +1589,14 @@ Voor de wireframes moet eerst worden gekozen welke variant onderdeel is van de M
 - formulieren passen zich aan schermbreedte aan;
 - belangrijke knoppen blijven bereikbaar zonder precisieklik.
 
-## 20.2 Tablet
+## 21.2 Tablet
 
 - meer witruimte;
 - eventueel twee kolommen voor secundaire kaarten;
 - primaire inhoud blijft linksboven beginnen;
 - geen extra informatie alleen omdat er ruimte is.
 
-## 20.3 Begeleidersdashboard
+## 21.3 Begeleidersdashboard
 
 - desktop: tabel of combinatie van lijst en detail;
 - tablet: compacte lijst en apart detailscherm;
@@ -1385,9 +1604,9 @@ Voor de wireframes moet eerst worden gekozen welke variant onderdeel is van de M
 
 ---
 
-# 21. Formulieren
+# 22. Formulieren
 
-## 21.1 Algemene regels
+## 22.1 Algemene regels
 
 - zichtbaar label boven ieder veld;
 - voorbeeldtekst is geen vervanging voor een label;
@@ -1398,7 +1617,7 @@ Voor de wireframes moet eerst worden gekozen welke variant onderdeel is van de M
 - datum niet alleen als vrije tekst;
 - duidelijke opslagstatus.
 
-## 21.2 Reflectievragen
+## 22.2 Reflectievragen
 
 Reflectievragen:
 
@@ -1410,7 +1629,7 @@ Reflectievragen:
 
 ---
 
-# 22. Notificaties en herinneringen
+# 23. Notificaties en herinneringen
 
 Pushnotificaties staan buiten de huidige MVP-scope. Indien later toegevoegd:
 
@@ -1425,7 +1644,7 @@ In-app meldingen mogen wel worden gebruikt voor actuele status of foutfeedback.
 
 ---
 
-# 23. Analytics en gebruiksmeting
+# 24. Analytics en gebruiksmeting
 
 Indien gebruiksmeting wordt toegepast, wordt alleen gemeten wat nodig is om de pilot te evalueren.
 
@@ -1444,7 +1663,7 @@ Gebruikers worden passend geïnformeerd over gegevensverwerking.
 
 ---
 
-# 24. Acceptatiecriteria voor Design Ready
+# 25. Acceptatiecriteria voor Design Ready
 
 De UX Specification is Design Ready wanneer:
 
@@ -1455,13 +1674,15 @@ De UX Specification is Design Ready wanneer:
 - toegankelijkheidseisen zijn opgenomen;
 - terminologie consistent is;
 - de relaties met Backlog en User Flows zijn vastgelegd;
+- de AI-assistent als Must Have is uitgewerkt met duidelijke grenzen en
+  doorverwijzing naar menselijke begeleiding;
 - Lars en Brita de inhoud hebben beoordeeld.
 
 Na review kunnen wireframes worden gemaakt. Openstaande vragen mogen in de wireframefase worden onderzocht, zolang zij de MVP-scope niet stilzwijgend wijzigen.
 
 ---
 
-# 25. Openstaande besluiten vóór ontwikkeling
+# 26. Openstaande besluiten vóór ontwikkeling
 
 | Nr. | Onderwerp | Benodigde beslissing |
 |---|---|---|
@@ -1475,6 +1696,7 @@ Na review kunnen wireframes worden gemaakt. Openstaande vragen mogen in de wiref
 | O008 | Begeleidersnotities | Welke informatie intern blijft en welke gedeeld wordt |
 | O009 | Afspraken | Handmatig beheer of latere kalenderkoppeling |
 | O010 | Talententest | Handmatige invoer, documentupload of externe koppeling in latere fase |
+| O011 | AI-assistent | Bronnen, gegevensgebruik, bewaartermijnen, inzage, escalatie en technische veiligheidsmaatregelen |
 
 Deze punten worden tijdens wireframing en functionele uitwerking besloten en indien nodig toegevoegd aan de Decision Log.
 
@@ -1484,8 +1706,8 @@ Deze punten worden tijdens wireframing en functionele uitwerking besloten en ind
 
 | Reviewer | Status | Datum | Opmerking |
 |---|---|---|---|
-| Lars van Borssum Waalkes | Gereed voor review |  |  |
-| Brita | Gereed voor review |  |  |
+| Lars van Borssum Waalkes | Gereed voor review |  | AI-assistent toegevoegd als Must Have. |
+| Brita | Feedback verwerkt; herreview nodig |  | AI-assistent toegevoegd op basis van review. |
 
 ---
 
@@ -1497,6 +1719,7 @@ Deze punten worden tijdens wireframing en functionele uitwerking besloten en ind
 | 0.2 | Juli 2026 | Dynamische welkomsttekst en gewenste beleving toegevoegd. |
 | 0.3 | Juli 2026 | Home, Mijn omgeving en navigatie bijgewerkt. |
 | 1.0 | Juli 2026 | Volledige Design Ready-specificatie opgesteld op basis van DOC-001 t/m DOC-004. |
+| 1.1 | Juli 2026 | AI-assistent als Must Have toegevoegd aan scope, Home en UX007. |
 
 ---
 
@@ -1508,21 +1731,20 @@ Deze punten worden tijdens wireframing en functionele uitwerking besloten en ind
 
 **Commit message**
 
-`Finalize UX Specification v1.0`
+`Add AI Assistant as an MVP feature`
 
 **Commit description**
 
 ```text
-Finalize the UX Specification for the design phase.
+Add the AI Assistant as a core MVP feature.
 
 Changes:
-- Expanded all MVP user experiences and screen specifications
-- Added navigation, tone of voice and accessibility principles
-- Added loading, empty and error states
-- Added responsive and form behavior
-- Defined success and acceptance criteria
-- Documented open scope decisions before development
-- Aligned the specification with Product Definition, Decision Log, Product Backlog and User Flows
+- Added UX007 AI Assistant
+- Added an AI Assistant entry point to Home
+- Defined vacancy, education and CV support
+- Added privacy, transparency and safety boundaries
+- Added human handoff and escalation principles
+- Updated MVP scope, review status and open decisions
 ```
 
 
