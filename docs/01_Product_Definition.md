@@ -7,7 +7,7 @@ DOC-001
 Werken aan Werk
 
 **Versie**  
-0.2
+0.3
 
 **Status**  
 Concept (in review)
@@ -45,6 +45,8 @@ De app biedt:
 - ondersteuning bij opdrachten;
 - informatie over afspraken;
 - één centrale plek voor persoonlijke informatie.
+- laagdrempelige ondersteuning via een AI-assistent bij praktische
+  vragen, oriëntatie en voorbereiding tussen begeleidingsmomenten.
 
 Hierdoor blijft de jongere betrokken tussen de groepsbijeenkomsten en individuele gesprekken.
 
@@ -132,6 +134,22 @@ Iedere stap in de app draagt bij aan het ervaren van vooruitgang en perspectief.
 
 De app gebruikt duidelijke taal, herkenbare iconen en een rustige vormgeving. Informatie is kort, begrijpelijk en sluit aan bij de belevingswereld van jongeren.
 
+## 8. Contextuele communicatie
+
+De app sluit aan bij de fase waarin de jongere zich bevindt. Teksten en
+uitnodigingen worden waar passend aangepast aan de actuele situatie,
+zodat de communicatie persoonlijk, herkenbaar en ondersteunend blijft.
+
+Voorbeelden zijn **Je eerste stap**, **Je volgende stap**, **Nog één
+stap** en **Kijk terug op je traject**.
+
+## 9. De AI-assistent vult de begeleiding aan
+
+De AI-assistent biedt jongeren laagdrempelige ondersteuning tussen
+begeleidingsmomenten. De assistent helpt bij praktische vragen,
+oriëntatie en voorbereiding, maar vervangt de begeleider niet en neemt
+geen beslissingen over het traject.
+
 ---
 
 # 6. Scope MVP
@@ -164,11 +182,25 @@ Geeft inzicht in persoonlijke gegevens, doelen, wat bij mij past, begeleider en 
 
 Geeft begeleiders inzicht in de voortgang van deelnemers en ondersteunt de begeleiding.
 
+### AI-assistent
+
+Ondersteunt jongeren tussen begeleidingsmomenten bij:
+
+- zoeken naar passende vacatures;
+- zoeken naar opleidingen, cursussen en leerwerktrajecten;
+- controleren en verbeteren van een cv;
+- ondersteuning bij motivatiebrieven en sollicitatievoorbereiding;
+- uitleg over opdrachten binnen het traject;
+- stellen van laagdrempelige of meer anonieme vragen.
+
+De AI-assistent is herkenbaar als AI, vervangt de begeleider niet en
+verwijst bij persoonlijke, complexe of onveilige situaties naar de
+begeleider of een passende hulp- of noodroute.
+
 ## Buiten de scope van de MVP
 
 De onderstaande functionaliteiten maken bewust geen onderdeel uit van de eerste versie.
 
-- AI-functionaliteit
 - Vacaturematching
 - Pushnotificaties
 - Chatfunctie
@@ -225,17 +257,4 @@ De eerste versie van de app wordt tijdens de pilot geëvalueerd met jongeren, be
 |---------|--------|-----------|
 | 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
 | 0.2 | Juli 2026 | Feedback van Brita verwerkt: doelgroep aangescherpt, "Structuur geeft ruimte" en ontwerpprincipe "De regie blijft bij de begeleider". |
-| Versie | Datum | Wijziging |
-|---------|--------|-----------|
-| 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
-
-
-## Contextuele communicatie
-
-De app sluit aan bij de fase waarin de jongere zich bevindt. Teksten en uitnodigingen worden waar passend aangepast aan de actuele situatie, zodat de communicatie persoonlijk, herkenbaar en ondersteunend blijft.
-
-Voorbeelden:
-- Je eerste stap
-- Je volgende stap
-- Nog één stap
-- Kijk terug op je traject
+| 0.3 | Juli 2026 | AI-assistent als Must Have toegevoegd; contextuele communicatie geïntegreerd in de ontwerpprincipes. |
