@@ -4,7 +4,7 @@
 DOC-005
 
 **Project**  
-Werken aan Werk
+Munks Werkt
 
 **Versie**  
 1.2
@@ -25,7 +25,7 @@ Augustus 2026
 
 # 1. Doel van dit document
 
-Deze UX Specification beschrijft hoe de digitale ondersteuning van **Werken aan Werk** moet functioneren en aanvoelen voor jongeren en begeleiders.
+Deze UX Specification beschrijft hoe de digitale ondersteuning van **Munks Werkt** moet functioneren en aanvoelen voor jongeren en begeleiders.
 
 Het document vertaalt de Product Definition, Decision Log, Product Backlog en User Flows naar concrete uitgangspunten voor:
 
@@ -108,7 +108,7 @@ Niet uitgewerkt als MVP-functionaliteit:
 
 ## 4.1 Jongere
 
-Jongeren van 16 tot en met 27 jaar die deelnemen aan Werken aan Werk.
+Jongeren van 16 tot en met 27 jaar die deelnemen aan Munks Werkt.
 
 Belangrijke ontwerpkenmerken:
 
@@ -207,7 +207,7 @@ Informatie wordt niet onnodig meerdere keren op hetzelfde scherm getoond.
 
 ## 6.6 Herkenbaarheid zonder dominantie
 
-De naam of het logo **Werken aan Werk** is zichtbaar voor herkenning. Branding mag de hoofdinhoud niet verdringen. Munks is zichtbaar als afzender op passende plaatsen, zoals onboarding, instellingen of een subtiele aanduiding.
+De naam of het logo **Munks Werkt** is zichtbaar voor herkenning. Branding mag de hoofdinhoud niet verdringen. Munks is zichtbaar als afzender op passende plaatsen, zoals onboarding, instellingen of een subtiele aanduiding.
 
 ## 6.7 Dynamische inhoud blijft voorspelbaar
 
@@ -455,7 +455,7 @@ Deze UX Specification bepaalt niet de juridische of technische privacyarchitectu
 
 De jongere binnen enkele seconden laten zien:
 
-- dat hij of zij in Werken aan Werk is;
+- dat hij of zij in Munks Werkt is;
 - wat nu de relevante volgende stap is;
 - wanneer de eerstvolgende afspraak is;
 - hoe aanvullende informatie bereikbaar is.
@@ -484,7 +484,7 @@ Jongere.
 
 Van boven naar beneden:
 
-1. herkenning Werken aan Werk;
+1. herkenning Munks Werkt;
 2. dynamische welkomsttekst;
 3. kaart **Je volgende stap**;
 4. eerstvolgende afspraak;
@@ -497,7 +497,7 @@ Van boven naar beneden:
 
 De header bevat:
 
-- naam of compact logo van Werken aan Werk;
+- naam of compact logo van Munks Werkt;
 - eventueel een klein status- of accounticoon wanneer functioneel nodig.
 
 Het logo is herkenbaar maar compact. De persoonlijke inhoud blijft dominant.
@@ -668,7 +668,7 @@ Tijdens een gebruikerstest kan de jongere zonder uitleg:
 - uitleggen waar persoonlijke informatie staat;
 - de primaire actie starten;
 - de AI-assistent vinden en openen;
-- herkennen dat de omgeving bij Werken aan Werk hoort.
+- herkennen dat de omgeving bij Munks Werkt hoort.
 
 ## 13.18 Openstaande ontwerpvragen
 
@@ -684,7 +684,7 @@ Tijdens een gebruikerstest kan de jongere zonder uitleg:
 
 ## 14.1 Doel
 
-De jongere inzicht geven in de gezamenlijke, lineaire route van Werken aan Werk en duidelijk maken welke stap actueel is.
+De jongere inzicht geven in de gezamenlijke, lineaire route van Munks Werkt en duidelijk maken welke stap actueel is.
 
 ## 14.2 Doelgroep
 
@@ -1429,7 +1429,7 @@ De AI-assistent ondersteunt minimaal bij:
 - controleren en verbeteren van een cv;
 - ondersteuning bij een motivatiebrief;
 - voorbereiden en oefenen van een sollicitatiegesprek;
-- uitleg geven over opdrachten binnen Werken aan Werk;
+- uitleg geven over opdrachten binnen Munks Werkt;
 - beantwoorden van algemene vragen over werk en opleiding;
 - stellen van laagdrempelige of meer anonieme vragen;
 - ondersteuning die aansluit bij de actuele trajectstap.

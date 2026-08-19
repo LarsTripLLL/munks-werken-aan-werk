@@ -4,7 +4,7 @@ DOC-003
 # Product Backlog
 
 **Project**  
-Werken aan Werk
+Munks Werkt
 
 **Versie**  
 0.4
@@ -28,7 +28,7 @@ Augustus 2026
 
 # Doel
 
-De Product Backlog bevat alle functionaliteiten die onderdeel zijn van de ontwikkeling van Werken aan Werk.
+De Product Backlog bevat alle functionaliteiten die onderdeel zijn van de ontwikkeling van Munks Werkt.
 
 Per functionaliteit wordt vastgelegd:
 

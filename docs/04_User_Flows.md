@@ -4,7 +4,7 @@
 DOC-004
 
 **Project**  
-Werken aan Werk
+Munks Werkt
 
 **Versie**  
 0.3
@@ -28,7 +28,7 @@ Augustus 2026
 
 # Doel
 
-Dit document beschrijft hoe jongeren en begeleiders de app gebruiken tijdens het programma Werken aan Werk.
+Dit document beschrijft hoe jongeren en begeleiders de app gebruiken tijdens het programma Munks Werkt.
 
 De User Flows vormen de basis voor het UX-ontwerp en de wireframes.
 

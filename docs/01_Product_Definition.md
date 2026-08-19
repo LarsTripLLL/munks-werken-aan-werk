@@ -4,7 +4,7 @@ DOC-001
 # Product Definition
 
 **Project**  
-Werken aan Werk
+Munks Werkt
 
 **Versie**  
 0.4
@@ -28,7 +28,7 @@ Augustus 2026
 
 # 1. Productvisie
 
-Werken aan Werk is een digitale ondersteuning van het hybride begeleidingsprogramma **Werken aan Werk** van Munks.
+Munks Werkt is een digitale ondersteuning van het hybride begeleidingsprogramma **Munks Werkt** van Munks.
 
 De app helpt jongeren overzicht te houden, perspectief te ervaren en de volgende stap in hun traject te zetten. De app ondersteunt de begeleiding en versterkt het contact tussen jongere en begeleider, maar vervangt dit nooit.
 
@@ -56,7 +56,7 @@ Hierdoor blijft de jongere betrokken tussen de groepsbijeenkomsten en individuel
 
 ## Primaire doelgroep
 
-De app is ontwikkeld voor **jongeren van 16 tot en met 27 jaar** die deelnemen aan het begeleidingsprogramma **Werken aan Werk** van Munks.
+De app is ontwikkeld voor **jongeren van 16 tot en met 27 jaar** die deelnemen aan het begeleidingsprogramma **Munks Werkt** van Munks.
 
 De doelgroep is divers in achtergrond, opleidingsniveau en ondersteuningsvraag. Wat deelnemers gemeen hebben, is dat zij ondersteuning nodig hebben bij het zetten van een passende volgende stap richting **werk, opleiding of participatie**.
 
@@ -75,7 +75,7 @@ Bij het ontwerpen van de app houden we rekening met de volgende uitgangspunten:
 
 # 4. Productdoelen
 
-Werken aan Werk ondersteunt jongeren tijdens hun traject door overzicht, structuur en perspectief te bieden. De app helpt jongeren actief betrokken te blijven tussen de groepsbijeenkomsten en individuele gesprekken.
+Munks Werkt ondersteunt jongeren tijdens hun traject door overzicht, structuur en perspectief te bieden. De app helpt jongeren actief betrokken te blijven tussen de groepsbijeenkomsten en individuele gesprekken.
 
 De app creëert waarde voor verschillende stakeholders. Onderstaande productdoelen beschrijven deze waarde en vormen **geen rangorde in prioriteit**.
 
@@ -104,7 +104,7 @@ De app creëert waarde voor verschillende stakeholders. Onderstaande productdoel
 
 # 5. Ontwerpprincipes
 
-De volgende ontwerpprincipes vormen de basis voor alle ontwerp- en ontwikkelkeuzes binnen Werken aan Werk.
+De volgende ontwerpprincipes vormen de basis voor alle ontwerp- en ontwikkelkeuzes binnen Munks Werkt.
 
 ## 1. De jongere staat centraal
 
@@ -112,7 +112,7 @@ De app wordt ontworpen vanuit de behoeften van de jongere. Iedere ontwerpkeuze d
 
 ## 2. De regie blijft bij de begeleider
 
-De app ondersteunt de begeleiding, maar de regie over het traject en de begeleiding blijft bij de begeleider. Persoonlijk contact is en blijft de basis van Werken aan Werk.
+De app ondersteunt de begeleiding, maar de regie over het traject en de begeleiding blijft bij de begeleider. Persoonlijk contact is en blijft de basis van Munks Werkt.
 
 ## 3. De route is gezamenlijk, de ontwikkeling is persoonlijk
 
@@ -154,7 +154,7 @@ geen beslissingen over het traject.
 
 # 6. Scope MVP
 
-De eerste versie van Werken aan Werk (MVP) richt zich op de functies die noodzakelijk zijn om het hybride begeleidingsprogramma digitaal te ondersteunen.
+De eerste versie van Munks Werkt (MVP) richt zich op de functies die noodzakelijk zijn om het hybride begeleidingsprogramma digitaal te ondersteunen.
 
 ## Functionaliteiten binnen de MVP
 
@@ -229,7 +229,7 @@ Deze functionaliteiten kunnen in een latere ontwikkelfase worden toegevoegd op b
 
 # 7. Succescriteria
 
-Werken aan Werk is succesvol wanneer de app aantoonbaar bijdraagt aan de doelstellingen van het begeleidingsprogramma.
+Munks Werkt is succesvol wanneer de app aantoonbaar bijdraagt aan de doelstellingen van het begeleidingsprogramma.
 
 ## Voor de jongere
 
@@ -247,7 +247,7 @@ Werken aan Werk is succesvol wanneer de app aantoonbaar bijdraagt aan de doelste
 
 ## Voor Munks en opdrachtgevers
 
-- De app draagt bij aan een consistente uitvoering van het programma Werken aan Werk.
+- De app draagt bij aan een consistente uitvoering van het programma Munks Werkt.
 - De kwaliteit en voortgang van het traject zijn beter inzichtelijk.
 - De app ondersteunt een efficiënte en professionele uitvoering van het programma.
 

@@ -4,7 +4,7 @@
 DOC-002
 
 **Project**\
-Werken aan Werk
+Munks Werkt
 
 **Versie**\
 0.5
@@ -43,7 +43,7 @@ projectdocumenten.
 Jongeren communiceren en vinden informatie vooral via hun smartphone.
 
 **Besluit**\
-Werken aan Werk wordt ondersteund door een app die aansluit bij de
+Munks Werkt wordt ondersteund door een app die aansluit bij de
 huidige communicatievormen en informatiebehoefte van jongeren.
 
 **Impact**\
@@ -120,9 +120,9 @@ De Product Backlog gebruikt functionele namen.
 
 Persoonlijke informatie wordt positief en begrijpelijk benoemd.
 
-## D013 -- Werken aan Werk als herkenbare identiteit
+## D013 -- Munks Werkt als herkenbare identiteit
 
-De identiteit van Werken aan Werk is zichtbaar in naam, vormgeving en
+De identiteit van Munks Werkt is zichtbaar in naam, vormgeving en
 communicatie.
 
 ## D014 -- Mijn omgeving als persoonlijke hub
@@ -275,6 +275,31 @@ De jongere kan het volledige plan bekijken en hulp vragen aan de begeleider. De 
 
 ------------------------------------------------------------------------
 
+## D019 -- Productnaam gewijzigd naar Munks Werkt
+
+**Aanleiding**\
+Na de interne review is besloten dat de naam Munks Werkt beter aansluit bij Munks als afzender en bij de gewenste positionering van het traject en de digitale omgeving.
+
+**Besluit**\
+De productnaam wordt gewijzigd van de eerdere werktitel naar **Munks Werkt**. De nieuwe naam en het bijbehorende woordlogo worden gebruikt in de deelnemersapp, het begeleidersdashboard, het opdrachtgeversdashboard, presentaties en actuele projectdocumentatie.
+
+Technische repository- en mapnamen worden niet automatisch gewijzigd. Deze kunnen later afzonderlijk worden hernoemd, nadat is gecontroleerd welke links, integraties en publicatie-instellingen daarvan afhankelijk zijn.
+
+**Impact**\
+- naam en logo worden aangepast in alle actuele gebruikersschermen;
+- titels en verwijzingen in de projectdocumentatie worden aangepast;
+- toekomstige ontwerpen en communicatie gebruiken Munks Werkt als productnaam;
+- oude reviewpakketten blijven als historisch archief ongewijzigd.
+
+**Gerelateerd aan**
+
+- DOC-001 Product Definition
+- DOC-003 Product Backlog
+- DOC-004 User Flows
+- DOC-005 UX Specification
+
+------------------------------------------------------------------------
+
 # Reviewstatus
 
   Reviewer                   Status
@@ -292,6 +317,8 @@ De jongere kan het volledige plan bekijken en hulp vragen aan de begeleider. De 
   0.4      Juli 2026   D016 toegevoegd: AI-assistent als Must Have in de MVP.
   0.5      Augustus 2026 D017 toegevoegd: achtstappenroute en Werk zoeken en reageren.
   0.6      Augustus 2026 D018 toegevoegd: stap 8 beperkt tot één resultaatsscherm na het eindgesprek.
+
+  0.7      Augustus 2026 D019 toegevoegd: productnaam gewijzigd naar Munks Werkt.
 
 # GitHub
 
