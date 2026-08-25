@@ -7,7 +7,7 @@ DOC-005
 Munks Werkt
 
 **Versie**  
-1.2
+1.4
 
 **Status**  
 Design Ready — inhoudelijke review vereist
@@ -1438,6 +1438,57 @@ De AI-assistent presenteert zoekresultaten feitelijk en maakt bij
 actuele informatie duidelijk uit welke bron en van welke datum die
 informatie afkomstig is.
 
+### 20.5.1 Domeinafbakening
+
+De AI-assistent is domeingebonden. De jongere kan vrije tekst invoeren,
+maar de assistent geeft alleen inhoudelijk antwoord wanneer de vraag
+direct verband houdt met **Munks Werkt**, werk, opleiding, solliciteren
+of een passende volgende stap.
+
+Binnen het domein vallen in ieder geval:
+
+- ontdekken welk werk of welke opleiding bij de jongere past;
+- zoeken en begrijpen van vacatures, werkgevers, opleidingen, cursussen
+  en leerwerktrajecten;
+- opstellen, controleren en verbeteren van een cv, motivatiebrief of
+  reactie;
+- voorbereiden van een sollicitatie- of kennismakingsgesprek;
+- uitleg en ondersteuning bij trajectstappen en opdrachten;
+- trajectgerelateerde persoonlijke vragen, bijvoorbeeld over spanning,
+  onzekerheid, motivatie of het contact met een werkgever;
+- voorbereiden van een vraag of gesprek met de begeleider.
+
+De assistent beantwoordt geen vragen zonder duidelijke relatie met het
+traject. Voorbeelden zijn algemene huiswerkvragen, entertainment,
+politiek, willekeurige zoekopdrachten en medisch, juridisch of
+financieel advies.
+
+Bij een vraag buiten het domein geeft de assistent geen algemeen antwoord,
+maar reageert hij kort en vriendelijk:
+
+> Daar kan ik je binnen Munks Werkt niet mee helpen. Je kunt mij wel iets
+> vragen over werk, opleidingen, je cv of jouw traject.
+
+Daarna toont de interface passende vervolgkeuzes:
+
+- Werk zoeken;
+- Opleiding zoeken;
+- Hulp met mijn cv;
+- Vraag over mijn traject.
+
+Bij twijfel stelt de assistent maximaal één korte verduidelijkende vraag.
+Een persoonlijke vraag wordt niet afgewezen wanneer deze aantoonbaar
+samenhangt met deelname, werk, opleiding of een volgende trajectstap.
+
+Boven het vrije tekstveld staat:
+
+> Stel je vraag over werk, opleidingen, je cv of jouw traject.
+
+De domeinbegrenzing wordt niet uitsluitend via tekst uitgelegd, maar ook
+functioneel afgedwongen door vraagclassificatie, beperkte bronnen en
+beperkte acties. De AI krijgt geen algemene zoek- of uitvoermogelijkheden
+die niet nodig zijn voor het traject.
+
 ## 20.6 Startscherm van de AI-assistent
 
 Het startscherm bevat:
@@ -1450,7 +1501,7 @@ Het startscherm bevat:
   - Zoek een opleiding;
   - Controleer mijn cv;
   - Oefen een sollicitatiegesprek;
-  - Stel een andere vraag;
+  - Stel een vraag over jouw traject;
 - een zichtbare mogelijkheid om contact op te nemen met de begeleider.
 
 Er wordt niet gesuggereerd dat de AI een mens of de persoonlijke
@@ -1576,6 +1627,9 @@ Tijdens een gebruikerstest kan de jongere zonder uitleg:
 - zien wanneer een antwoord onzeker of beperkt is;
 - de begeleider bereiken als AI niet passend is;
 - uitleggen dat de AI-assistent de begeleider niet vervangt.
+- herkennen voor welke onderwerpen de AI-assistent wel en niet bedoeld is;
+- na een vraag buiten het domein via een passende vervolgkeuze terugkeren
+  naar werk, opleiding, het cv of het traject.
 
 ## 20.16 Openstaande besluiten vóór ontwikkeling
 
@@ -1918,6 +1972,7 @@ Het scherm bevat daarnaast:
 | 1.1 | Juli 2026 | AI-assistent als Must Have toegevoegd aan scope, Home en UX007. |
 | 1.2 | Augustus 2026 | Achtstappenroute vastgesteld en UX008 **Werk zoeken en reageren** toegevoegd. |
 | 1.3 | Augustus 2026 | UX008 afgestemd op de goedgekeurde schermen en UX009 toegevoegd voor het ene resultaatsscherm van stap 8. |
+| 1.4 | Augustus 2026 | Domeinafbakening voor de AI-assistent toegevoegd, inclusief toegestane onderwerpen, weigering buiten scope en herstelkeuzes. |
 
 ---
 
@@ -1929,19 +1984,20 @@ Het scherm bevat daarnaast:
 
 **Commit message**
 
-`Add work search and response step`
+`Define AI Assistant domain boundaries`
 
 **Commit description**
 
 ```text
-Add Work zoeken en reageren as the fifth trajectory step.
+Restrict the AI Assistant to topics that support the Munks Werkt trajectory.
 
 Changes:
-- Expanded the shared route from seven to eight steps
-- Added UX008 Work zoeken en reageren
-- Defined vacancy search, evaluation and response practice
-- Kept actual application submission optional and user-controlled
-- Updated trajectory content and open decisions
+- Added domain boundaries to UX007
+- Defined allowed and unsupported topics
+- Added a consistent response for out-of-scope questions
+- Added guided recovery choices after a refusal
+- Clarified that relevant personal questions remain supported
+- Updated the AI Assistant start option and success criteria
 ```
 
 
