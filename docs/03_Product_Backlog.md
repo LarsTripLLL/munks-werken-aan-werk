@@ -164,12 +164,12 @@ De trajectstap:
 
 **Functionele eisen**
 
-- stap 8 bestaat uit één resultaatsscherm na het eindgesprek;
+- het resultaatsscherm rondt stap 7 en het traject af na het eindgesprek;
 - het scherm toont de afgesproken richting, eerste actie, planning en ondersteuning;
 - de jongere kan het volledige plan bekijken;
 - de jongere kan eenvoudig hulp vragen aan de begeleider;
 - het scherm vermeldt dat het plan later in overleg kan veranderen;
-- stap 8 bevat geen herhaalde keuze- of voorbereidingsopdrachten.
+- de afronding bevat geen herhaalde keuze- of voorbereidingsopdrachten.
 
 **Acceptatiecriteria**
 
@@ -197,4 +197,4 @@ De trajectstap:
 | 0.2 | Juli 2026 | Documentmetadata en terminologie bijgewerkt; contextuele titel voor Home toegevoegd. |
 | 0.3 | Juli 2026 | PB010 gewijzigd naar AI-assistent als Must Have en functionele eisen en acceptatiecriteria toegevoegd. |
 | 0.4 | Augustus 2026 | PB013 toegevoegd voor stap 5 **Werk zoeken en reageren**; leerdoel, eigen regie en acceptatiecriteria vastgelegd. |
-| 0.5 | Augustus 2026 | PB014 toegevoegd: stap 8 bestaat uit één resultaatsscherm na het eindgesprek. |
+| 0.5 | Augustus 2026 | PB014 toegevoegd: **Jouw volgende stap** rondt stap 7 en het traject af na het eindgesprek. |

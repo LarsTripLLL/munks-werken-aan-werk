@@ -164,22 +164,21 @@ Geeft de jongere overzicht, de volgende stap en de eerstvolgende afspraak.
 
 ### Traject
 
-Toont de opbouw van het traject in acht gezamenlijke stappen en laat zien waar de jongere zich bevindt.
+Toont de opbouw van het traject in zeven gezamenlijke stappen en laat zien waar de jongere zich bevindt.
 
 De route bestaat uit:
 
 1. Kennismaken;
 2. Ontdek je talenten;
-3. Bespreek je resultaten;
-4. Maak en bespreek je cv;
+3. Maak je cv;
+4. Bespreek je cv;
 5. Werk zoeken en reageren;
-6. Oefen een sollicitatiegesprek;
-7. Bekijk je mogelijkheden;
-8. Kies je volgende stap.
+6. Bereid een gesprek voor;
+7. Bekijk je mogelijkheden.
 
 Binnen **Werk zoeken en reageren** leert de jongere waar werk kan worden gevonden, hoe een vacature kan worden beoordeeld en hoe een passende reactie kan worden opgesteld. Daadwerkelijk reageren is mogelijk, maar niet verplicht en gebeurt alleen op initiatief van de jongere.
 
-Binnen **Bekijk je mogelijkheden** verkent de jongere mogelijke richtingen en bereidt diegene het eindgesprek met de begeleider voor. **Kies je volgende stap** is geen nieuwe opdrachtenreeks, maar één resultaatsscherm waarop de gezamenlijk afgesproken richting, eerste actie, planning en ondersteuning worden getoond.
+Binnen **Bekijk je mogelijkheden** verkent de jongere mogelijke richtingen en bereidt diegene het eindgesprek met de begeleider voor. Het resultaatsscherm **Jouw volgende stap** rondt stap 7 en het traject af. Het toont de gezamenlijk afgesproken richting, eerste actie, planning en ondersteuning.
 
 ### Stap-detail
 
@@ -273,4 +272,4 @@ De eerste versie van de app wordt tijdens de pilot geëvalueerd met jongeren, be
 | 0.1 | Juli 2026 | Eerste complete versie van de Product Definition. |
 | 0.2 | Juli 2026 | Feedback van Brita verwerkt: doelgroep aangescherpt, "Structuur geeft ruimte" en ontwerpprincipe "De regie blijft bij de begeleider". |
 | 0.3 | Juli 2026 | AI-assistent als Must Have toegevoegd; contextuele communicatie geïntegreerd in de ontwerpprincipes. |
-| 0.4 | Augustus 2026 | Traject uitgebreid naar acht stappen; **Werk zoeken en reageren** toegevoegd als oefenstap tussen cv en sollicitatiegesprek. |
+| 0.4 | Augustus 2026 | **Werk zoeken en reageren** toegevoegd als oefenstap tussen cv en gespreksvoorbereiding. Resultaten zijn samengevoegd met stap 2 en **Jouw volgende stap** rondt stap 7 af; de route blijft zeven stappen. |

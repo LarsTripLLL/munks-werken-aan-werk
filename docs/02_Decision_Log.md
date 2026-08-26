@@ -217,13 +217,13 @@ overeenstemming worden gebracht.
 
 ------------------------------------------------------------------------
 
-## D017 -- Werk zoeken en reageren als vijfde trajectstap
+## D017 -- Werk zoeken en reageren als vijfde trajectstap binnen een zevenstappenroute
 
 **Aanleiding**\
 Na het maken en bespreken van het cv ontbrak een zelfstandige stap waarin jongeren leren hoe zij passend werk kunnen vinden en hoe zij op een vacature kunnen reageren. Direct doorgaan naar het oefenen van een sollicitatiegesprek slaat een belangrijk deel van het proces over.
 
 **Besluit**\
-Het gezamenlijke traject wordt uitgebreid van zeven naar acht stappen. **Werk zoeken en reageren** wordt de vijfde stap, tussen **Maak en bespreek je cv** en **Oefen een sollicitatiegesprek**.
+**Werk zoeken en reageren** wordt de vijfde stap, tussen **Bespreek je cv** en **Bereid een gesprek voor**. De resultatenbespreking wordt onderdeel van stap 2 en vormt geen afzonderlijke trajectstap. Hierdoor blijft de gezamenlijke route uit zeven stappen bestaan.
 
 Het doel van deze stap is leren en oefenen. Jongeren ontdekken waar zij werk kunnen zoeken, leren een vacature begrijpen en beoordelen en oefenen met het opstellen van een reactie. Daadwerkelijk reageren is mogelijk, maar niet verplicht en gebeurt alleen wanneer de jongere daar zelf voor kiest.
 
@@ -231,15 +231,14 @@ De vaste route wordt:
 
 1. Kennismaken;
 2. Ontdek je talenten;
-3. Bespreek je resultaten;
-4. Maak en bespreek je cv;
+3. Maak je cv;
+4. Bespreek je cv;
 5. Werk zoeken en reageren;
-6. Oefen een sollicitatiegesprek;
-7. Bekijk je mogelijkheden;
-8. Kies je volgende stap.
+6. Bereid een gesprek voor;
+7. Bekijk je mogelijkheden.
 
 **Impact**\
-De trajectroute, nummering en voortgangsweergave worden aangepast naar acht stappen. De Product Definition, Product Backlog, User Flows en UX Specification worden bijgewerkt. Bestaande ontwerpen met zeven routepunten worden bij een latere ontwerpupdate aangepast.
+De trajectroute, nummering en voortgangsweergave worden afgestemd op zeven stappen. De Product Definition, Product Backlog, User Flows en UX Specification worden bijgewerkt. Bestaande ontwerpen met een losse resultatenstap of stap 8 worden aangepast.
 
 **Gerelateerd aan**
 
@@ -250,19 +249,19 @@ De trajectroute, nummering en voortgangsweergave worden aangepast naar acht stap
 
 ------------------------------------------------------------------------
 
-## D018 -- Stap 8 is één resultaatsscherm na het eindgesprek
+## D018 -- Jouw volgende stap rondt stap 7 en het traject af
 
 **Aanleiding**\
-Een afzonderlijke introductie en meerdere invoerschermen voor stap 8 herhaalden keuzes die al in stap 7 en tijdens het eindgesprek met de begeleider worden besproken.
+Een afzonderlijke achtste stap herhaalde keuzes die al in stap 7 en tijdens het eindgesprek met de begeleider worden besproken.
 
 **Besluit**\
-Stap 7 ondersteunt de verkenning van mogelijkheden en de voorbereiding op het eindgesprek. Stap 8 bestaat uitsluitend uit één resultaatsscherm na dat gesprek. Het scherm toont de gezamenlijk vastgelegde richting, de eerste concrete actie, wanneer deze wordt opgepakt en wie daarbij helpt.
+Stap 7 ondersteunt de verkenning van mogelijkheden en de voorbereiding op het eindgesprek. Na dat gesprek rondt het resultaatsscherm **Jouw volgende stap** stap 7 en het volledige traject af. Het scherm toont de gezamenlijk vastgelegde richting, de eerste concrete actie, wanneer deze wordt opgepakt en wie daarbij helpt.
 
 De jongere kan het volledige plan bekijken en hulp vragen aan de begeleider. De app maakt duidelijk dat het plan later in overleg kan worden aangepast.
 
 **Impact**\
-- geen aparte introductie of opdrachtenreeks binnen stap 8;
-- minder herhaling tussen stap 7, het eindgesprek en stap 8;
+- geen afzonderlijke stap 8;
+- minder herhaling tussen stap 7, het eindgesprek en de afronding;
 - de begeleider legt de uitkomst samen met de jongere vast;
 - Product Definition, Product Backlog, User Flows en UX Specification worden hierop afgestemd.
 
@@ -315,8 +314,8 @@ Technische repository- en mapnamen worden niet automatisch gewijzigd. Deze kunne
   0.2      Juli 2026   Structuur verbeterd.
   0.3      Juli 2026   D014 toegevoegd en afgestemd op UX Specification.
   0.4      Juli 2026   D016 toegevoegd: AI-assistent als Must Have in de MVP.
-  0.5      Augustus 2026 D017 toegevoegd: achtstappenroute en Werk zoeken en reageren.
-  0.6      Augustus 2026 D018 toegevoegd: stap 8 beperkt tot één resultaatsscherm na het eindgesprek.
+  0.5      Augustus 2026 D017 toegevoegd: Werk zoeken en reageren als stap 5 binnen de zevenstappenroute.
+  0.6      Augustus 2026 D018 toegevoegd: Jouw volgende stap rondt stap 7 en het traject af.
 
   0.7      Augustus 2026 D019 toegevoegd: productnaam gewijzigd naar Munks Werkt.
 

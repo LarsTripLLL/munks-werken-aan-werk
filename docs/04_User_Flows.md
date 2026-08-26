@@ -220,7 +220,7 @@ De jongere leert hoe passend werk kan worden gevonden, hoe een vacature kan word
 7. De app toont manieren waarop iemand kan reageren.
 8. De jongere maakt een conceptreactie, eventueel met hulp van de AI-assistent of begeleider.
 9. De jongere kiest zelf of de reactie alleen wordt bewaard of daadwerkelijk wordt verstuurd.
-10. Na afronding wordt stap 6 **Oefen een sollicitatiegesprek** als volgende stap getoond.
+10. Na afronding wordt stap 6 **Bereid een gesprek voor** als volgende stap getoond.
 
 ### Resultaat
 
@@ -247,7 +247,7 @@ De gezamenlijk afgesproken vervolgstap na het eindgesprek overzichtelijk vastleg
 1. De jongere bereidt in stap 7 het eindgesprek voor.
 2. De jongere en begeleider bespreken samen de mogelijkheden.
 3. Zij leggen een passende richting, eerste actie, planning en ondersteuning vast.
-4. De jongere opent stap 8 **Jouw volgende stap**.
+4. Na het eindgesprek opent de jongere binnen stap 7 het resultaatsscherm **Jouw volgende stap**.
 5. De app toont de uitkomst op één overzichtsscherm.
 6. De jongere kan het volledige plan bekijken of hulp vragen aan de begeleider.
 
@@ -257,7 +257,7 @@ De jongere beschikt over één duidelijk, haalbaar en gezamenlijk vastgesteld ve
 
 ### Belangrijke uitzondering
 
-Stap 8 bevat geen nieuwe keuzeopdrachten. Als het plan verandert, gebeurt dit in overleg met de begeleider.
+De afronding bevat geen nieuwe keuzeopdrachten. Als het plan verandert, gebeurt dit in overleg met de begeleider.
 
 ---
 
@@ -277,4 +277,4 @@ Stap 8 bevat geen nieuwe keuzeopdrachten. Als het plan verandert, gebeurt dit in
 | 0.1 | Juli 2026 | Eerste versie User Flows opgesteld. |
 | 0.2 | Juli 2026 | Per User Flow de gewenste beleving toegevoegd. |
 | 0.3 | Augustus 2026 | UF007 toegevoegd voor **Werk zoeken en reageren** en de overgang naar sollicitatiegesprek oefenen vastgelegd. |
-| 0.4 | Augustus 2026 | UF008 toegevoegd voor het eindgesprek en het resultaatsscherm van stap 8. |
+| 0.4 | Augustus 2026 | UF008 toegevoegd voor het eindgesprek en het resultaatsscherm waarmee stap 7 en het traject worden afgerond. |
