@@ -235,10 +235,8 @@ Voor een eerste werkende pilot zijn minimaal nodig:
 
 ## 7. Nog te beslissen vóór de bouw
 
-- Hoe lang antwoorden, berichten, AI-gesprekken en documenten worden bewaard.
-- Of deelnemers vanuit een bestand geïmporteerd mogen worden.
-- Wie een deelname mag pauzeren, stoppen of verwijderen.
-- Of een deelnemer met hetzelfde account later aan een nieuw traject kan deelnemen.
+- Definitieve bevestiging van de voorgestelde bewaartermijnen door Brita, de RSD en de privacyfunctionaris.
+- Evalueren na de pilot of importeren uit een deelnemersbestand nodig is voor grotere groepen.
 
 ## 8. Relatie met de schermen
 
@@ -316,3 +314,61 @@ Toegang wordt verleend op basis van het trajectteam en niet op basis van het enk
 - Begeleiders buiten de trajectuitvoering hebben geen toegang.
 - Technisch beheerders krijgen niet automatisch toegang tot inhoudelijke antwoorden of notities.
 - Inzage in gevoelige onderdelen en belangrijke wijzigingen worden vastgelegd in het auditlog.
+
+## 12. Voorlopig werkvoorstel: bewaartermijnen
+
+**Status:** voorlopig akkoord; nog afstemmen met Brita, de RSD en de privacyfunctionaris.
+
+| Gegevens | Voorgestelde maximale termijn |
+|---|---:|
+| Account en contactgegevens | Tot 3 maanden na einde traject |
+| Voorbereidende antwoorden en opdrachten | Tot 3 maanden na einde traject |
+| Cv en persoonlijke documenten | Tot 3 maanden na einde traject |
+| Berichten en hulpvragen | Tot 3 maanden na einde traject |
+| AI-gesprekken | Maximaal 3 maanden, indien mogelijk eerder |
+| Talententestuitslag in de app | Tot 3 maanden na einde traject |
+| Begin- en eindmeting op persoonsniveau | Maximaal 2 jaar, alleen indien noodzakelijk voor verantwoording |
+| Uitstroomcategorie en eindadvies | Maximaal 2 jaar, of korter als de afspraken dit toestaan |
+| Toestemmings- en privacyregistratie | Zolang noodzakelijk om de verwerking te kunnen verantwoorden |
+| Beveiligings- en auditlogs | 12 maanden |
+| Volledig geanonimiseerde groepsresultaten | Langer mogelijk, omdat deze niet meer naar personen herleidbaar zijn |
+
+Voorgestelde werkwijze na afloop:
+
+1. De deelnemer krijgt gelegenheid het cv, de talententestuitslag en het persoonlijke resultaat te downloaden.
+2. Het account wordt na de afgesproken periode geblokkeerd.
+3. Persoonlijke inhoud en communicatie worden verwijderd.
+4. Alleen noodzakelijke verantwoordingsgegevens blijven gedurende de vastgestelde termijn beschikbaar.
+5. Rapportages worden waar mogelijk geanonimiseerd.
+
+Deze termijnen worden pas definitief nadat per gegevenssoort het doel, de juridische grondslag en eventuele wettelijke of contractuele bewaarplicht zijn gecontroleerd.
+
+## 13. Vastgesteld: beheer van trajecten en deelnames
+
+### Deelnemers toevoegen
+
+- Tijdens de pilot worden deelnemers uitsluitend handmatig ingevoerd.
+- Voor een pilotgroep van zes deelnemers is importeren uit een bestand niet nodig.
+- Na de pilot wordt beoordeeld of bestandsimport voor grotere groepen wenselijk is.
+
+### Deelname pauzeren, stoppen en verwijderen
+
+- De primaire begeleider en projectleider mogen een deelname pauzeren.
+- Alleen de projectleider mag een deelname definitief beëindigen.
+- Een deelnemer of deelname wordt niet direct technisch verwijderd.
+- Eerst wordt de status gewijzigd naar gestopt, geannuleerd of afgerond.
+- Definitief wissen gebeurt gecontroleerd volgens de vastgestelde bewaartermijn.
+- De reden van pauzeren of stoppen en de verantwoordelijke medewerker worden in het auditlog vastgelegd.
+
+### Account hergebruiken
+
+- Een deelnemer heeft één persoonlijk account.
+- Hetzelfde account kan later aan een nieuwe trajectuitvoering worden gekoppeld.
+- Iedere deelname heeft een eigen voortgang, antwoorden, documenten en rechten.
+- Gegevens van verschillende trajectuitvoeringen blijven logisch en technisch van elkaar gescheiden.
+
+### Trajectuitvoering beheren
+
+- Alleen de projectleider of beheerder mag de looptijd, begeleiders en capaciteit wijzigen.
+- Alleen de projectleider mag een volledige trajectuitvoering afsluiten.
+- Een afgesloten traject wordt alleen heropend door een projectleider of beheerder en deze wijziging wordt gelogd.
