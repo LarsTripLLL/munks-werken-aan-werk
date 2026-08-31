@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Munks Werkt - actueel reviewoverzicht</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eeeae3; color: #14252c; font-family: Inter, Arial, sans-serif; }
+    header { background: #fce9c5; border-bottom: 1px solid #dfd2bb; padding: 28px; }
+    .header-inner, main { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 28px; }
+    .logo { display: block; width: 245px; height: auto; }
+    h1 { margin: 0 0 6px; font-size: 30px; }
+    .intro { margin: 0; color: #5e6c72; line-height: 1.5; }
+    main { padding: 30px 0 50px; }
+    h2 { margin: 0 0 8px; font-size: 23px; }
+    .explanation { margin: 0 0 20px; color: #5e6c72; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+    .card { min-height: 168px; padding: 22px; border-radius: 18px; background: white; box-shadow: 0 8px 24px rgba(53,43,28,.08); }
+    .card h3 { margin: 0 0 9px; font-size: 18px; }
+    .card p { margin: 0 0 18px; color: #5e6c72; font-size: 14px; line-height: 1.45; }
+    .button { display: inline-block; padding: 11px 16px; border-radius: 12px; background: #111; color: white; text-decoration: none; font-size: 14px; font-weight: 700; }
+    .button:hover, .button:focus { background: #ff5a00; }
+    .status { display: inline-block; padding: 7px 10px; border-radius: 999px; background: #f3eee7; color: #725f4b; font-size: 12px; font-weight: 700; }
+    .pending { margin-top: 34px; }
+    .pending .card { background: #f8f5f0; box-shadow: none; border: 1px solid #ddd6cb; }
+    .pending .card h3 { color: #435057; }
+    .notice { margin-top: 28px; padding: 16px 18px; border-left: 4px solid #ff5a00; border-radius: 10px; background: #fff; color: #5e6c72; line-height: 1.5; }
+    @media (max-width: 650px) {
+      header { padding: 22px 0; }
+      .header-inner, main { width: min(100% - 28px, 1120px); }
+      .brand { align-items: flex-start; flex-direction: column; gap: 18px; }
+      .logo { width: 220px; }
+      h1 { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner brand">
+      <img class="logo" src="Munks-Werkt-logo.png" alt="Munks Werkt">
+      <div>
+        <h1>Actueel reviewoverzicht</h1>
+        <p class="intro">Alleen zelfstandig werkende schermsets zijn hieronder aanklikbaar. Zo opent er geen leeg scherm en wordt overal hetzelfde vaste logo gebruikt.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Direct te beoordelen</h2>
+      <p class="explanation">Deze bestanden zijn volledig zelfstandig opgebouwd en openen rechtstreeks in een nieuw tabblad.</p>
+      <div class="grid">
+        <article class="card">
+          <h3>Voorbeeld vraag- en invoerschermen</h3>
+          <p>Vijf representatieve schermtypen in de actuele visuele stijl.</p>
+          <a class="button" href="Munks-Werkt-vraag-en-invoerschermen-visuele-review.html" target="_blank">Open schermen</a>
+        </article>
+        <article class="card">
+          <h3>Stap 3 - Maak je cv</h3>
+          <p>Zes schermen met de vaste layout, het actuele logo en zichtbaarheidsinformatie.</p>
+          <a class="button" href="Munks-Werkt-stap-3-cv-schermen-nieuwe-layout.html" target="_blank">Open stap 3</a>
+        </article>
+        <article class="card">
+          <h3>Stap 5 - Werk zoeken en reageren</h3>
+          <p>Zes schermen over passend werk vinden, een baan bekijken en reageren.</p>
+          <a class="button" href="Munks-Werkt-stap-5-werk-zoeken-nieuwe-layout.html" target="_blank">Open stap 5</a>
+        </article>
+        <article class="card">
+          <h3>Stap 6 - Een gesprek voorbereiden</h3>
+          <p>Vijf schermen inclusief toegang tot de AI-assistent en consistente zichtbaarheidsinformatie.</p>
+          <a class="button" href="Munks-Werkt-stap-6-gesprek-voorbereiden-nieuwe-layout.html" target="_blank">Open stap 6</a>
+        </article>
+        <article class="card">
+          <h3>Stap 7 - Mogelijkheden en afronding</h3>
+          <p>Vier schermen over richting kiezen, het eindgesprek voorbereiden en afronden.</p>
+          <a class="button" href="Munks-Werkt-stap-7-mogelijkheden-afronding-nieuwe-layout.html" target="_blank">Open stap 7</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="pending">
+      <h2>Nog om te zetten</h2>
+      <p class="explanation">Deze onderdelen bestaan inhoudelijk al, maar gebruiken nog een oudere technische of visuele opbouw. Ze zijn daarom bewust niet gekoppeld.</p>
+      <div class="grid">
+        <article class="card"><h3>Home en trajectroute</h3><p>Moet nog als zelfstandig scherm met het vaste logo en de definitieve bergillustratie worden opgebouwd.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>Account, privacy en inloggen</h3><p>Inhoud is vastgesteld; de schermset moet nog volledig statisch en zelfstandig worden gemaakt.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>Introducties stap 1 t/m 7</h3><p>De visuele basis is bepaald, maar het huidige bestand bevat nog een oudere opbouw.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>Stap 1 en stap 2</h3><p>Kennismaking en talententest worden als zelfstandige schermsets opnieuw opgebouwd.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>Stap 4 - Bespreek je cv</h3><p>De presentatieversie wordt omgezet naar dezelfde vaste layout als de andere stappen.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>AI-assistent</h3><p>De afzonderlijke voorbeelden worden samengebracht in één betrouwbare reviewset.</p><span class="status">Nog om te zetten</span></article>
+        <article class="card"><h3>Dashboards en beheer</h3><p>De dashboards voor begeleider, projectleider en RSD krijgen later dezelfde huisstijl en een zelfstandige opbouw.</p><span class="status">Nog om te zetten</span></article>
+      </div>
+    </section>
+
+    <p class="notice"><strong>Waarom deze indeling?</strong> De lege pagina's, kruisen en verkeerde logo's kwamen uit oudere bestanden die andere pagina's, scripts of ingesloten logo's nodig hadden. Dit overzicht verwijst alleen naar bestanden die zonder die afhankelijkheden werken.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Munks Werkt - Talententest en toestemming</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#ece9e3;color:#16252b;font-family:Inter,Arial,sans-serif}.bar{position:sticky;top:0;z-index:2;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px;background:#fff;border-bottom:1px solid #ddd5c9}.bar button{border:1px solid #cbc5bb;border-radius:999px;background:#fff;padding:8px 12px;font:600 13px Inter,Arial,sans-serif;cursor:pointer}.bar button.active{background:#111;color:#fff;border-color:#111}.frame{display:block;width:100%;height:calc(100vh - 62px);border:0;background:#ece9e3}@media(max-width:600px){.frame{height:calc(100vh - 104px)}}
+  </style>
+</head>
+<body>
+  <nav class="bar" aria-label="Reviewschermen talententest">
+    <button class="active" data-src="stap-2-talenten-introductie.html">Uitleg en toestemming</button>
+    <button data-src="stap-2-talenten-klaar.html">Test afgerond</button>
+    <button data-src="stap-2-talenten-klaar-na-gesprek.html">Na het gesprek</button>
+  </nav>
+  <iframe class="frame" title="Geselecteerd reviewscherm" src="stap-2-talenten-introductie.html"></iframe>
+  <script>
+    const frame=document.querySelector('.frame');
+    document.querySelectorAll('.bar button').forEach(button=>button.addEventListener('click',()=>{
+      frame.src=button.dataset.src;
+      document.querySelectorAll('.bar button').forEach(item=>item.classList.toggle('active',item===button));
+    }));
+  </script>
+</body>
+</html>
