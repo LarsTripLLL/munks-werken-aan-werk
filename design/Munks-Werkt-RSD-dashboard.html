@@ -1,0 +1,1441 @@
+<!doctype html>
+<html lang="nl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Opdrachtgeversdashboard</title>
+<style>:root {
+  color-scheme: light;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: var(--border-radius-lg, 12.5px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: 16px !important;
+  height: 16px !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html>body{padding:0}</style>
+</head>
+<body>
+<div id="waw-client-dashboard">
+  <style>
+    #waw-client-dashboard {
+      --waw-page: light-dark(#fff5df, #211d18);
+      --waw-surface: light-dark(#ffffff, #302a24);
+      --waw-soft: light-dark(#fff0dd, #443326);
+      --waw-ink: light-dark(#14252c, #f6f0e7);
+      --waw-muted: light-dark(#66747a, #c1bbb2);
+      --waw-line: light-dark(#e7dcc9, #554c43);
+      --waw-orange: light-dark(#ff5a00, #ff7a33);
+      --waw-orange-ink: #ffffff;
+      --waw-good: light-dark(#117f62, #65d6b0);
+      --waw-partial: light-dark(#a65b00, #ffb45a);
+      --waw-neutral: light-dark(#67757b, #c2c9cc);
+      color: var(--waw-ink);
+      font-family: Inter, Arial, sans-serif;
+    }
+    #waw-client-dashboard * { box-sizing: border-box; }
+    #waw-client-dashboard .dashboard {
+      min-height: 720px;
+      overflow: hidden;
+      border: 1px solid var(--waw-line);
+      border-radius: 28px;
+      background: var(--waw-page);
+      box-shadow: 0 22px 60px light-dark(#3d30151f, #00000055);
+    }
+    #waw-client-dashboard .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--waw-line);
+      background: var(--waw-surface);
+    }
+    #waw-client-dashboard .brand { display: flex; align-items: center; gap: 16px; }
+    #waw-client-dashboard .logo {
+      color: var(--waw-orange);
+      font-size: 25px;
+      font-weight: 500;
+      letter-spacing: -1.5px;
+      white-space: nowrap;
+    }
+    #waw-client-dashboard .logo span { color: var(--waw-muted); font-size: 13px; letter-spacing: 0; }
+    #waw-client-dashboard .brand-divider { width: 1px; height: 32px; background: var(--waw-line); }
+    #waw-client-dashboard .brand-copy strong, #waw-client-dashboard .brand-copy span { display: block; }
+    #waw-client-dashboard .brand-copy span { color: var(--waw-muted); font-size: 12px; margin-top: 2px; }
+    #waw-client-dashboard .profile { display: flex; align-items: center; gap: 10px; color: var(--waw-muted); }
+    #waw-client-dashboard .avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: var(--waw-soft); color: var(--waw-orange); }
+    #waw-client-dashboard .content { padding: 28px; }
+    #waw-client-dashboard .heading-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+    #waw-client-dashboard h1, #waw-client-dashboard h2, #waw-client-dashboard p { margin: 0; }
+    #waw-client-dashboard h1 { font-size: 28px; font-weight: 500; letter-spacing: -0.5px; }
+    #waw-client-dashboard .subtitle { margin-top: 6px; color: var(--waw-muted); }
+    #waw-client-dashboard .updated { color: var(--waw-muted); font-size: 12px; }
+    #waw-client-dashboard .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    #waw-client-dashboard .metric { padding: 17px 18px; border: 1px solid var(--waw-line); border-radius: 18px; background: var(--waw-surface); }
+    #waw-client-dashboard .metric-label { color: var(--waw-muted); font-size: 12px; }
+    #waw-client-dashboard .metric-value { margin-top: 7px; font-size: 25px; font-weight: 500; }
+    #waw-client-dashboard .metric-note { margin-top: 3px; color: var(--waw-muted); font-size: 12px; }
+    #waw-client-dashboard .workspace { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; }
+    #waw-client-dashboard .table-panel, #waw-client-dashboard .detail {
+      border: 1px solid var(--waw-line);
+      border-radius: 20px;
+      background: var(--waw-surface);
+      box-shadow: 0 9px 28px light-dark(#503b1510, #00000024);
+    }
+    #waw-client-dashboard .table-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border-bottom: 1px solid var(--waw-line); }
+    #waw-client-dashboard .table-head h2, #waw-client-dashboard .detail h2 { font-size: 18px; font-weight: 500; }
+    #waw-client-dashboard select { padding: 8px 30px 8px 10px; border: 1px solid var(--waw-line); border-radius: 10px; background: var(--waw-surface); color: var(--waw-ink); font: inherit; }
+    #waw-client-dashboard .table-wrap { overflow-x: auto; }
+    #waw-client-dashboard table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    #waw-client-dashboard th { padding: 12px 14px; color: var(--waw-muted); font-size: 11px; font-weight: 500; text-align: left; white-space: nowrap; }
+    #waw-client-dashboard td { padding: 13px 14px; border-top: 1px solid var(--waw-line); vertical-align: middle; }
+    #waw-client-dashboard tbody tr { cursor: pointer; transition: background .15s ease; }
+    #waw-client-dashboard tbody tr:hover, #waw-client-dashboard tbody tr.selected { background: var(--waw-soft); }
+    #waw-client-dashboard tbody tr:focus-visible { outline: 2px solid var(--waw-orange); outline-offset: -2px; }
+    #waw-client-dashboard .person { font-weight: 500; white-space: nowrap; }
+    #waw-client-dashboard .status { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    #waw-client-dashboard .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--waw-neutral); }
+    #waw-client-dashboard .status.good::before { background: var(--waw-good); }
+    #waw-client-dashboard .status.partial::before { background: var(--waw-partial); }
+    #waw-client-dashboard .detail { padding: 19px; }
+    #waw-client-dashboard .detail-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; padding-bottom: 16px; border-bottom: 1px solid var(--waw-line); }
+    #waw-client-dashboard .detail-top p { margin-top: 4px; color: var(--waw-muted); font-size: 12px; }
+    #waw-client-dashboard .detail-status { padding: 6px 9px; border-radius: 999px; background: var(--waw-soft); color: var(--waw-orange); font-size: 11px; white-space: nowrap; }
+    #waw-client-dashboard .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 17px 0; border-bottom: 1px solid var(--waw-line); }
+    #waw-client-dashboard .fact span, #waw-client-dashboard .advice-label { display: block; color: var(--waw-muted); font-size: 11px; }
+    #waw-client-dashboard .fact strong { display: block; margin-top: 4px; font-weight: 500; }
+    #waw-client-dashboard .attendance { padding: 17px 0; border-bottom: 1px solid var(--waw-line); }
+    #waw-client-dashboard .attendance-label { display: flex; justify-content: space-between; color: var(--waw-muted); font-size: 11px; }
+    #waw-client-dashboard .meetings { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+    #waw-client-dashboard .meeting { display:grid; min-height:31px; place-items:center; border-radius:9px; background:light-dark(#f5d8d3,#55312e); color:light-dark(#9f2f25,#ffc0b9); font-size:11px; font-weight:500; }
+    #waw-client-dashboard .meeting.present { background:light-dark(#d8eee6,#24483d); color:var(--waw-good); }
+    #waw-client-dashboard .meeting.not-applicable { background: #f1f2f1; color: var(--waw-muted); }
+    #waw-client-dashboard .meeting-row-label { display: flex; justify-content: space-between; margin-top: 14px; color: var(--waw-muted); font-size: 11px; }
+    #waw-client-dashboard .table-steps { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+    #waw-client-dashboard .table-step { display:grid; width:18px; height:18px; place-items:center; border-radius:5px; background:light-dark(#f5d8d3,#55312e); color:light-dark(#9f2f25,#ffc0b9); font-size:9px; font-weight:500; }
+    #waw-client-dashboard .table-step.present { background:light-dark(#d8eee6,#24483d); color:var(--waw-good); }
+    #waw-client-dashboard .step-total { margin-left:4px; color:var(--waw-ink); font-weight:500; }
+    #waw-client-dashboard .step-legend { display:flex; gap:12px; margin-top:8px; color:var(--waw-muted); font-size:10px; }
+    #waw-client-dashboard .legend-item { display:flex; align-items:center; gap:5px; }
+    #waw-client-dashboard .legend-dot { width:8px; height:8px; border-radius:3px; background:var(--waw-good); }
+    #waw-client-dashboard .legend-dot.missing { background:light-dark(#c95b50,#e7897f); }
+    #waw-client-dashboard .advice { padding-top: 17px; }
+    #waw-client-dashboard .advice p { margin-top: 7px; color: var(--waw-ink); line-height: 1.5; }
+    #waw-client-dashboard .privacy-note { display: flex; gap: 8px; margin-top: 18px; color: var(--waw-muted); font-size: 11px; line-height: 1.4; }
+    #waw-client-dashboard .measurement-panel { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--waw-line); }
+    #waw-client-dashboard .measurement-head { display: flex; align-items: start; justify-content: space-between; gap: 18px; }
+    #waw-client-dashboard .measurement-head h2 { font-size: 18px; font-weight: 500; }
+    #waw-client-dashboard .measurement-head p { margin-top: 5px; color: var(--waw-muted); font-size: 12px; }
+    #waw-client-dashboard .measurement-summary { min-width: 118px; padding: 10px 12px; border-radius: 12px; background: var(--waw-soft); text-align: center; }
+    #waw-client-dashboard .measurement-summary span { display: block; color: var(--waw-muted); font-size: 10px; }
+    #waw-client-dashboard .measurement-summary strong { display: block; margin-top: 3px; color: var(--waw-orange); font-size: 21px; font-weight: 600; }
+    #waw-client-dashboard .measurement-table { margin-top: 16px; overflow: hidden; border: 1px solid var(--waw-line); border-radius: 14px; }
+    #waw-client-dashboard .measurement-table table { table-layout: fixed; }
+    #waw-client-dashboard .measurement-table th:first-child { width: 55%; }
+    #waw-client-dashboard .measurement-table th:not(:first-child), #waw-client-dashboard .measurement-table td:not(:first-child) { text-align: center; }
+    #waw-client-dashboard .measurement-score { display: inline-grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: #f1f2f1; font-weight: 600; }
+    #waw-client-dashboard .measurement-delta { display: inline-flex; min-width: 42px; justify-content: center; padding: 5px 8px; border-radius: 999px; background: #d8eee6; color: var(--waw-good); font-weight: 600; }
+    #waw-client-dashboard .measurement-delta.negative { background: #f5d8d3; color: #9f2f25; }
+    #waw-client-dashboard .measurement-empty { color: var(--waw-muted); font-style: italic; }
+    #waw-client-dashboard .measurement-note { margin-top: 11px; color: var(--waw-muted); font-size: 11px; }
+    @media (max-width: 850px) {
+      #waw-client-dashboard .workspace { grid-template-columns: 1fr; }
+      #waw-client-dashboard .metrics { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      #waw-client-dashboard .topbar, #waw-client-dashboard .heading-row { align-items: flex-start; flex-direction: column; }
+      #waw-client-dashboard .content { padding: 18px; }
+      #waw-client-dashboard .metrics { grid-template-columns: 1fr; }
+      #waw-client-dashboard .profile, #waw-client-dashboard .brand-divider { display: none; }
+    }
+  </style>
+
+  <section class="dashboard" aria-label="Voorbeeld opdrachtgeversdashboard Munks Werkt">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo"><img src="Munks-Werkt-logo.png" alt="Munks Werkt" style="display:block;width:245px;max-width:100%;height:auto;filter:brightness(.82) saturate(1.04)"></div>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <div class="brand-copy"><strong>Opdrachtgeversdashboard</strong><span>Pilotgroep Zeist · voorjaar 2026</span></div>
+      </div>
+      <div class="profile"><span>Gemeente Zeist</span><span class="avatar"><i data-lucide="building-2" aria-hidden="true"></i></span></div>
+    </header>
+
+    <main class="content">
+      <div class="heading-row">
+        <div><h1>Voortgang traject</h1><p class="subtitle">Overzicht van de zes deelnemers in de pilotgroep</p></div>
+        <span class="updated">Bijgewerkt op 16 augustus 2026</span>
+      </div>
+
+      <div class="metrics" aria-label="Samenvatting">
+        <div class="metric"><div class="metric-label">Deelnemers</div><div class="metric-value" id="metric-total">6</div><div class="metric-note">in deze groep</div></div>
+        <div class="metric"><div class="metric-label">Gestart</div><div class="metric-value" id="metric-started">5</div><div class="metric-note">van 6 deelnemers</div></div>
+        <div class="metric"><div class="metric-label">Traject afgerond</div><div class="metric-value" id="metric-completed">3</div><div class="metric-note">2 deelnemers zijn bezig</div></div>
+        <div class="metric"><div class="metric-label">Doelen behaald</div><div class="metric-value" id="metric-goals">3</div><div class="metric-note">2 deelnemers deels</div></div>
+      </div>
+
+      <div class="workspace">
+        <section class="table-panel" aria-label="Deelnemersoverzicht">
+          <div class="table-head"><h2>Deelnemers</h2><label><span class="sr-only">Filter op trajectstatus</span><select id="waw-filter"><option value="all">Alle statussen</option><option value="afgerond">Afgerond</option><option value="bezig">Bezig</option><option value="niet-gestart">Niet gestart</option></select></label></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Deelnemer</th><th>Gestart</th><th>Trajectstappen</th><th>Afgerond</th><th>Doelen</th><th>Uitstroom</th></tr></thead>
+              <tbody id="waw-participants"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="detail" aria-live="polite">
+          <div class="detail-top"><div><h2 id="detail-name">Sam de Jong</h2><p id="detail-coach">Begeleider: Brita</p></div><span class="detail-status" id="detail-state">Afgerond</span></div>
+          <div class="detail-grid">
+            <div class="fact"><span>Doelen</span><strong id="detail-goals">Behaald</strong></div>
+            <div class="fact"><span>Uitstroom</span><strong id="detail-exit">Betaald werk</strong></div>
+          </div>
+          <div class="attendance">
+            <div class="attendance-label"><span>Voortgang trajectstappen</span><strong id="detail-attendance">7/7</strong></div>
+            <div class="meetings" id="detail-meetings" aria-label="Status per trajectstap"></div>
+            <div class="step-legend"><span class="legend-item"><i class="legend-dot"></i>Voltooid</span><span class="legend-item"><i class="legend-dot missing"></i>Niet voltooid</span></div>
+            <div class="meeting-row-label"><span>Aanwezig bij bijeenkomst</span><span>Stap 5: n.v.t.</span></div>
+            <div class="meetings" id="detail-presence" aria-label="Aanwezigheid per bijeenkomst"></div>
+            <div class="step-legend"><span class="legend-item"><i class="legend-dot"></i>Aanwezig</span><span class="legend-item"><i class="legend-dot missing"></i>Afwezig</span><span class="legend-item"><i class="legend-dot" style="background:#c9cecc"></i>Geen bijeenkomst</span></div>
+          </div>
+          <div class="advice"><span class="advice-label">Samenvatting uitstroomadvies</span><p id="detail-advice">Sam kan starten als verkoopmedewerker bij een kledingwinkel. Behoud in de eerste maanden een vast aanspreekpunt en plan na zes weken een evaluatiemoment.</p></div>
+          <div class="privacy-note"><i data-lucide="shield-check" aria-hidden="true"></i><span>Voorbeeld met fictieve gegevens. In de uiteindelijke omgeving wordt per rol bepaald welke informatie zichtbaar is.</span></div>
+          <section class="measurement-panel" aria-labelledby="measurement-title">
+            <div class="measurement-head">
+              <div>
+                <h2 id="measurement-title">RSD-meting · <span id="measurement-name">Sam de Jong</span></h2>
+                <p>Vergelijking van de score aan het begin en het einde van het traject.</p>
+              </div>
+              <div class="measurement-summary"><span>Gemiddelde verandering</span><strong id="measurement-average">+2,0</strong></div>
+            </div>
+            <div class="measurement-table">
+              <table>
+                <thead><tr><th>Onderdeel</th><th>Begin</th><th>Eind</th><th>Verschil</th></tr></thead>
+                <tbody id="measurement-results"></tbody>
+              </table>
+            </div>
+            <p class="measurement-note">Scores lopen van 1 (helemaal niet) tot 10 (helemaal wel). De antwoorden zijn zichtbaar voor de deelnemer, begeleiders en de RSD.</p>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('waw-client-dashboard');
+      const people = [
+        {name:'Sam de Jong',started:'Ja',steps:[1,1,1,1,1,1,1],completed:'Ja',goals:'Behaald',exit:'Betaald werk',state:'afgerond',coach:'Brita',advice:'Sam kan starten als verkoopmedewerker bij een kledingwinkel. Behoud in de eerste maanden een vast aanspreekpunt en plan na zes weken een evaluatiemoment.'},
+        {name:'Noor El Amrani',started:'Ja',steps:[1,1,1,1,1,1,1],completed:'Ja',goals:'Behaald',exit:'Opleiding',state:'afgerond',coach:'Lars',advice:'Noor wil starten met een mbo-opleiding Zorg en Welzijn. Ondersteun haar bij de definitieve inschrijving en het aanvragen van studiefinanciering.'},
+        {name:'Yassin Kaya',started:'Ja',steps:[1,1,0,1,1,0,0],completed:'Nee',goals:'Deels',exit:'Verdere begeleiding',state:'bezig',coach:'Brita',advice:'Yassin heeft een duidelijker beeld van passend werk, maar heeft meer tijd nodig om structuur op te bouwen. Advies is om de individuele begeleiding voort te zetten.'},
+        {name:'Lotte van Dijk',started:'Ja',steps:[1,1,1,1,1,1,1],completed:'Ja',goals:'Behaald',exit:'BBL-traject',state:'afgerond',coach:'Brita',advice:'Lotte is klaar voor een BBL-traject in de horeca. Help haar bij het vergelijken van twee leerwerkplekken en het voorbereiden van de kennismakingsgesprekken.'},
+        {name:'Milan Peters',started:'Ja',steps:[1,1,1,0,0,0,0],completed:'Nee',goals:'Deels',exit:'Nog niet bekend',state:'bezig',coach:'Lars',advice:'Milan verkent nog welke richting bij hem past. Bespreek eerst de uitkomsten van zijn talententest en maak daarna één concrete oriëntatieafspraak.'},
+        {name:'Aylin Demir',started:'Nee',steps:[0,0,0,0,0,0,0],completed:'Nee',goals:'—',exit:'Nog niet bekend',state:'niet-gestart',coach:'Brita',advice:'Aylin heeft het traject nog niet gestart. Neem persoonlijk contact op om te bespreken of en wanneer deelname passend is.'}
+      ];
+      const measurementLabels = [
+        'Vertrouwen in de ondersteuning',
+        'Vertrouwen in zichzelf',
+        'Motivatie',
+        'Inzicht in toekomstperspectief',
+        'Werknemersvaardigheden'
+      ];
+      const measurementData = {
+        'Sam de Jong': {start:[5,5,6,4,5], end:[8,7,8,7,8]},
+        'Noor El Amrani': {start:[6,5,7,5,5], end:[8,8,9,8,7]},
+        'Yassin Kaya': {start:[4,4,5,3,4], end:null},
+        'Lotte van Dijk': {start:[6,6,7,6,5], end:[9,8,9,8,8]},
+        'Milan Peters': {start:[5,4,5,3,4], end:null},
+        'Aylin Demir': {start:null, end:null}
+      };
+      const presenceData = {
+        'Sam de Jong': [1,1,1,1,null,1,1],
+        'Noor El Amrani': [1,1,1,1,null,1,1],
+        'Yassin Kaya': [1,1,0,1,null,0,0],
+        'Lotte van Dijk': [1,1,1,1,null,1,1],
+        'Milan Peters': [1,1,1,0,null,0,0],
+        'Aylin Demir': [0,0,0,0,null,0,0]
+      };
+      const tbody = root.querySelector('#waw-participants');
+      const filter = root.querySelector('#waw-filter');
+      let selected = people[0];
+      const statusClass = value => value === 'Behaald' || value === 'Ja' ? 'good' : value === 'Deels' ? 'partial' : '';
+      const completedSteps = steps => steps.reduce((sum, value) => sum + value, 0);
+      const tableSteps = steps => `<span class="table-steps" aria-label="${completedSteps(steps)} van 7 stappen voltooid">${steps.map((done,index) => `<span class="table-step ${done ? 'present' : ''}" aria-label="Stap ${index + 1}: ${done ? 'voltooid' : 'niet voltooid'}">${index + 1}</span>`).join('')}<strong class="step-total">${completedSteps(steps)}/7</strong></span>`;
+      function drawRows() {
+        tbody.innerHTML = '';
+        people.filter(p => filter.value === 'all' || p.state === filter.value).forEach(p => {
+          const tr = document.createElement('tr');
+          tr.tabIndex = 0;
+          tr.className = p.name === selected.name ? 'selected' : '';
+          tr.innerHTML = `<td class="person">${p.name}</td><td><span class="status ${statusClass(p.started)}">${p.started}</span></td><td>${tableSteps(p.steps)}</td><td><span class="status ${statusClass(p.completed)}">${p.completed}</span></td><td><span class="status ${statusClass(p.goals)}">${p.goals}</span></td><td>${p.exit}</td>`;
+          const choose = () => { selected = p; drawRows(); drawDetail(); };
+          tr.addEventListener('click', choose);
+          tr.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); } });
+          tbody.appendChild(tr);
+        });
+      }
+      function drawDetail() {
+        root.querySelector('#detail-name').textContent = selected.name;
+        root.querySelector('#detail-coach').textContent = `Begeleider: ${selected.coach}`;
+        root.querySelector('#detail-state').textContent = selected.state === 'niet-gestart' ? 'Niet gestart' : selected.state[0].toUpperCase() + selected.state.slice(1);
+        root.querySelector('#detail-goals').textContent = selected.goals;
+        root.querySelector('#detail-exit').textContent = selected.exit;
+        root.querySelector('#detail-attendance').textContent = `${completedSteps(selected.steps)}/7`;
+        root.querySelector('#detail-advice').textContent = selected.advice;
+        const meetings = root.querySelector('#detail-meetings');
+        meetings.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+          const item = document.createElement('span');
+          const done = selected.steps[i] === 1;
+          item.className = `meeting ${done ? 'present' : ''}`;
+          item.textContent = `${i + 1} ${done ? '✓' : '×'}`;
+          item.setAttribute('aria-label', `Stap ${i + 1}: ${done ? 'voltooid' : 'niet voltooid'}`);
+          meetings.appendChild(item);
+        }
+        const presence = root.querySelector('#detail-presence');
+        presence.innerHTML = '';
+        presenceData[selected.name].forEach((value, index) => {
+          const item = document.createElement('span');
+          const notApplicable = value === null;
+          item.className = `meeting ${notApplicable ? 'not-applicable' : value === 1 ? 'present' : ''}`;
+          item.textContent = notApplicable ? `${index + 1} n.v.t.` : `${index + 1} ${value === 1 ? '✓' : '×'}`;
+          item.setAttribute('aria-label', `Stap ${index + 1}: ${notApplicable ? 'geen bijeenkomst' : value === 1 ? 'aanwezig' : 'afwezig'}`);
+          presence.appendChild(item);
+        });
+        drawMeasurement();
+      }
+      function drawMeasurement() {
+        root.querySelector('#measurement-name').textContent = selected.name;
+        const measurement = measurementData[selected.name];
+        const start = measurement.start;
+        const end = measurement.end;
+        const results = root.querySelector('#measurement-results');
+        results.innerHTML = measurementLabels.map((label, index) => {
+          const startValue = start ? start[index] : null;
+          const endValue = end ? end[index] : null;
+          const difference = startValue !== null && endValue !== null ? endValue - startValue : null;
+          const deltaClass = difference !== null && difference < 0 ? ' negative' : '';
+          const deltaText = difference === null ? '—' : `${difference > 0 ? '+' : ''}${difference}`;
+          const score = value => value === null ? '<span class="measurement-empty">—</span>' : `<span class="measurement-score">${value}</span>`;
+          const change = difference === null ? '<span class="measurement-empty">Nog niet ingevuld</span>' : `<span class="measurement-delta${deltaClass}">${deltaText}</span>`;
+          return `<tr><td>${label}</td><td>${score(startValue)}</td><td>${score(endValue)}</td><td>${change}</td></tr>`;
+        }).join('');
+        const average = start && end ? end.reduce((sum, value, index) => sum + value - start[index], 0) / measurementLabels.length : null;
+        root.querySelector('#measurement-average').textContent = average === null ? '—' : `${average > 0 ? '+' : ''}${average.toFixed(1).replace('.', ',')}`;
+      }
+      filter.addEventListener('change', () => {
+        const visible = people.filter(p => filter.value === 'all' || p.state === filter.value);
+        if (visible.length && !visible.includes(selected)) selected = visible[0];
+        drawRows();
+        if (visible.length) drawDetail();
+      });
+      drawRows();
+      drawDetail();
+    })();
+  </script>
+</div>
+
+<script src="https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js"></script>
+<script src="https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js"></script>
+<script>
+(() => {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set(["top", "right", "bottom", "left"]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =>
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest("[data-tooltip]")
+      : null;
+  const containsTarget = (trigger, target) =>
+    target?.nodeType != null && trigger.contains(target);
+  const getContent = (trigger) =>
+    trigger.getAttribute("data-tooltip")?.trim() ?? "";
+  const getPlacement = (trigger) => {
+    const placement = trigger.getAttribute("data-tooltip-placement");
+    return tooltipPlacements.has(placement) ? placement : "top";
+  };
+  const getTooltip = () => {
+    if (tooltip == null) {
+      tooltip = document.createElement("div");
+      tooltip.id = tooltipId;
+      tooltip.className = "tooltip";
+      tooltip.setAttribute("role", "tooltip");
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) => {
+    const ids = new Set(
+      (trigger.getAttribute("aria-describedby") ?? "")
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute("aria-describedby");
+    } else {
+      trigger.setAttribute("aria-describedby", [...ids].join(" "));
+    }
+  };
+  const clearOpenTimeout = () => {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) => {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) => {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              "--tooltip-available-width",
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              "--tooltip-available-height",
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: "fixed",
+    })
+      .then(({ x, y }) => {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = "visible";
+      })
+      .catch(() => {
+        if (activeTrigger === trigger && request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) => {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = "hidden";
+    floating.style.transform = "translate(0, 0)";
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () => {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) => {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() < skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() => {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) => {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) => {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(":focus-visible")) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) => {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () => {
+    closeTooltip(false);
+    document.removeEventListener("pointerover", handlePointerOpen);
+    document.removeEventListener("pointerout", handleLeave);
+    document.removeEventListener("focusin", handleFocusIn);
+    document.removeEventListener("focusout", handleLeave);
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener("contextmenu", handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener("pointerover", handlePointerOpen);
+  document.addEventListener("pointerout", handleLeave);
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleLeave);
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("contextmenu", handleContextMenu);
+  window.addEventListener("pagehide", destroy, { once: true });
+})();
+</script>
+<script id="codex-visualization-lucide" async src="https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js"></script>
+<script>
+(() => {
+  const initialize = () => {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById("codex-visualization-lucide")
+    ?.addEventListener("load", initialize, { once: true });
+})();
+</script>
+
+</body>
+</html>

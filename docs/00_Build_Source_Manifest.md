@@ -6,7 +6,7 @@ Dit document bepaalt welke ontwerpbestanden als bron worden gebruikt bij de bouw
 
 De losse, inhoudelijk beoordeelde reviewsets zijn leidend. Samengestelde totaalreviews zijn alleen bedoeld om schermen naast elkaar te bekijken en mogen niet als bouwspecificatie worden gebruikt.
 
-De onderstaande ontwerpbestanden worden in GitHub opgeslagen onder `docs/design/`. Bestandsnamen in dit manifest zijn relatief aan die map.
+De onderstaande ontwerpbestanden worden in GitHub opgeslagen onder `design/`. Bestandsnamen in dit manifest zijn relatief aan die map.
 
 ## Visuele basis
 

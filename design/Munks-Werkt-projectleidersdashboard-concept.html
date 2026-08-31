@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Munks Werkt Projectleidersdashboard</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Munks Werkt Projectleidersdashboard" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Munks Werkt Projectleidersdashboard&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: var(--border-radius-lg, 12.5px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: superellipse(1.5);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: superellipse(1.5);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: superellipse(1.5);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: superellipse(1.5);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed=&quot;true&quot;],
+    [aria-selected=&quot;true&quot;],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: 16px !important;
+  height: 16px !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;mw-projectleidersdashboard&quot;&gt;
+  &lt;style&gt;
+    #mw-projectleidersdashboard{--mw-orange:light-dark(#f45b16,#ff7138);--mw-orange-soft:light-dark(#fff0e7,#4a2416);--mw-ink:light-dark(#172127,#f5f5f3);--mw-subtle:light-dark(#637078,#b8c0c3);--mw-bg:light-dark(#fbf4e7,#17191a);--mw-surface:light-dark(#fff,#242728);--mw-line:light-dark(#e7ded0,#3c4142);--mw-green:light-dark(#16845b,#62c99f);--mw-green-soft:light-dark(#e5f5ee,#183d31);--mw-red:light-dark(#c34b43,#ff8c83);--mw-red-soft:light-dark(#fff0ee,#482421);--mw-blue:light-dark(#3274a8,#78b7e7);color:var(--mw-ink);background:var(--mw-bg);font-family:Inter,Arial,sans-serif;min-height:800px;border:1px solid var(--mw-line)}
+    #mw-projectleidersdashboard *{box-sizing:border-box}#mw-projectleidersdashboard button,#mw-projectleidersdashboard select{font:inherit}
+    #mw-projectleidersdashboard .mw-header{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:23px 30px;background:var(--mw-surface);border-bottom:1px solid var(--mw-line)}.mw-brand{font-size:24px;font-weight:500;letter-spacing:-.04em}.mw-brand span{color:var(--mw-orange)}.mw-role{color:var(--mw-subtle);font-size:13px;margin-top:3px}.mw-header select{border:1px solid var(--mw-line);background:var(--mw-surface);color:var(--mw-ink);padding:9px 34px 9px 12px}
+    #mw-projectleidersdashboard .mw-tabs{display:flex;gap:6px;padding:12px 30px;background:var(--mw-surface);border-bottom:1px solid var(--mw-line);overflow-x:auto}.mw-tabs button{border:0;background:transparent;color:var(--mw-subtle);padding:9px 12px;white-space:nowrap;cursor:pointer}.mw-tabs button[aria-selected=&quot;true&quot;]{color:var(--mw-orange);background:var(--mw-orange-soft);font-weight:500}
+    #mw-projectleidersdashboard .mw-main{padding:26px 30px 42px}.mw-title h1{font-size:28px;font-weight:500;margin:0 0 5px}.mw-title p{margin:0;color:var(--mw-subtle)}.mw-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:22px 0}.mw-kpi{background:var(--mw-surface);border:1px solid var(--mw-line);padding:17px}.mw-kpi span{color:var(--mw-subtle);font-size:13px}.mw-kpi strong{display:block;font-size:26px;font-weight:500;margin:5px 0}.mw-kpi em{font-style:normal;color:var(--mw-green);font-size:12px}.mw-kpi.attention{border-left:4px solid var(--mw-orange)}
+    #mw-projectleidersdashboard .mw-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(310px,.65fr);gap:18px;align-items:start}.mw-panel{background:var(--mw-surface);border:1px solid var(--mw-line);padding:19px}.mw-panel-head{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:15px}.mw-panel h2{font-size:18px;font-weight:500;margin:0}.mw-panel-head span{font-size:12px;color:var(--mw-subtle)}.mw-table-wrap{overflow-x:auto}.mw-table{width:100%;border-collapse:collapse}.mw-table th{text-align:left;color:var(--mw-subtle);font-size:12px;font-weight:400;padding:9px 7px;border-bottom:1px solid var(--mw-line)}.mw-table td{padding:11px 7px;border-bottom:1px solid var(--mw-line);font-size:13px}.mw-table tbody tr{cursor:pointer}.mw-table tbody tr:hover{background:var(--mw-orange-soft)}.mw-steps{display:flex;gap:4px}.mw-step{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--mw-green-soft);color:var(--mw-green);font-size:9px;font-weight:500}.mw-step.todo{background:var(--mw-line);color:var(--mw-subtle)}.mw-step.stop{background:var(--mw-red-soft);color:var(--mw-red)}
+    #mw-projectleidersdashboard .mw-progress-list{display:grid;gap:13px}.mw-progress-row{display:grid;grid-template-columns:135px 1fr 35px;gap:10px;align-items:center}.mw-progress-row span{font-size:13px}.mw-bar{height:10px;background:var(--mw-line);overflow:hidden}.mw-bar i{display:block;height:100%;background:var(--mw-orange)}.mw-progress-row strong{text-align:right;font-size:13px}.mw-note{margin-top:17px;padding:13px;background:var(--mw-orange-soft);font-size:13px;line-height:1.45}
+    #mw-projectleidersdashboard .mw-view[hidden]{display:none}.mw-metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.mw-score-table{width:100%;border-collapse:collapse}.mw-score-table th,.mw-score-table td{padding:11px 8px;border-bottom:1px solid var(--mw-line);text-align:left}.mw-score-table th{color:var(--mw-subtle);font-size:12px;font-weight:400}.mw-score-up{color:var(--mw-green);font-weight:500}.mw-outflow{display:grid;gap:13px}.mw-outflow-row{display:grid;grid-template-columns:150px 1fr 35px;gap:10px;align-items:center}.mw-outflow-row span{font-size:13px}.mw-outflow-row .mw-bar i{background:var(--mw-blue)}
+    #mw-projectleidersdashboard .mw-dialog-backdrop{position:fixed;inset:0;background:light-dark(rgba(20,25,27,.45),rgba(0,0,0,.7));display:grid;place-items:center;padding:24px;z-index:20}#mw-projectleidersdashboard .mw-dialog-backdrop[hidden]{display:none!important}.mw-dialog{width:min(580px,100%);background:var(--mw-surface);border:1px solid var(--mw-line);padding:22px}.mw-dialog-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--mw-line);padding-bottom:13px;margin-bottom:15px}.mw-dialog-head h2{margin:0;font-size:20px;font-weight:500}.mw-dialog-head button{border:0;background:transparent;color:var(--mw-ink);font-size:27px;cursor:pointer}.mw-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mw-detail{padding:12px;background:var(--mw-bg)}.mw-detail span{display:block;color:var(--mw-subtle);font-size:12px;margin-bottom:4px}
+    @media(max-width:820px){#mw-projectleidersdashboard .mw-main,#mw-projectleidersdashboard .mw-header,#mw-projectleidersdashboard .mw-tabs{padding-left:16px;padding-right:16px}.mw-kpis{grid-template-columns:1fr 1fr}.mw-layout,.mw-metrics-grid{grid-template-columns:1fr}.mw-header{align-items:flex-start}.mw-detail-grid{grid-template-columns:1fr}}@media(max-width:480px){#mw-projectleidersdashboard .mw-kpis{grid-template-columns:1fr}.mw-header{flex-direction:column}}
+  &lt;/style&gt;
+  &lt;header class=&quot;mw-header&quot;&gt;&lt;div&gt;&lt;div class=&quot;mw-brand&quot;&gt;&lt;span&gt;MUNKS&lt;/span&gt; WERKT&lt;/div&gt;&lt;div class=&quot;mw-role&quot;&gt;Projectleidersdashboard&lt;/div&gt;&lt;/div&gt;&lt;label&gt;&lt;span class=&quot;sr-only&quot;&gt;Selecteer groep&lt;/span&gt;&lt;select aria-label=&quot;Selecteer groep&quot;&gt;&lt;option&gt;Pilotgroep Zeist · mei–juni&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/header&gt;
+  &lt;nav class=&quot;mw-tabs&quot; aria-label=&quot;Dashboardonderdelen&quot;&gt;&lt;button type=&quot;button&quot; aria-selected=&quot;true&quot; data-view=&quot;overview&quot;&gt;Overzicht&lt;/button&gt;&lt;button type=&quot;button&quot; aria-selected=&quot;false&quot; data-view=&quot;trajectory&quot;&gt;Trajectstappen&lt;/button&gt;&lt;button type=&quot;button&quot; aria-selected=&quot;false&quot; data-view=&quot;measurements&quot;&gt;Begin- en eindmeting&lt;/button&gt;&lt;button type=&quot;button&quot; aria-selected=&quot;false&quot; data-view=&quot;outflow&quot;&gt;Uitstroom&lt;/button&gt;&lt;/nav&gt;
+  &lt;main class=&quot;mw-main&quot;&gt;
+    &lt;section class=&quot;mw-view&quot; data-panel=&quot;overview&quot;&gt;&lt;div class=&quot;mw-title&quot;&gt;&lt;h1&gt;Voortgang pilotgroep&lt;/h1&gt;&lt;p&gt;Actuele stand van de groep met zes deelnemers.&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpis&quot;&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Gestart&lt;/span&gt;&lt;strong&gt;5 van 6&lt;/strong&gt;&lt;em&gt;83% van de groep&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Traject afgerond&lt;/span&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;em&gt;één deze week&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Gemiddelde aanwezigheid&lt;/span&gt;&lt;strong&gt;86%&lt;/strong&gt;&lt;em&gt;exclusief stap 5&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi attention&quot;&gt;&lt;span&gt;Aandacht nodig&lt;/span&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;em&gt;één inactief, één hulpvraag&lt;/em&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;mw-layout&quot;&gt;&lt;section class=&quot;mw-panel&quot;&gt;&lt;div class=&quot;mw-panel-head&quot;&gt;&lt;h2&gt;Deelnemers&lt;/h2&gt;&lt;span&gt;Klik voor samenvatting&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;mw-table-wrap&quot;&gt;&lt;table class=&quot;mw-table&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Naam&lt;/th&gt;&lt;th&gt;Trajectstappen&lt;/th&gt;&lt;th&gt;Aanwezig&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;
+        &lt;tr data-person=&quot;Sam de Jong&quot; data-status=&quot;Bezig met stap 5&quot; data-attendance=&quot;4 van 4&quot; data-goal=&quot;Deels behaald&quot;&gt;&lt;td&gt;&lt;strong&gt;Sam&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;4/4&lt;/td&gt;&lt;td&gt;Actief&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr data-person=&quot;Noor Bakker&quot; data-status=&quot;Bezig met stap 3&quot; data-attendance=&quot;2 van 2&quot; data-goal=&quot;Nog niet beoordeeld&quot;&gt;&lt;td&gt;&lt;strong&gt;Noor&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;2/2&lt;/td&gt;&lt;td&gt;Hulpvraag&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr data-person=&quot;Yassin El Amrani&quot; data-status=&quot;Gestopt bij stap 2&quot; data-attendance=&quot;1 van 2&quot; data-goal=&quot;Nee&quot;&gt;&lt;td&gt;&lt;strong&gt;Yassin&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step stop&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;1/2&lt;/td&gt;&lt;td&gt;Aandacht&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr data-person=&quot;Lotte Smit&quot; data-status=&quot;Traject afgerond&quot; data-attendance=&quot;6 van 6&quot; data-goal=&quot;Ja&quot;&gt;&lt;td&gt;&lt;strong&gt;Lotte&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;6/6&lt;/td&gt;&lt;td&gt;Afgerond&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr data-person=&quot;Jayden Visser&quot; data-status=&quot;Traject afgerond&quot; data-attendance=&quot;5 van 6&quot; data-goal=&quot;Deels&quot;&gt;&lt;td&gt;&lt;strong&gt;Jayden&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;5/6&lt;/td&gt;&lt;td&gt;Afgerond&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr data-person=&quot;Amina Hassan&quot; data-status=&quot;Nog niet gestart&quot; data-attendance=&quot;0 van 0&quot; data-goal=&quot;Niet beoordeeld&quot;&gt;&lt;td&gt;&lt;strong&gt;Amina&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;&lt;div class=&quot;mw-steps&quot;&gt;&lt;span class=&quot;mw-step todo&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;mw-step todo&quot;&gt;7&lt;/span&gt;&lt;/div&gt;&lt;/td&gt;&lt;td&gt;—&lt;/td&gt;&lt;td&gt;Niet gestart&lt;/td&gt;&lt;/tr&gt;
+      &lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/section&gt;&lt;aside class=&quot;mw-panel&quot;&gt;&lt;div class=&quot;mw-panel-head&quot;&gt;&lt;h2&gt;Verdeling huidige positie&lt;/h2&gt;&lt;span&gt;6 deelnemers&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-list&quot;&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Niet gestart&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:17%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Stap 1–2&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:17%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Stap 3–4&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:17%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Stap 5–6&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:17%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Afgerond&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:33%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class=&quot;mw-note&quot;&gt;&lt;strong&gt;Signaal&lt;/strong&gt;&lt;br&gt;Yassin is bij stap 2 gestopt en vijf dagen niet actief geweest. Amina heeft het account nog niet geactiveerd.&lt;/div&gt;&lt;/aside&gt;&lt;/div&gt;
+    &lt;/section&gt;
+    &lt;section class=&quot;mw-view&quot; data-panel=&quot;trajectory&quot; hidden&gt;&lt;div class=&quot;mw-title&quot;&gt;&lt;h1&gt;Voortgang per trajectstap&lt;/h1&gt;&lt;p&gt;Waar deelnemers doorstromen, vertragen of stoppen.&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpis&quot;&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Stap 1 afgerond&lt;/span&gt;&lt;strong&gt;5&lt;/strong&gt;&lt;em&gt;83%&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Stap 3 bereikt&lt;/span&gt;&lt;strong&gt;4&lt;/strong&gt;&lt;em&gt;67%&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Stap 5 bereikt&lt;/span&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;em&gt;50%&lt;/em&gt;&lt;/div&gt;&lt;div class=&quot;mw-kpi&quot;&gt;&lt;span&gt;Stap 7 afgerond&lt;/span&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;em&gt;33%&lt;/em&gt;&lt;/div&gt;&lt;/div&gt;&lt;section class=&quot;mw-panel&quot;&gt;&lt;div class=&quot;mw-progress-list&quot;&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;1 Kennismaken&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:83%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;5&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;2 Talenten&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:83%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;5&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;3 Cv maken&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:67%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;4&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;4 Cv bespreken&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;5 Werk zoeken&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;6 Gesprek voorbereiden&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:33%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;7 Mogelijkheden&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:33%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&lt;/section&gt;
+    &lt;section class=&quot;mw-view&quot; data-panel=&quot;measurements&quot; hidden&gt;&lt;div class=&quot;mw-title&quot;&gt;&lt;h1&gt;Begin- en eindmeting&lt;/h1&gt;&lt;p&gt;Gemiddelde scores van deelnemers met beide metingen ingevuld.&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;mw-metrics-grid&quot; style=&quot;margin-top:22px&quot;&gt;&lt;section class=&quot;mw-panel&quot;&gt;&lt;div class=&quot;mw-panel-head&quot;&gt;&lt;h2&gt;Groepsgemiddelden&lt;/h2&gt;&lt;span&gt;2 complete metingen&lt;/span&gt;&lt;/div&gt;&lt;table class=&quot;mw-score-table&quot;&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Onderwerp&lt;/th&gt;&lt;th&gt;Begin&lt;/th&gt;&lt;th&gt;Eind&lt;/th&gt;&lt;th&gt;Verschil&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;Vertrouwen in ondersteuning&lt;/td&gt;&lt;td&gt;6,0&lt;/td&gt;&lt;td&gt;8,0&lt;/td&gt;&lt;td class=&quot;mw-score-up&quot;&gt;+2,0&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Vertrouwen in zichzelf&lt;/td&gt;&lt;td&gt;5,0&lt;/td&gt;&lt;td&gt;7,5&lt;/td&gt;&lt;td class=&quot;mw-score-up&quot;&gt;+2,5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Motivatie&lt;/td&gt;&lt;td&gt;6,5&lt;/td&gt;&lt;td&gt;8,0&lt;/td&gt;&lt;td class=&quot;mw-score-up&quot;&gt;+1,5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Toekomstperspectief&lt;/td&gt;&lt;td&gt;4,5&lt;/td&gt;&lt;td&gt;7,0&lt;/td&gt;&lt;td class=&quot;mw-score-up&quot;&gt;+2,5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Werknemersvaardigheden&lt;/td&gt;&lt;td&gt;5,5&lt;/td&gt;&lt;td&gt;7,5&lt;/td&gt;&lt;td class=&quot;mw-score-up&quot;&gt;+2,0&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/section&gt;&lt;aside class=&quot;mw-panel&quot;&gt;&lt;h2&gt;Interpretatie&lt;/h2&gt;&lt;div class=&quot;mw-note&quot;&gt;De eerste resultaten laten op alle vijf onderwerpen een positieve beweging zien. Door de kleine groep zijn dit pilotsignalen en nog geen algemene effectmeting.&lt;/div&gt;&lt;/aside&gt;&lt;/div&gt;&lt;/section&gt;
+    &lt;section class=&quot;mw-view&quot; data-panel=&quot;outflow&quot; hidden&gt;&lt;div class=&quot;mw-title&quot;&gt;&lt;h1&gt;Uitstroom en vervolgstappen&lt;/h1&gt;&lt;p&gt;Voorlopige uitkomsten van afgeronde trajecten.&lt;/p&gt;&lt;/div&gt;&lt;div class=&quot;mw-layout&quot; style=&quot;margin-top:22px&quot;&gt;&lt;section class=&quot;mw-panel&quot;&gt;&lt;div class=&quot;mw-panel-head&quot;&gt;&lt;h2&gt;Uitstroomcategorieën&lt;/h2&gt;&lt;span&gt;2 afgerond&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;mw-outflow&quot;&gt;&lt;div class=&quot;mw-outflow-row&quot;&gt;&lt;span&gt;Werk&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-outflow-row&quot;&gt;&lt;span&gt;Opleiding/BBL&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-outflow-row&quot;&gt;&lt;span&gt;Verdere begeleiding&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-outflow-row&quot;&gt;&lt;span&gt;Anders&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&lt;aside class=&quot;mw-panel&quot;&gt;&lt;h2&gt;Doelen behaald&lt;/h2&gt;&lt;div class=&quot;mw-progress-list&quot; style=&quot;margin-top:15px&quot;&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Ja&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Deels&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:50%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-progress-row&quot;&gt;&lt;span&gt;Nee&lt;/span&gt;&lt;div class=&quot;mw-bar&quot;&gt;&lt;i style=&quot;width:0%&quot;&gt;&lt;/i&gt;&lt;/div&gt;&lt;strong&gt;0&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;/aside&gt;&lt;/div&gt;&lt;/section&gt;
+  &lt;/main&gt;
+  &lt;div class=&quot;mw-dialog-backdrop&quot; hidden&gt;&lt;section class=&quot;mw-dialog&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;mw-project-dialog-title&quot;&gt;&lt;div class=&quot;mw-dialog-head&quot;&gt;&lt;h2 id=&quot;mw-project-dialog-title&quot;&gt;Deelnemer&lt;/h2&gt;&lt;button type=&quot;button&quot; data-close aria-label=&quot;Sluiten&quot;&gt;×&lt;/button&gt;&lt;/div&gt;&lt;div class=&quot;mw-detail-grid&quot;&gt;&lt;div class=&quot;mw-detail&quot;&gt;&lt;span&gt;Status&lt;/span&gt;&lt;strong data-detail-status&gt;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-detail&quot;&gt;&lt;span&gt;Aanwezigheid&lt;/span&gt;&lt;strong data-detail-attendance&gt;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-detail&quot;&gt;&lt;span&gt;Doel behaald&lt;/span&gt;&lt;strong data-detail-goal&gt;&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;mw-detail&quot;&gt;&lt;span&gt;Begeleider&lt;/span&gt;&lt;strong&gt;Brita&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&lt;/div&gt;
+  &lt;script&gt;(()=&gt;{const root=document.getElementById(&#x27;mw-projectleidersdashboard&#x27;);const tabs=root.querySelectorAll(&#x27;[data-view]&#x27;);tabs.forEach(tab=&gt;tab.addEventListener(&#x27;click&#x27;,()=&gt;{tabs.forEach(item=&gt;item.setAttribute(&#x27;aria-selected&#x27;,&#x27;false&#x27;));tab.setAttribute(&#x27;aria-selected&#x27;,&#x27;true&#x27;);root.querySelectorAll(&#x27;[data-panel]&#x27;).forEach(panel=&gt;panel.hidden=panel.dataset.panel!==tab.dataset.view);}));const dialog=root.querySelector(&#x27;.mw-dialog-backdrop&#x27;);root.querySelectorAll(&#x27;[data-person]&#x27;).forEach(row=&gt;row.addEventListener(&#x27;click&#x27;,()=&gt;{root.querySelector(&#x27;#mw-project-dialog-title&#x27;).textContent=row.dataset.person;root.querySelector(&#x27;[data-detail-status]&#x27;).textContent=row.dataset.status;root.querySelector(&#x27;[data-detail-attendance]&#x27;).textContent=row.dataset.attendance;root.querySelector(&#x27;[data-detail-goal]&#x27;).textContent=row.dataset.goal;dialog.hidden=false;}));root.querySelector(&#x27;[data-close]&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;dialog.hidden=true);dialog.addEventListener(&#x27;click&#x27;,event=&gt;{if(event.target===dialog)dialog.hidden=true;});})();&lt;/script&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handleLeave = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>
