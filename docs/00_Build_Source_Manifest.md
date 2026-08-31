@@ -6,11 +6,16 @@ Dit document bepaalt welke ontwerpbestanden als bron worden gebruikt bij de bouw
 
 De losse, inhoudelijk beoordeelde reviewsets zijn leidend. Samengestelde totaalreviews zijn alleen bedoeld om schermen naast elkaar te bekijken en mogen niet als bouwspecificatie worden gebruikt.
 
+De onderstaande ontwerpbestanden worden in GitHub opgeslagen onder `docs/design/`. Bestandsnamen in dit manifest zijn relatief aan die map.
+
 ## Visuele basis
 
 - `Munks-Werkt-visuele-proefset-Inter.html`
   - leidend voor kleur, typografie, logoformaat, kaarten, knoppen, statusbalk, navigatie en zichtbaarheidsmeldingen;
   - de Home-referentie in deze set is leidend voor de algemene uitstraling.
+- `Munks-Werkt-logo.png`
+  - leidend logo voor de app, de reviewsets en de dashboards;
+  - dit bestand moet in dezelfde map staan als de HTML-reviewsets die ernaar verwijzen.
 
 ## Account en toegang
 
@@ -32,6 +37,10 @@ De losse, inhoudelijk beoordeelde reviewsets zijn leidend. Samengestelde totaalr
 
 2. Talententest en resultaten
    - `Munks-Werkt-talententest-en-toestemming-review.html`
+   - `stap-2-talenten-introductie.html`
+   - `stap-2-talenten-klaar.html`
+   - `stap-2-talenten-klaar-na-gesprek.html`
+   - de reviewset gebruikt deze drie onderliggende schermbestanden; alle vier de bestanden moeten daarom samen worden opgeslagen;
    - de talententest duurt ongeveer 60 minuten;
    - de resultaten worden eerst met de begeleider besproken en zijn daarna beschikbaar.
 
