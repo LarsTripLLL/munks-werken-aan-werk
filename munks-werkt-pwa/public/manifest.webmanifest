@@ -1,0 +1,15 @@
+{
+  "name": "Munks Werkt",
+  "short_name": "Munks Werkt",
+  "description": "Jouw traject naar werk of opleiding",
+  "lang": "nl-NL",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f9e8bc",
+  "theme_color": "#f9e8bc",
+  "icons": [
+    { "src": "/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

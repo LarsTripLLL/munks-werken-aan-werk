@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Munks Werkt">
+  <rect width="512" height="512" rx="108" fill="#f9e8bc"/>
+  <path d="M99 326V185h49l40 70 40-70h49v141h-43v-73l-33 57h-27l-33-57v73H99Z" fill="#ef5517"/>
+  <path d="M292 185h45l18 76 22-76h36l22 76 18-76h45l-39 141h-43l-21-70-21 70h-43l-39-141Z" fill="#676b6e"/>
+  <path d="M94 357h321" stroke="#ef5517" stroke-width="18" stroke-linecap="round"/>
+  <path d="m401 337 22 20-22 20" fill="none" stroke="#676b6e" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
