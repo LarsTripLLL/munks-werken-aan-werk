@@ -12,7 +12,7 @@ const demoHome: ParticipantHome = {
     { number: 2, title: 'Talententest en resultaten', status: 'completed' },
     { number: 3, title: 'Maak je cv', status: 'current' },
     { number: 4, title: 'Bespreek je cv', status: 'available' },
-    { number: 5, title: 'Werk zoeken en reageren', status: 'locked' },
+    { number: 5, title: 'Werk en opleiding verkennen', status: 'locked' },
     { number: 6, title: 'Een gesprek voorbereiden', status: 'locked' },
     { number: 7, title: 'Mogelijkheden en afronding', status: 'locked' },
   ],

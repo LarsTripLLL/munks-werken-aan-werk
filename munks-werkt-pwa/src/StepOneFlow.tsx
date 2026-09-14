@@ -47,7 +47,9 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
       if (!active) return;
       const stored = answer?.value;
       setValue(activity.kind === 'measurement'
-        ? (stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {})
+        ? (stored && typeof stored === 'object' && !Array.isArray(stored)
+          ? Object.fromEntries(Object.entries(stored).filter((entry): entry is [string, number] => typeof entry[1] === 'number'))
+          : {})
         : (typeof stored === 'string' ? stored : ''));
       setSaveState(answer ? 'saved' : 'idle');
       setLoaded(true);

@@ -21,8 +21,8 @@ import { DemoMessageRepository } from './repositories/demoMessageRepository';
 import { DemoStaffMessageRepository } from './repositories/demoStaffMessageRepository';
 import { ApiMessageRepository } from './repositories/apiMessageRepository';
 import { ApiStaffMessageRepository } from './repositories/apiStaffMessageRepository';
-import logoUrl from '../../pilot-app/assets/Munks-Werkt-logo.png';
-import mountainUrl from '../../pilot-app/assets/Munks-Werkt-bergachtergrond.png';
+import logoUrl from './assets/Munks-Werkt-logo.png';
+import mountainUrl from './assets/Munks-Werkt-bergachtergrond.png';
 
 const repository = new DemoParticipantRepository();
 const authRepository = new DemoAuthRepository();
@@ -33,7 +33,7 @@ const useApi = import.meta.env.VITE_DATA_MODE === 'api';
 const messageRepository = useApi ? new ApiMessageRepository() : new DemoMessageRepository();
 const staffMessageRepository = useApi ? new ApiStaffMessageRepository() : new DemoStaffMessageRepository();
 type MainScreen = 'home' | 'route' | 'messages' | 'environment';
-type Screen = MainScreen | 'step1' | 'step2' | 'step3' | 'step4' | 'step5' | 'step6' | 'step7';
+type Screen = MainScreen | 'fit' | 'documents' | 'appointments' | 'goals' | 'step1' | 'step2' | 'step3' | 'step4' | 'step5' | 'step6' | 'step7';
 
 const Icon = ({ name }: { name: MainScreen }) => {
   const paths: Record<MainScreen, ReactNode> = {
@@ -46,7 +46,18 @@ const Icon = ({ name }: { name: MainScreen }) => {
 };
 
 function Mountain({ data }: { data: ParticipantHome }) {
-  const points = [[86,310],[123,273],[177,229],[228,183],[272,139],[305,101],[330,67]];
+  const points = [[86,310],[123,273],[177,229],[228,183],[272,139],[305,101],[317,68]];
+  const routeSegments = [
+    'M52 340 C68 322 75 316 86 310',
+    'C112 300 100 279 123 273',
+    'C150 263 193 257 177 229',
+    'C163 204 218 205 228 183',
+    'C245 159 253 155 272 139',
+    'C296 121 288 110 305 101',
+    'C319 88 315 76 317 68',
+  ];
+  const routePath = routeSegments.join(' ');
+  const completedPath = routeSegments.slice(0, data.currentStep).join(' ');
   const markers = points.map(([x,y], index) => {
     const step = index + 1;
     const state = step < data.currentStep ? 'done' : step === data.currentStep ? 'current' : 'future';
@@ -54,9 +65,9 @@ function Mountain({ data }: { data: ParticipantHome }) {
   });
   return <svg className="mountain" viewBox="0 0 400 340" role="img" aria-label={`Je bent bij stap ${data.currentStep} van 7`}>
     <image href={mountainUrl} width="400" height="340" preserveAspectRatio="xMidYMid slice"/>
-    <path className="route-base" d="M52 340 C68 322 75 316 86 310 C112 300 100 279 123 273 C150 263 193 257 177 229 C163 204 218 205 228 183 C245 159 253 155 272 139 C296 121 288 110 305 101 C322 89 315 74 330 67"/>
-    <path className="route-done" pathLength="100" strokeDasharray={`${[20,34,50,65,78,90,100][data.currentStep-1]} 100`} d="M52 340 C68 322 75 316 86 310 C112 300 100 279 123 273 C150 263 193 257 177 229 C163 204 218 205 228 183 C245 159 253 155 272 139 C296 121 288 110 305 101 C322 89 315 74 330 67"/>
-    {markers}<path className="flag" d="M331 67V30M331 31h29l-9 10 9 10h-29"/>
+    <path className="route-base" d={routePath}/>
+    <path className="route-done" d={completedPath}/>
+    {markers}
   </svg>;
 }
 
@@ -83,10 +94,14 @@ export function App() {
       <section className="welcome"><h1>Fijn dat je er bent</h1><p>Wat wil je vandaag doen voor jouw toekomst?</p></section>
       <section className="journey-card"><div className="journey-copy"><span>Je huidige stap</span><h2>{data.currentTitle}</h2></div><Mountain data={data}/></section>
       <button className="primary" onClick={() => setScreen('route')}>Bekijk je traject <span>→</span></button>
-      <section className="appointment"><span className="round">□</span><div><small>Volgende afspraak</small><strong>{data.appointment.dateLabel}</strong><p>{data.appointment.timeLabel} · {data.appointment.coachName}</p></div><span>›</span></section>
-      <section className="quick"><button>Wat bij mij past</button><button>Mijn documenten</button><button>Mijn afspraken</button><button>Mijn doelen</button></section>
+      <button className="appointment appointment-button" onClick={() => setScreen('appointments')}><span className="round">□</span><div><small>Volgende afspraak</small><strong>{data.appointment.dateLabel}</strong><p>{data.appointment.timeLabel} · {data.appointment.coachName}</p></div><span>›</span></button>
+      <section className="quick"><button onClick={() => setScreen('fit')}>Wat bij mij past</button><button onClick={() => setScreen('documents')}>Mijn documenten</button><button onClick={() => setScreen('appointments')}>Mijn afspraken</button><button onClick={() => setScreen('goals')}>Mijn doelen</button></section>
     </>}
     {screen === 'route' && <section className="screen"><span className="eyebrow">Jouw traject</span><h1>Jouw route</h1><p>Bekijk waar je bent en welke stappen nog komen.</p><Mountain data={data}/><ol>{data.steps.map(step => <li className={step.status} key={step.number}><button onClick={() => setScreen(`step${step.number}` as Screen)}><span>{step.number}</span><strong>{step.title}</strong><em>Openen</em></button></li>)}</ol></section>}
+    {screen === 'fit' && <section className="screen"><span className="eyebrow">Jouw profiel</span><h1>Wat bij mij past</h1><p>Hier komen jouw talenten, interesses en richtingen uit het traject bij elkaar.</p><article><h2>Jouw resultaten</h2><p>De resultaten van de talententest worden hier beschikbaar nadat je ze met je begeleider hebt besproken.</p><button className="flow-primary" onClick={() => setScreen('step2')}>Bekijk stap 2</button></article></section>}
+    {screen === 'documents' && <section className="screen"><span className="eyebrow">Jouw bestanden</span><h1>Mijn documenten</h1><p>Bekijk de documenten die tijdens jouw traject beschikbaar komen.</p><article><h2>Documenten</h2><p>Talententest — beschikbaar na de bespreking</p><p>Mijn cv — nog niet afgerond</p><p>Mijn volgende stap — nog niet beschikbaar</p></article></section>}
+    {screen === 'appointments' && <section className="screen"><span className="eyebrow">Jouw planning</span><h1>Mijn afspraken</h1><p>Hier zie je jouw komende afspraken en bijeenkomsten.</p><article><h2>Volgende afspraak</h2><strong>{data.appointment.dateLabel}</strong><p>{data.appointment.timeLabel} · {data.appointment.coachName}</p></article></section>}
+    {screen === 'goals' && <section className="screen"><span className="eyebrow">Jouw toekomst</span><h1>Mijn doelen</h1><p>Hier houd je bij waar je tijdens het traject aan wilt werken.</p><article><h2>Mijn doel</h2><p>Ontdekken welk werk of welke opleiding bij mij past.</p><button className="flow-primary" onClick={() => setScreen('step7')}>Bekijk mijn volgende stap</button></article></section>}
     {screen === 'step1' && <StepOneFlow repository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} onClose={() => setScreen('route')}/>} 
     {screen === 'step2' && <StepTwoFlow repository={talentTestRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} onClose={() => setScreen('route')}/>} 
     {screen === 'step3' && <StepThreeFlow repository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} onClose={() => setScreen('route')}/>} 

@@ -56,15 +56,19 @@ export const munksWerktTrajectory: TrajectoryDefinition = {
     },
     {
       number: 5,
-      title: 'Werk zoeken en reageren',
+      title: 'Werk en opleiding verkennen',
       hasGroupMeeting: false,
       activities: [
+        { id: 's5-route', kind: 'choice', title: 'Wat wil je onderzoeken?', audiences: [...privateAnswer] },
         { id: 's5-sources', kind: 'choice', title: 'Waar kun je werk vinden?', audiences: [...privateAnswer] },
         { id: 's5-fit', kind: 'choice', title: 'Wat past bij jou?', audiences: [...privateAnswer] },
         { id: 's5-example', kind: 'review', title: 'Een baan bekijken', audiences: ['participant'] },
         { id: 's5-match', kind: 'choice', title: 'Past deze baan bij mij?', audiences: [...privateAnswer] },
         { id: 's5-reaction-example', kind: 'review', title: 'Hoe kun je reageren?', audiences: ['participant'] },
         { id: 's5-reaction', kind: 'text', title: 'Jouw reactie voorbereiden', audiences: [...privateAnswer] },
+        { id: 's5-education-sources', kind: 'choice', title: 'Waar kun je een opleiding vinden?', audiences: [...privateAnswer] },
+        { id: 's5-education-fit', kind: 'choice', title: 'Wat past bij jou bij een opleiding?', audiences: [...privateAnswer] },
+        { id: 's5-education-interest', kind: 'text', title: 'Welke opleiding wil je onderzoeken?', skippable: true, audiences: [...privateAnswer] },
       ],
     },
     {

@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:security": "tsc -b && vite build --mode security-review",
-    "preview": "vite preview",
+    "dev": "vite --configLoader runner",
+    "build": "tsc -b && vite build --configLoader runner",
+    "build:security": "tsc -b && vite build --configLoader runner --mode security-review",
+    "preview": "vite preview --configLoader runner",
     "check": "tsc -b --pretty false"
   },
   "dependencies": {

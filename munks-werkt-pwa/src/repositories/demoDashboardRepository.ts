@@ -1,4 +1,4 @@
-import type { AppRole, DashboardRepository, DashboardTrajectory } from '../domain';
+import type { AppRole, DashboardParticipant, DashboardRepository, DashboardTrajectory } from '../domain';
 
 const trajectories: DashboardTrajectory[]=[
  {code:'MW-RSD-001',name:'Munks Werkt Zeist',commissionerName:'Regionale Sociale Dienst Kromme Rijn Heuvelrug',startDate:'01-09-2026',endDate:'20-10-2026',status:'active',participants:[
