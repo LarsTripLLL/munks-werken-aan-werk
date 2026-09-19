@@ -872,6 +872,16 @@ legend {
   font: inherit;
   font-weight: 400;
 }
+.cv-form input[readonly] {
+  background: #f5f3ee;
+}
+.cv-readonly-note {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
 .cv-form textarea {
   min-height: 105px;
   resize: vertical;

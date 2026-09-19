@@ -532,6 +532,8 @@ export function StepThreeFlow({
                 }
               />
             )}
+            {part.id === "s3-details" && key === "name" && <small className="cv-readonly-note">Je naam is vastgelegd bij je account. Vraag de beheerder om een wijziging.</small>}
+            {part.id === "s3-details" && key === "email" && <small className="cv-readonly-note">Je e-mailadres is gekoppeld aan je account. Vraag de beheerder om een wijziging.</small>}
           </label>
         ))}
         {part.id === "s3-education" && (
