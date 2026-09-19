@@ -519,6 +519,7 @@ export function App() {
             participantId={data.user.id}
             trajectoryCode={data.trajectoryCode}
             onClose={() => setScreen("route")}
+            onViewReport={() => setScreen("documents")}
             onComplete={() => completeStep(2)}
           />
         )}
