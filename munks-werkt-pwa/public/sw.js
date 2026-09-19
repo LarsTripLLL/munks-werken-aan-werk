@@ -1,4 +1,4 @@
-const CACHE = 'munks-werkt-shell-v1';
+const CACHE = 'munks-werkt-shell-v2';
 const SHELL = ['/', '/manifest.webmanifest', '/app-icon.svg'];
 
 self.addEventListener('install', event => {

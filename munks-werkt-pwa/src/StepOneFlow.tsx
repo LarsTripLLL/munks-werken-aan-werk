@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { AnswerRepository, ParticipantAnswer, TrajectoryActivity } from './domain';
 import { measurementSubjects, munksWerktTrajectory } from './trajectoryDefinition';
+import { saveErrorMessage } from './saveError';
 
 type Stage = 'intro' | 'questions' | 'done';
 type ScoreAnswer = Record<string, number>;
@@ -24,11 +25,12 @@ function VisibilityNote({ activity }: { activity: TrajectoryActivity }) {
   return <div className="visibility-note"><EyeIcon/><span>{commissioner ? 'Jij, je begeleiders en de RSD kunnen deze antwoorden zien.' : 'Alleen jij en de begeleiders kunnen dit antwoord zien.'}</span></div>;
 }
 
-export function StepOneFlow({ repository, participantId, trajectoryCode, onClose }: {
+export function StepOneFlow({ repository, participantId, trajectoryCode, onClose, onComplete }: {
   repository: AnswerRepository;
   participantId: string;
   trajectoryCode: string;
   onClose: () => void;
+  onComplete: () => Promise<void>;
 }) {
   const step = munksWerktTrajectory.steps[0];
   const questions = useMemo(() => step.activities.filter(activity => activity.kind !== 'introduction'), [step.activities]);
@@ -37,6 +39,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
   const [value, setValue] = useState<string | ScoreAnswer>('');
   const [loaded, setLoaded] = useState(false);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState('');
   const activity = questions[index];
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     setSaveState('saving');
     const timer = window.setTimeout(() => {
       const answer: ParticipantAnswer = { participantId, trajectoryCode, activityId: activity.id, value, updatedAt: new Date().toISOString() };
-      repository.save(answer).then(() => setSaveState('saved')).catch(() => setSaveState('error'));
+      repository.save(answer).then(() => setSaveState('saved')).catch(reason => { setSaveError(saveErrorMessage(reason)); setSaveState('error'); });
     }, 450);
     return () => window.clearTimeout(timer);
   }, [activity.id, activity.kind, loaded, participantId, repository, stage, trajectoryCode, value]);
@@ -72,12 +75,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     setValue(next);
     setSaveState('saving');
     repository.save({ participantId, trajectoryCode, activityId: activity.id, value: next, updatedAt: new Date().toISOString() })
-      .then(() => setSaveState('saved')).catch(() => setSaveState('error'));
-  };
-
-  const next = () => {
-    if (index === questions.length - 1) setStage('done');
-    else setIndex(current => current + 1);
+      .then(() => setSaveState('saved')).catch(reason => { setSaveError(saveErrorMessage(reason)); setSaveState('error'); });
   };
 
   const saveTextNow = async (nextValue = value) => {
@@ -86,18 +84,27 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     try {
       await repository.save({ participantId, trajectoryCode, activityId: activity.id, value: nextValue, updatedAt: new Date().toISOString() });
       setSaveState('saved');
-    } catch {
+    } catch (reason) {
+      setSaveError(saveErrorMessage(reason));
       setSaveState('error');
       throw new Error('Opslaan is niet gelukt.');
     }
   };
 
   const continueAfterSave = async () => {
-    try { await saveTextNow(); next(); } catch { /* De gebruiker blijft op het scherm. */ }
+    try {
+      await saveTextNow();
+      if (index === questions.length - 1) { await onComplete(); setStage('done'); }
+      else setIndex(current => current + 1);
+    } catch { setSaveState('error'); }
   };
 
   const skipAndContinue = async () => {
-    try { await saveTextNow(''); setValue(''); next(); } catch { /* De gebruiker blijft op het scherm. */ }
+    try {
+      await saveTextNow(''); setValue('');
+      if (index === questions.length - 1) { await onComplete(); setStage('done'); }
+      else setIndex(current => current + 1);
+    } catch { setSaveState('error'); }
   };
 
   if (stage === 'intro') return <section className="step-flow">
@@ -126,9 +133,9 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
       <h2>{activity.kind === 'measurement' ? 'Kies een cijfer van 1 tot 10' : activity.title}</h2>
       {activity.kind === 'measurement' ? <><p>1 is helemaal niet en 10 is helemaal wel.</p><div className="measurement-list">{measurementSubjects.map(subject => <fieldset key={subject}><legend>{subject}</legend><div className="score-row">{[1,2,3,4,5,6,7,8,9,10].map(score => <label key={score}><input type="radio" name={subject} checked={scores[subject] === score} onChange={() => saveScores(subject, score)}/><span>{score}</span></label>)}</div></fieldset>)}</div></> : <><p>{help[activity.id]}</p><textarea value={typeof value === 'string' ? value : ''} onChange={event => setValue(event.target.value)} placeholder="Schrijf hier je antwoord…"/></>}
       <VisibilityNote activity={activity}/>
-      <div className={`save-state ${saveState}`} aria-live="polite">{{idle:'Nog niet ingevuld',saving:'Opslaan…',saved:'Automatisch opgeslagen',error:'Opslaan is niet gelukt'}[saveState]}</div>
+      <div className={`save-state ${saveState}`} aria-live="polite">{{idle:'Nog niet ingevuld',saving:'Opslaan…',saved:'Automatisch opgeslagen',error:saveError}[saveState]}</div>
     </section>
-    <button className="flow-primary" onClick={() => activity.kind === 'measurement' ? next() : void continueAfterSave()}>{index === questions.length - 1 ? 'Voorbereiding afronden' : 'Volgende vraag'}</button>
+    <button className="flow-primary" onClick={() => void continueAfterSave()}>{index === questions.length - 1 ? 'Voorbereiding afronden' : 'Volgende vraag'}</button>
     {activity.skippable && <button className="flow-link" onClick={() => void skipAndContinue()}>Deze vraag overslaan</button>}
     <button className="flow-secondary" onClick={() => { if (activity.kind !== 'measurement') void saveTextNow(); index === 0 ? setStage('intro') : setIndex(current => current - 1); }}>{index === 0 ? 'Terug naar uitleg' : 'Vorige vraag'}</button>
   </section>;

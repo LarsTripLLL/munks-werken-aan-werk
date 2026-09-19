@@ -5,7 +5,7 @@ export class ApiClient {
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
       credentials: 'same-origin',
-      headers: { Accept: 'application/json', ...(init.body ? { 'Content-Type': 'application/json' } : {}), ...init.headers },
+      headers: { Accept: 'application/json', ...(init.body && !(init.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...init.headers },
     });
     if (!response.ok) {
       const problem = await response.json().catch(() => ({})) as { message?: string };

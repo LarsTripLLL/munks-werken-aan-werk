@@ -17,15 +17,29 @@ export interface JourneyStep {
 export interface ParticipantHome {
   user: SessionUser;
   trajectoryCode: string;
+  trajectoryName?: string;
+  trajectoryStatus?: 'active' | 'planned' | 'completed';
   currentStep: number;
   currentTitle: string;
-  appointment: { dateLabel: string; timeLabel: string; coachName: string };
+  appointment: { id?:string; stepNumber?:number; dateLabel: string; timeLabel: string; coachName: string; title?: string; location?: string; explanation?:string };
+  appointments?: ParticipantAppointment[];
   steps: JourneyStep[];
   unreadMessages: number;
+  outcome?: {
+    category: string;
+    summary: string;
+    status: 'provisional' | 'final';
+  };
 }
+
+export interface ParticipantAppointment { id:string; stepNumber?:number; title:string; dateLabel:string; timeLabel:string; coachName:string; location?:string; explanation?:string }
 
 export interface ParticipantRepository {
   getHome(signal?: AbortSignal): Promise<ParticipantHome>;
+}
+
+export interface ProgressRepository {
+  completeStep(stepNumber: number): Promise<void>;
 }
 
 export interface ConsentChoice {
@@ -39,7 +53,11 @@ export interface ConsentChoice {
 export interface AuthRepository {
   beginActivation(email: string, activationCode: string): Promise<{ activationSessionId: string }>;
   completeActivation(activationSessionId: string, password: string, consent: ConsentChoice): Promise<void>;
+  completeStaffInvite?(password: string): Promise<SessionUser>;
+  requestPasswordReset?(email: string): Promise<void>;
+  completePasswordReset?(password: string): Promise<void>;
   signIn(email: string, password: string): Promise<SessionUser>;
+  restoreSession?(): Promise<SessionUser | undefined>;
   registerBiometric(): Promise<'registered' | 'unsupported'>;
 }
 
@@ -129,8 +147,16 @@ export interface TalentTestRepository {
   releaseResults(participantId: string, trajectoryCode: string): Promise<void>;
 }
 
+export interface ParticipantDocument {
+  type: 'cv' | 'talent_report';
+  fileName: string;
+  uploadedAt: string;
+  storagePath?: string;
+}
+
 export interface DashboardParticipant {
   id: string;
+  active?: boolean;
   name: string;
   email?: string;
   phone?: string;
@@ -141,9 +167,34 @@ export interface DashboardParticipant {
   goals: 'Ja' | 'Deels' | 'Nee' | 'Nog niet bekend';
   outcomeCategory?: string;
   outcomeSummary?: string;
+  outcomeStatus?: 'provisional' | 'final';
   startScores?: number[];
   endScores?: number[];
+  coachId?: string;
+  talentStatus?: TalentTestStatus;
+  appAnswers?: Array<{
+    step: number;
+    title: string;
+    answers: Array<{ question: string; answer: string }>;
+  }>;
+  documents?: ParticipantDocument[];
 }
+
+export interface DashboardCoach {
+  id: string;
+  name: string;
+}
+
+export interface DashboardAppointment { id:string; trajectoryCode:string; stepNumber:number; title:string; date:string; startTime:string; endTime:string; location:string; explanation:string; coachId:string; coachName:string; cancelled:boolean; participantId?:string; participantName?:string }
+
+export interface DashboardManagementOptions {
+  coaches: DashboardCoach[];
+  commissioners: Array<{ code: string; name: string }>;
+  organizations?: Array<{ code: string; name: string; active: boolean }>;
+  users?: ManagedUser[];
+}
+export type ManagedRole = 'project_leader' | 'coach' | 'commissioner';
+export interface ManagedUser { id:string; name:string; email:string; role:ManagedRole; organization:string; commissionerCode?:string; trajectoryCodes:string[]; active:boolean }
 
 export interface DashboardTrajectory {
   code: string;
@@ -152,14 +203,31 @@ export interface DashboardTrajectory {
   startDate: string;
   endDate: string;
   status: 'active' | 'planned' | 'completed';
+  coaches: DashboardCoach[];
   participants: DashboardParticipant[];
 }
 
 export interface DashboardRepository {
   listTrajectories(role: Exclude<AppRole, 'participant'>): Promise<DashboardTrajectory[]>;
+  listManagementOptions(): Promise<DashboardManagementOptions>;
+  saveManagedUser(user: ManagedUser): Promise<void>;
+  saveCommissioner(organization: { code:string; name:string; active:boolean }): Promise<void>;
+  listAppointments(trajectoryCode: string): Promise<DashboardAppointment[]>;
+  saveAppointment(appointment: Omit<DashboardAppointment, 'coachName' | 'cancelled' | 'participantName'>): Promise<void>;
+  setAppointmentActive(appointmentId: string, active: boolean): Promise<void>;
   updateAttendance(trajectoryCode: string, participantId: string, stepIndex: number, present: boolean): Promise<void>;
-  releaseOutcome(trajectoryCode: string, participantId: string, category: string, summary: string): Promise<void>;
-  createTrajectory(input: Pick<DashboardTrajectory, 'code' | 'name' | 'commissionerName' | 'startDate' | 'endDate'>): Promise<void>;
-  updateTrajectory(code: string, input: Pick<DashboardTrajectory, 'name' | 'commissionerName' | 'startDate' | 'endDate'>): Promise<void>;
-  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone'>): Promise<void>;
+  releaseOutcome(trajectoryCode: string, participantId: string, category: string, summary: string, status: 'provisional' | 'final', goals: DashboardParticipant['goals']): Promise<void>;
+  createTrajectory(input: Pick<DashboardTrajectory, 'code' | 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void>;
+  updateTrajectory(code: string, input: Pick<DashboardTrajectory, 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void>;
+  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'coachId'>): Promise<{ activationCode: string }>;
+  updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'coachId' | 'active'>): Promise<void>;
+  renewParticipantActivation(trajectoryCode: string, participantId: string): Promise<{ activationCode: string }>;
+  uploadParticipantDocument(trajectoryCode: string, participantId: string, type: 'cv' | 'talent_report', file: File): Promise<void>;
+  openParticipantDocument(document: ParticipantDocument): Promise<void>;
+  releaseTalentResults(trajectoryCode: string, participantId: string): Promise<void>;
+}
+
+export interface ParticipantDocumentRepository {
+  list(): Promise<ParticipantDocument[]>;
+  open(document: ParticipantDocument): Promise<void>;
 }

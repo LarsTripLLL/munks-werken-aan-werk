@@ -89,3 +89,44 @@ De server gebruikt databasefunctie `mark_assigned_thread_handled`.
 Bij de begeleidersvariant worden tevens `participantId`, `participantName` en
 `trajectoryCode` teruggegeven. Deze velden worden door de server samengesteld;
 de browser bepaalt ze niet.
+
+## Dashboards en beheer
+
+### `GET /api/dashboard/trajectories`
+
+De server bepaalt de rol en gebruiker uit de sessie en geeft uitsluitend de
+toegestane trajecten en velden terug:
+
+- begeleider: alleen gekoppelde trajecten en deelnemers;
+- applicatiebeheerder: alleen trajecten binnen de eigen beheeromgeving;
+- opdrachtgever: alleen gekoppelde trajecten en de afgesproken dashboardvelden.
+
+Persoonlijke antwoorden, cv's, talententestrapporten en berichten worden nooit
+opgenomen in het antwoord voor een opdrachtgever.
+
+### Begeleider en applicatiebeheer
+
+- `PATCH /api/dashboard/trajectories/{code}/participants/{participantId}/attendance`
+- `PATCH /api/dashboard/trajectories/{code}/participants/{participantId}/outcome`
+- `POST /api/dashboard/trajectories`
+- `PATCH /api/dashboard/trajectories/{code}`
+- `POST /api/dashboard/trajectories/{code}/participants`
+- `PATCH /api/dashboard/trajectories/{code}/participants/{participantId}`
+
+De server controleert per route opnieuw of de gebruiker deze handeling binnen
+dit traject en voor deze deelnemer mag uitvoeren. De meegestuurde trajectcode
+en deelnemer-ID verlenen op zichzelf nooit toegang.
+
+### Document uploaden
+
+`POST /api/dashboard/trajectories/{code}/participants/{participantId}/documents`
+
+De aanvraag gebruikt `multipart/form-data` met:
+
+- `type`: `cv` of `talent_report`;
+- `file`: het document.
+
+De server controleert autorisatie, bestandstype, bestandsgrootte en malware,
+slaat het bestand buiten de openbare webmap op en legt upload en download vast
+in het auditlog. Een talententestrapport is nooit toegankelijk voor de
+opdrachtgever.
