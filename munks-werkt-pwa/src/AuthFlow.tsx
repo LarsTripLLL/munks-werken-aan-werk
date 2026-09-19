@@ -4,10 +4,10 @@ import type { AuthRepository, ConsentChoice, SessionUser } from './domain';
 const privacyUrl = '/Munks-Werkt-privacyverklaring.html';
 const consentUrl = '/Munks-Werkt-toestemming-concept.html';
 
-type AuthScreen = 'activate' | 'privacy' | 'privacy-document' | 'consent-document' | 'ai-consent' | 'biometric' | 'ready' | 'login' | 'staff-invite' | 'reset-request' | 'reset-sent' | 'password-recovery';
+type AuthScreen = 'activate' | 'privacy' | 'privacy-document' | 'consent-document' | 'ai-consent' | 'ready' | 'login' | 'staff-invite' | 'reset-request' | 'reset-sent' | 'password-recovery';
 type PendingActivation = { sessionId: string; email: string; password: string };
 
-const Progress = ({ step }: { step: number }) => <div className="auth-progress" aria-label={`Stap ${step} van 4`}>{[1,2,3,4].map(item => <span className={item <= step ? 'active' : ''} key={item}/>)}</div>;
+const Progress = ({ step }: { step: number }) => <div className="auth-progress" aria-label={`Stap ${step} van 3`}>{[1,2,3].map(item => <span className={item <= step ? 'active' : ''} key={item}/>)}</div>;
 
 export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepository; onAuthenticated: (user: SessionUser) => void }) {
   const [screen, setScreen] = useState<AuthScreen>(()=>{
@@ -41,7 +41,7 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
   const finishConsent = () => {
     if (aiEnabled === undefined) return setError('Kies of je de AI-assistent wilt gebruiken.');
     const choice: ConsentChoice = { privacyVersion: 'concept-2026-08', consentVersion: 'concept-2026-08', privacyAccepted, consentAccepted, aiAssistantEnabled: aiEnabled };
-    void run(async () => { if (!pending) throw new Error('Je activatiesessie is verlopen. Begin opnieuw.'); await repository.completeActivation(pending.sessionId, pending.password, choice); setPending(current => current ? { ...current, password: '' } : current); setScreen('biometric'); });
+    void run(async () => { if (!pending) throw new Error('Je activatiesessie is verlopen. Begin opnieuw.'); await repository.completeActivation(pending.sessionId, pending.password, choice); setPending(current => current ? { ...current, password: '' } : current); setScreen('ready'); });
   };
 
   const login = (event: FormEvent<HTMLFormElement>) => {
@@ -85,9 +85,7 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
 
     {screen === 'ai-consent' && <><Progress step={2}/><span className="eyebrow">Jouw keuze</span><h1>De AI-assistent</h1><p>Je bepaalt zelf of je de AI-assistent wilt gebruiken. Je keuze heeft geen gevolgen voor je deelname.</p><div className="form-card"><h2>Waarmee kan de AI-assistent helpen?</h2><p>Met vragen over werk of opleiding, je cv, het voorbereiden van een gesprek en jouw volgende stap.</p><h2>Goed om te weten</h2><ul><li>Je praat met AI en niet met een echte begeleider.</li><li>Vragen buiten het traject worden niet beantwoord.</li><li>Gesprekken zijn niet automatisch zichtbaar voor begeleiders of de RSD.</li><li>Deel geen BSN, wachtwoorden of identiteitsbewijs.</li></ul><fieldset><legend>Wil je de AI-assistent gebruiken?</legend><label className="check"><input type="radio" name="ai" checked={aiEnabled===true} onChange={() => setAiEnabled(true)}/><span>Ja, ik wil de AI-assistent gebruiken.</span></label><label className="check"><input type="radio" name="ai" checked={aiEnabled===false} onChange={() => setAiEnabled(false)}/><span>Nee, nu niet.</span></label></fieldset></div><button className="auth-primary" disabled={busy||aiEnabled===undefined} onClick={finishConsent}>{busy?'Account activeren…':'Account activeren'}</button><button className="auth-secondary" onClick={() => setScreen('privacy')}>Terug</button></>}
 
-    {screen === 'biometric' && <><Progress step={3}/><span className="eyebrow">Sneller inloggen</span><h1>Face ID of Touch ID instellen</h1><p>Gebruik Face ID, Touch ID of de vingerafdruk van je telefoon. Munks Werkt ontvangt je gezicht of vingerafdruk niet.</p><div className="form-card biometric"><strong aria-hidden="true">ID</strong><p>Je telefoon controleert alleen dat jij het bent. Je wachtwoord blijft beschikbaar als alternatief.</p></div><button className="auth-primary" disabled={busy} onClick={() => void run(async()=>{await repository.registerBiometric();setScreen('ready')})}>Face ID of Touch ID instellen</button><button className="auth-secondary" onClick={() => setScreen('ready')}>Nu niet</button></>}
-
-    {screen === 'ready' && <><Progress step={4}/><span className="eyebrow">Gelukt</span><h1>Je account is klaar</h1><p>Je kunt nu veilig verder naar Munks Werkt.</p><button className="auth-primary" onClick={() => setScreen('login')}>Naar inloggen</button><div className="auth-note">Log in met je e-mailadres en wachtwoord om je rol veilig op te halen.</div></>}
+    {screen === 'ready' && <><Progress step={3}/><span className="eyebrow">Gelukt</span><h1>Je account is klaar</h1><p>Je kunt nu veilig verder naar Munks Werkt.</p><button className="auth-primary" onClick={() => setScreen('login')}>Naar inloggen</button><div className="auth-note">Log in met je e-mailadres en wachtwoord om je rol veilig op te halen.</div></>}
 
     {screen === 'login' && <><span className="eyebrow">Welkom terug</span><h1>Inloggen</h1><p>Gebruik je e-mailadres en wachtwoord.</p><form className="form-card" onSubmit={login}><label>E-mailadres<input name="email" type="email" autoComplete="email" required/></label><label>Wachtwoord<input name="password" type="password" autoComplete="current-password" minLength={8} required/></label><button className="auth-primary" disabled={busy}>{busy?'Inloggen…':'Inloggen'}</button></form>{repository.requestPasswordReset&&<button className="auth-secondary" onClick={()=>{setError('');setNotice('');setScreen('reset-request')}}>Wachtwoord vergeten?</button>}<button className="auth-secondary" onClick={() => setScreen('activate')}>Eerste keer? Activeer je account</button></>}
     {notice && <p className="auth-note" role="status">{notice}</p>}
