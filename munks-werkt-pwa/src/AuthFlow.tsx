@@ -14,7 +14,7 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
     const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
     const query = new URLSearchParams(location.search);
     const type = hash.get('type') || query.get('type');
-    return type === 'recovery' ? 'password-recovery' : type === 'invite' ? 'staff-invite' : hash.has('error') ? 'login' : 'activate';
+    return type === 'recovery' ? 'password-recovery' : type === 'invite' ? 'staff-invite' : 'login';
   });
   const [pending, setPending] = useState<PendingActivation>();
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
