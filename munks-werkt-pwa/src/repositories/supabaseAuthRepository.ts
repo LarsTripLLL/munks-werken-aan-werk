@@ -2,7 +2,22 @@ import type { AppRole, AuthRepository, ConsentChoice, SessionUser } from '../dom
 
 type TokenResponse = {
   access_token: string;
+  refresh_token: string;
   user: { id: string; email?: string };
+};
+
+const accessTokenKey = 'munks-werkt-access-token';
+const refreshTokenKey = 'munks-werkt-refresh-token';
+
+class ExpiredSessionError extends Error {}
+
+const tokenExpiresSoon = (token: string) => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { exp?: number };
+    return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now() + 60_000;
+  } catch {
+    return false;
+  }
 };
 
 type SessionResponse = {
@@ -21,6 +36,7 @@ const roleFor = (session: SessionResponse): AppRole => {
 };
 
 export class SupabaseAuthRepository implements AuthRepository {
+  private refreshInFlight?: Promise<string>;
   constructor(
     private readonly supabaseUrl: string,
     private readonly publishableKey: string,
@@ -51,19 +67,63 @@ export class SupabaseAuthRepository implements AuthRepository {
     }
 
     const token = await tokenResponse.json() as TokenResponse;
-    localStorage.setItem('munks-werkt-access-token', token.access_token);
+    localStorage.setItem(accessTokenKey, token.access_token);
+    localStorage.setItem(refreshTokenKey, token.refresh_token);
     return this.getSessionUser(token.access_token, token.user.id);
   }
 
   async restoreSession(): Promise<SessionUser | undefined> {
-    const token = localStorage.getItem('munks-werkt-access-token');
-    if (!token) return undefined;
+    const token = localStorage.getItem(accessTokenKey);
+    if (!token && !localStorage.getItem(refreshTokenKey)) return undefined;
     try {
-      return await this.getSessionUser(token);
-    } catch {
-      localStorage.removeItem('munks-werkt-access-token');
-      return undefined;
+      const accessToken = !token || tokenExpiresSoon(token) ? await this.refreshAccessToken() : token;
+      try {
+        return await this.getSessionUser(accessToken);
+      } catch (error) {
+        if (!(error instanceof ExpiredSessionError)) throw error;
+        if (!localStorage.getItem(refreshTokenKey)) {
+          localStorage.removeItem(accessTokenKey);
+          return undefined;
+        }
+        return await this.getSessionUser(await this.refreshAccessToken());
+      }
+    } catch (error) {
+      if (error instanceof ExpiredSessionError) {
+        localStorage.removeItem(accessTokenKey);
+        localStorage.removeItem(refreshTokenKey);
+        return undefined;
+      }
+      throw error;
     }
+  }
+
+  private refreshAccessToken(): Promise<string> {
+    if (this.refreshInFlight) return this.refreshInFlight;
+    this.refreshInFlight = this.exchangeRefreshToken().finally(() => { this.refreshInFlight = undefined; });
+    return this.refreshInFlight;
+  }
+
+  private async exchangeRefreshToken(): Promise<string> {
+    const refreshToken = localStorage.getItem(refreshTokenKey);
+    if (!refreshToken) throw new ExpiredSessionError('De sessie is verlopen.');
+    const response = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { apikey: this.publishableKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    if (!response.ok) {
+      if (response.status === 400 || response.status === 401) {
+        localStorage.removeItem(accessTokenKey);
+        localStorage.removeItem(refreshTokenKey);
+        throw new ExpiredSessionError('De sessie is verlopen.');
+      }
+      throw new Error('De aanmelding kon tijdelijk niet worden vernieuwd.');
+    }
+    const refreshed = await response.json() as TokenResponse;
+    if (!refreshed.access_token || !refreshed.refresh_token) throw new Error('De aanmelding kon tijdelijk niet worden vernieuwd.');
+    localStorage.setItem(accessTokenKey, refreshed.access_token);
+    localStorage.setItem(refreshTokenKey, refreshed.refresh_token);
+    return refreshed.access_token;
   }
 
   async requestPasswordReset(email: string): Promise<void> {
@@ -114,11 +174,12 @@ export class SupabaseAuthRepository implements AuthRepository {
       const safeCode = /^[a-z0-9_]{1,64}$/.test(code) ? code : `HTTP ${response.status}`;
       throw new Error(`Het wachtwoord kon niet worden gewijzigd (foutcode: ${safeCode}). Probeer het opnieuw.`);
     }
-    localStorage.removeItem('munks-werkt-access-token');
+    localStorage.removeItem(accessTokenKey);
+    localStorage.removeItem(refreshTokenKey);
     history.replaceState(null, '', location.pathname);
   }
 
-  async completeStaffInvite(password:string):Promise<SessionUser>{const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));const queryParams=new URLSearchParams(location.search);const token=hashParams.get('access_token')||queryParams.get('access_token');if(!token)throw new Error('De uitnodigingslink is ongeldig of verlopen.');const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');const user=await response.json() as {id:string};localStorage.setItem('munks-werkt-access-token',token);history.replaceState(null,'',location.pathname);return this.getSessionUser(token,user.id)}
+  async completeStaffInvite(password:string):Promise<SessionUser>{const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));const queryParams=new URLSearchParams(location.search);const token=hashParams.get('access_token')||queryParams.get('access_token');if(!token)throw new Error('De uitnodigingslink is ongeldig of verlopen. Vraag zo nodig een nieuwe uitnodiging aan.');const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');const user=await response.json() as {id:string};localStorage.setItem(accessTokenKey,token);const refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);history.replaceState(null,'',location.pathname);return this.getSessionUser(token,user.id)}
 
   private async getSessionUser(accessToken: string, authenticatedUserId?: string): Promise<SessionUser> {
     const sessionResponse = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
@@ -129,7 +190,7 @@ export class SupabaseAuthRepository implements AuthRepository {
     });
 
     if (!sessionResponse.ok) {
-      localStorage.removeItem('munks-werkt-access-token');
+      if (sessionResponse.status === 401) throw new ExpiredSessionError('De sessie is verlopen.');
       const problem = await sessionResponse.json().catch(() => ({})) as { message?: string; code?: string };
       throw new Error(problem.message || problem.code || `De rolcontrole is mislukt (${sessionResponse.status}).`);
     }

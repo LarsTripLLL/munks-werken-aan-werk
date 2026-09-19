@@ -208,6 +208,8 @@ export function App() {
   ) as AppRole | null;
   const [sessionUser, setSessionUser] = useState<SessionUser>();
   const [authChecked, setAuthChecked] = useState(!useSupabaseAuth || isStaffInvite);
+  const [authRestoreFailed, setAuthRestoreFailed] = useState(false);
+  const [authRestoreAttempt, setAuthRestoreAttempt] = useState(0);
   const authenticatedRole = sessionUser?.role;
   const selectedRole = useSupabaseAuth ? authenticatedRole : requestedRole;
   const dashboardRole =
@@ -232,6 +234,7 @@ export function App() {
   }, []);
   const signOut = () => {
     localStorage.removeItem("munks-werkt-access-token");
+    localStorage.removeItem("munks-werkt-refresh-token");
     location.assign(`${location.origin}${location.pathname}`);
   };
   const completeStep = async (stepNumber: number) => {
@@ -263,6 +266,8 @@ export function App() {
   useEffect(() => {
     if (!useSupabaseAuth || !authRepository.restoreSession || isStaffInvite) return;
     let active = true;
+    setAuthChecked(false);
+    setAuthRestoreFailed(false);
     authRepository
       .restoreSession()
       .then((user) => {
@@ -270,11 +275,12 @@ export function App() {
         setSessionUser(user);
         setAuthenticated(true);
       })
+      .catch(() => { if (active) setAuthRestoreFailed(true); })
       .finally(() => active && setAuthChecked(true));
     return () => {
       active = false;
     };
-  }, [isStaffInvite]);
+  }, [isStaffInvite, authRestoreAttempt]);
   useEffect(() => {
     if (!useSupabaseAuth || !authenticated || !authRepository.restoreSession) return;
     let active = true;
@@ -298,14 +304,18 @@ export function App() {
           setScreen("home");
           setAuthenticated(false);
         }
+      } catch {
+        // A temporary connection error does not invalidate an authenticated session.
       } finally {
         checking = false;
       }
     };
     document.addEventListener("visibilitychange", recheckSession);
+    const interval = window.setInterval(recheckSession, 5 * 60 * 1000);
     return () => {
       active = false;
       document.removeEventListener("visibilitychange", recheckSession);
+      window.clearInterval(interval);
     };
   }, [authenticated, sessionUser?.id, sessionUser?.role, sessionUser?.organizationId]);
   useEffect(() => {
@@ -321,6 +331,13 @@ export function App() {
     return (
       <main className="center" aria-live="polite">
         Aanmelding wordt gecontroleerd…
+      </main>
+    );
+  if (authRestoreFailed)
+    return (
+      <main className="center" role="alert">
+        <p>De aanmelding kon tijdelijk niet worden gecontroleerd. Je bent niet uitgelogd.</p>
+        <button onClick={() => setAuthRestoreAttempt((current) => current + 1)}>Opnieuw proberen</button>
       </main>
     );
   if (!authenticated || isStaffInvite)
