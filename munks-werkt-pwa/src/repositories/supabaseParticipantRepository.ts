@@ -3,6 +3,7 @@ import type { ParticipantHome, ParticipantRepository, StepStatus } from '../doma
 type SessionHomeResponse = {
   user: { id: string; displayName: string };
   participantHome: {
+    personalDetails?: { name: string; city: string; age: string; phone: string; email: string };
     trajectoryCode: string;
     trajectoryName?: string;
     trajectoryStatus?: 'active' | 'planned' | 'completed';
@@ -47,6 +48,7 @@ export class SupabaseParticipantRepository implements ParticipantRepository {
         role: 'participant',
         organizationId: session.participantHome.trajectoryCode,
       },
+      personalDetails: session.participantHome.personalDetails,
       trajectoryCode: session.participantHome.trajectoryCode,
       trajectoryName: session.participantHome.trajectoryName,
       trajectoryStatus: session.participantHome.trajectoryStatus,

@@ -461,7 +461,7 @@ export function App() {
         )}
         {screen === "documents" &&
           (documentRepository ? (
-            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} />
+            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} personalDetails={data.personalDetails} />
           ) : (
             <section className="screen">
               <span className="eyebrow">Jouw bestanden</span>
@@ -528,6 +528,7 @@ export function App() {
             repository={answerRepository}
             participantId={data.user.id}
             trajectoryCode={data.trajectoryCode}
+            personalDetails={data.personalDetails}
             onClose={() => setScreen("route")}
             onComplete={() => completeStep(3)}
           />

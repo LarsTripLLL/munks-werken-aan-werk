@@ -31,11 +31,11 @@ export class ApiDashboardRepository implements DashboardRepository {
     return this.api.request<void>(`/dashboard/trajectories/${encodeURIComponent(code)}`, { method: 'PATCH', body: JSON.stringify(input) });
   }
 
-  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'coachId'>) {
+  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'age' | 'coachId'>) {
     return this.api.request<{activationCode:string}>(`/dashboard/trajectories/${encodeURIComponent(trajectoryCode)}/participants`, { method: 'POST', body: JSON.stringify(input) });
   }
 
-  updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'coachId'>) {
+  updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'age' | 'coachId'>) {
     return this.api.request<void>(`/dashboard/trajectories/${encodeURIComponent(trajectoryCode)}/participants/${encodeURIComponent(participantId)}`, { method: 'PATCH', body: JSON.stringify(input) });
   }
   renewParticipantActivation(trajectoryCode:string,participantId:string){return this.api.request<{activationCode:string}>(`/dashboard/trajectories/${encodeURIComponent(trajectoryCode)}/participants/${encodeURIComponent(participantId)}/activation`,{method:'POST'})}

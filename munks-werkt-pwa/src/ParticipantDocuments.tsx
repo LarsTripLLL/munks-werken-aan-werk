@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { AnswerRepository, ParticipantDocument, ParticipantDocumentRepository } from './domain';
+import type { AnswerRepository, ParticipantDocument, ParticipantDocumentRepository, ParticipantHome } from './domain';
 import { downloadCvAsWord, type CvData } from './cvWordDocument';
 
 const cvActivities = ['s3-details', 's3-about', 's3-education', 's3-experience', 's3-extra'];
 
-export function ParticipantDocuments({ repository, answerRepository, participantId, trajectoryCode }: { repository: ParticipantDocumentRepository; answerRepository: AnswerRepository; participantId: string; trajectoryCode: string }) {
+export function ParticipantDocuments({ repository, answerRepository, participantId, trajectoryCode, personalDetails }: { repository: ParticipantDocumentRepository; answerRepository: AnswerRepository; participantId: string; trajectoryCode: string; personalDetails?: ParticipantHome['personalDetails'] }) {
   const [documents, setDocuments] = useState<ParticipantDocument[]>([]);
   const [message, setMessage] = useState('Documenten laden…');
 
@@ -34,6 +34,10 @@ export function ParticipantDocuments({ repository, answerRepository, participant
           Object.entries(answer.value).forEach(([key, value]) => { cv[key] = String(value); });
         }
       });
+      if (personalDetails) {
+        cv.name = personalDetails.name;
+        cv.email = personalDetails.email;
+      }
       if (!Object.values(cv).some(value => value.trim())) throw new Error('Je hebt nog geen cv-gegevens ingevuld.');
       await downloadCvAsWord(cv);
       setMessage('');

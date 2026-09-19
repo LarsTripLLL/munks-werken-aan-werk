@@ -5,12 +5,19 @@ import { openAiAssistant } from "./aiNavigation";
 import { saveErrorMessage } from "./saveError";
 
 type CvData = Record<string, string>;
+const formerExampleDetails: CvData = {
+  name: "Sam de Jong",
+  city: "Zeist",
+  age: "20",
+  phone: "06 12345678",
+  email: "sam@voorbeeld.nl",
+};
 const parts = [
   {
     id: "s3-details",
     heading: "Jouw gegevens",
     title: "Kloppen jouw gegevens?",
-    help: "Een aantal velden zijn al ingevuld. Wil je kijken of deze kloppen en waar nodig de gegevens aanpassen of aanvullen.",
+    help: "Controleer je gegevens. Je naam en e-mailadres kan alleen de beheerder wijzigen; andere gegevens kun je hier voor je cv aanvullen of aanpassen.",
     skippable: false,
     fields: [
       ["name", "Voor- en achternaam"],
@@ -81,24 +88,20 @@ export function StepThreeFlow({
   repository,
   participantId,
   trajectoryCode,
+  personalDetails,
   onClose,
   onComplete,
 }: {
   repository: AnswerRepository;
   participantId: string;
   trajectoryCode: string;
+  personalDetails?: { name: string; city: string; age: string; phone: string; email: string };
   onClose: () => void;
   onComplete: () => Promise<void>;
 }) {
   const [stage, setStage] = useState<"intro" | "parts" | "preview">("intro");
   const [index, setIndex] = useState(0);
-  const [data, setData] = useState<CvData>({
-    name: "Sam de Jong",
-    city: "Zeist",
-    age: "20",
-    phone: "06 12345678",
-    email: "sam@voorbeeld.nl",
-  });
+  const [data, setData] = useState<CvData>(() => ({ ...personalDetails }));
   const [loadedFor, setLoadedFor] = useState("");
   const [loadError, setLoadError] = useState("");
   const [loadRevision, setLoadRevision] = useState(0);
@@ -154,15 +157,21 @@ export function StepThreeFlow({
         setData((current) => ({
           ...current,
           ...Object.fromEntries(
-            Object.entries(saved).map(([key, value]) => [key, String(value)]),
+            Object.entries(saved).map(([key, value]) => {
+              const text = String(value);
+              return [key, part.id === "s3-details" && formerExampleDetails[key] === text
+                ? personalDetails?.[key as keyof typeof personalDetails] ?? ""
+                : text];
+            }),
           ),
+          ...(part.id === "s3-details" ? { name: personalDetails?.name ?? "", email: personalDetails?.email ?? "" } : {}),
         }));
       setLoadedFor(part.id);
     }).catch(() => { if (active) setLoadError("Dit cv-onderdeel kon niet worden geladen."); });
     return () => {
       active = false;
     };
-  }, [index, loadRevision, part.id, participantId, repository, stage, trajectoryCode]);
+  }, [index, loadRevision, part.id, participantId, personalDetails, repository, stage, trajectoryCode]);
   useEffect(() => {
     if (stage !== "parts" || loadedFor !== part.id) return;
     setSaveState("saving");
@@ -514,6 +523,7 @@ export function StepThreeFlow({
                         : "text"
                 }
                 value={data[key] || ""}
+                readOnly={part.id === "s3-details" && (key === "name" || key === "email")}
                 onChange={(event) =>
                   setData((current) => ({
                     ...current,

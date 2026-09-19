@@ -57,8 +57,8 @@ Deno.serve(async request => {
   const userId = userData.user.id;
   const connection = await pool.connect();
   try {
-    const profileResult = await connection.queryObject<{ first_name: string; last_name: string; account_active: boolean }>`
-      select first_name, last_name, account_active
+    const profileResult = await connection.queryObject<{ first_name: string; last_name: string; email: string; phone: string | null; city: string | null; age_years: number | null; account_active: boolean }>`
+      select first_name, last_name, email, phone, city, age_years, account_active
       from public.profiles
       where id = ${userId}::uuid
       limit 1
@@ -88,7 +88,7 @@ Deno.serve(async request => {
       return json(403, { message: 'Deze opdrachtgever is niet actief.' }, origin);
     }
     if (request.method === 'POST') {
-      const body = await request.json().catch(() => ({})) as { action?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      const body = await request.json().catch(() => ({})) as { action?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; age?: number | null; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
       if(body.action==='set_appointment_active'){
         if(!body.appointmentId||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);
         const target=await connection.queryObject<{id:string;trajectory_run_id:string;step_id:string;coach_id:string;starts_at:string;ends_at:string;kind:string;participant_id:string|null;allowed:boolean}>`select appointments.id::text,appointments.trajectory_run_id::text,appointments.step_id::text,appointments.coach_id::text,appointments.starts_at::text,appointments.ends_at::text,appointments.kind::text,(select enrollment_id::text from public.appointment_participants where appointment_id=appointments.id limit 1) as participant_id,(exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) or exists(select 1 from public.trajectory_staff where trajectory_run_id=appointments.trajectory_run_id and user_id=${userId}::uuid and active and role in ('primary_coach','trajectory_coach'))) as allowed from public.appointments where appointments.id=${body.appointmentId}::uuid limit 1`;
@@ -170,6 +170,10 @@ Deno.serve(async request => {
         const isAdmin = await connection.queryObject<{ allowed: boolean }>`select exists(select 1 from public.global_user_roles where user_id = ${userId}::uuid and role = 'functional_admin' and active) as allowed`;
         if (!isAdmin.rows[0]?.allowed) return json(403, { message: 'Alleen een applicatiebeheerder mag deelnemers beheren.' }, origin);
         if (!body.trajectoryCode || !body.name?.trim() || !body.email?.trim() || !body.coachId) return json(400, { message: 'Vul naam, e-mailadres en begeleider in.' }, origin);
+        const age = body.age == null ? null : Number(body.age);
+        if (age !== null && (!Number.isInteger(age) || age < 0 || age > 120)) return json(400, { message: 'Vul een geldige leeftijd in tussen 0 en 120 jaar.' }, origin);
+        const city = body.city?.trim() || null;
+        if (city && city.length > 120) return json(400, { message: 'De woonplaats mag maximaal 120 tekens bevatten.' }, origin);
         const target = await connection.queryObject<{ id: string }>`
           select trajectory_runs.id::text from public.trajectory_runs
           join public.trajectory_staff on trajectory_staff.trajectory_run_id = trajectory_runs.id
@@ -212,7 +216,7 @@ Deno.serve(async request => {
             where kind='individual' and cancelled_at is null and starts_at>=now()
               and id in (select appointment_id from public.appointment_participants where enrollment_id=${body.enrollmentId}::uuid)
           `;
-          await connection.queryObject`update public.profiles set first_name=${firstName}, last_name=${lastName}, email=${body.email.trim().toLowerCase()}, phone=${body.phone?.trim() || null}, account_active=${body.active!==false}, updated_at=now() where id=${updated.rows[0].participant_id}::uuid`;
+          await connection.queryObject`update public.profiles set first_name=${firstName}, last_name=${lastName}, email=${body.email.trim().toLowerCase()}, phone=${body.phone?.trim() || null}, city=${city}, age_years=${age}, account_active=${body.active!==false}, updated_at=now() where id=${updated.rows[0].participant_id}::uuid`;
           return json(200, { saved: true }, origin);
         }
         if (!serviceRoleKey) return json(500, { message: 'Accountbeheer is nog niet geconfigureerd.' }, origin);
@@ -221,7 +225,7 @@ Deno.serve(async request => {
         const createdUser = await adminClient.auth.admin.createUser({ email: body.email.trim().toLowerCase(), password: temporaryPassword, email_confirm: true });
         if (createdUser.error || !createdUser.data.user) return json(409, { message: createdUser.error?.message?.includes('registered') ? 'Er bestaat al een account met dit e-mailadres.' : 'Het account kon niet worden aangemaakt.' }, origin);
         const participantId = createdUser.data.user.id;
-        await connection.queryObject`insert into public.profiles(id,first_name,last_name,email,phone) values(${participantId}::uuid,${firstName},${lastName},${body.email.trim().toLowerCase()},${body.phone?.trim() || null})`;
+        await connection.queryObject`insert into public.profiles(id,first_name,last_name,email,phone,city,age_years) values(${participantId}::uuid,${firstName},${lastName},${body.email.trim().toLowerCase()},${body.phone?.trim() || null},${city},${age})`;
         const enrollment = await connection.queryObject<{ id: string }>`insert into public.enrollments(trajectory_run_id,participant_id,primary_coach_id,status,invited_at) values(${target.rows[0].id}::uuid,${participantId}::uuid,${body.coachId}::uuid,'invited',now()) returning id::text`;
         await connection.queryObject`insert into public.enrollment_steps(enrollment_id,step_id) select ${enrollment.rows[0].id}::uuid,steps.id from public.steps join public.trajectory_runs on trajectory_runs.program_id=steps.program_id where trajectory_runs.id=${target.rows[0].id}::uuid on conflict do nothing`;
       await connection.queryObject`insert into public.appointment_participants(appointment_id,enrollment_id) select appointments.id,${enrollment.rows[0].id}::uuid from public.appointments where appointments.trajectory_run_id=${target.rows[0].id}::uuid and appointments.kind in ('group_meeting','other') on conflict do nothing`;
@@ -584,6 +588,13 @@ Deno.serve(async request => {
         order by appointments.starts_at
       `).rows;
       participantHome = {
+        personalDetails: {
+          name: `${profile.first_name} ${profile.last_name}`.trim(),
+          city: profile.city ?? '',
+          age: profile.age_years == null ? '' : String(profile.age_years),
+          phone: profile.phone ?? '',
+          email: profile.email,
+        },
         trajectoryCode: steps[0]?.trajectory_code ?? '',
         trajectoryName: steps[0]?.trajectory_name ?? '',
         trajectoryStatus: (steps[0]?.trajectory_status as 'active' | 'planned' | 'completed') ?? 'active',
@@ -671,12 +682,14 @@ Deno.serve(async request => {
           and profiles.account_active
           and trajectory_staff.role in ('primary_coach', 'trajectory_coach')
       `;
-      const participants = await connection.queryObject<{ enrollment_id: string; name: string; email: string; phone: string | null; active: boolean; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
+      const participants = await connection.queryObject<{ enrollment_id: string; name: string; email: string; phone: string | null; city: string | null; age_years: number | null; active: boolean; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
         select
           enrollments.id::text as enrollment_id,
           trim(profiles.first_name || ' ' || profiles.last_name) as name,
           profiles.email,
           profiles.phone,
+          profiles.city,
+          profiles.age_years,
           profiles.account_active as active,
           enrollments.primary_coach_id::text as coach_id,
           enrollments.goals_result::text as goals,
@@ -793,6 +806,8 @@ Deno.serve(async request => {
             name: first.name,
             email: first.email,
             phone: first.phone ?? undefined,
+            city: first.city ?? undefined,
+            age: first.age_years ?? undefined,
             coachId: first.coach_id ?? undefined,
             appSteps,
             attendance,

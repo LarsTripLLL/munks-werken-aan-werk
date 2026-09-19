@@ -2,6 +2,7 @@ import type { ParticipantHome, ParticipantRepository } from '../domain';
 
 const demoHome: ParticipantHome = {
   user: { id: 'demo-participant', displayName: 'Sam', role: 'participant', organizationId: 'demo-rsd' },
+  personalDetails: { name: 'Sam de Jong', city: 'Zeist', age: '20', phone: '06 12345678', email: 'sam@voorbeeld.nl' },
   trajectoryCode: 'MW-RSD-001',
   currentStep: 3,
   currentTitle: 'Maak je cv',
