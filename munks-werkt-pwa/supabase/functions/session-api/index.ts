@@ -682,7 +682,7 @@ Deno.serve(async request => {
           and profiles.account_active
           and trajectory_staff.role in ('primary_coach', 'trajectory_coach')
       `;
-      const participants = await connection.queryObject<{ enrollment_id: string; name: string; email: string; phone: string | null; city: string | null; age_years: number | null; active: boolean; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
+      const participants = await connection.queryObject<{ enrollment_id: string; name: string; email: string; phone: string | null; city: string | null; age_years: number | null; active: boolean; activated_at: string | null; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
         select
           enrollments.id::text as enrollment_id,
           trim(profiles.first_name || ' ' || profiles.last_name) as name,
@@ -691,6 +691,7 @@ Deno.serve(async request => {
           profiles.city,
           profiles.age_years,
           profiles.account_active as active,
+          to_char(enrollments.activated_at AT TIME ZONE 'Europe/Amsterdam', 'DD-MM-YYYY') as activated_at,
           enrollments.primary_coach_id::text as coach_id,
           enrollments.goals_result::text as goals,
           enrollments.exit_category,
@@ -803,6 +804,7 @@ Deno.serve(async request => {
           return {
             id: first.enrollment_id,
             active: first.active,
+            activatedAt: first.activated_at ?? undefined,
             name: first.name,
             email: first.email,
             phone: first.phone ?? undefined,
