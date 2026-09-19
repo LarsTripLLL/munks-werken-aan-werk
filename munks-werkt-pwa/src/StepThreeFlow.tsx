@@ -17,7 +17,7 @@ const parts = [
     id: "s3-details",
     heading: "Jouw gegevens",
     title: "Kloppen jouw gegevens?",
-    help: "Controleer je gegevens. Je naam en e-mailadres kan alleen de beheerder wijzigen; andere gegevens kun je hier voor je cv aanvullen of aanpassen.",
+    help: "Controleer je gegevens. Je naam en e-mailadres zijn vastgelegd bij je account. Bespreek een wijziging met je begeleider. Andere gegevens kun je hier voor je cv aanvullen of aanpassen.",
     skippable: false,
     fields: [
       ["name", "Voor- en achternaam"],
@@ -532,8 +532,8 @@ export function StepThreeFlow({
                 }
               />
             )}
-            {part.id === "s3-details" && key === "name" && <small className="cv-readonly-note">Je naam is vastgelegd bij je account. Vraag de beheerder om een wijziging.</small>}
-            {part.id === "s3-details" && key === "email" && <small className="cv-readonly-note">Je e-mailadres is gekoppeld aan je account. Vraag de beheerder om een wijziging.</small>}
+            {part.id === "s3-details" && key === "name" && <small className="cv-readonly-note">Je naam is vastgelegd bij je account. Bespreek een wijziging met je begeleider.</small>}
+            {part.id === "s3-details" && key === "email" && <small className="cv-readonly-note">Je e-mailadres is gekoppeld aan je account. Bespreek een wijziging met je begeleider.</small>}
           </label>
         ))}
         {part.id === "s3-education" && (
