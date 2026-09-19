@@ -36,8 +36,10 @@ button {
 }
 .app-header {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 8px;
   margin-bottom: 10px;
   min-height: 76px;
 }
@@ -2751,9 +2753,20 @@ legend {
   cursor: pointer;
 }
 .app-session-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 10px;
+  width: 100%;
+}
+.app-session-actions .session-logout {
+  grid-column: 2;
+}
+.app-session-actions .bell {
+  position: relative;
+  top: auto;
+  right: auto;
+  grid-column: 3;
+  justify-self: end;
 }
 .commissioner-logo-bar {
   display: flex;
