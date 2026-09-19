@@ -278,23 +278,28 @@ export function App() {
   useEffect(() => {
     if (!useSupabaseAuth || !authenticated || !authRepository.restoreSession) return;
     let active = true;
+    let checking = false;
     const recheckSession = async () => {
-      if (document.visibilityState !== "visible") return;
-      setAuthChecked(false);
+      if (document.visibilityState !== "visible" || checking) return;
+      checking = true;
       try {
         const user = await authRepository.restoreSession?.();
         if (!active) return;
-        setData(undefined);
         if (user) {
+          const accountChanged = sessionUser?.id !== user.id || sessionUser?.role !== user.role || sessionUser?.organizationId !== user.organizationId;
           setSessionUser(user);
-          setSessionRevision((current) => current + 1);
+          if (accountChanged) {
+            setData(undefined);
+            setSessionRevision((current) => current + 1);
+          }
         } else {
+          setData(undefined);
           setSessionUser(undefined);
           setScreen("home");
           setAuthenticated(false);
         }
       } finally {
-        if (active) setAuthChecked(true);
+        checking = false;
       }
     };
     document.addEventListener("visibilitychange", recheckSession);
@@ -302,7 +307,7 @@ export function App() {
       active = false;
       document.removeEventListener("visibilitychange", recheckSession);
     };
-  }, [authenticated]);
+  }, [authenticated, sessionUser?.id, sessionUser?.role, sessionUser?.organizationId]);
   useEffect(() => {
     if (!authenticated) return;
     const controller = new AbortController();
