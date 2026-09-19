@@ -426,6 +426,7 @@ button {
   color: var(--ink);
   background: #fff;
   font: inherit;
+  font-size: 16px;
 }
 .form-card input:focus {
   outline: 3px solid #ef55172b;
