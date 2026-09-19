@@ -48,24 +48,6 @@ button {
   max-width: 78%;
   height: auto;
 }
-.bell {
-  position: absolute;
-  right: 22px;
-  top: 49px;
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font-size: 28px;
-}
-.bell span {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--orange);
-  right: 0;
-  top: 2px;
-}
 .welcome {
   margin: 0 0 22px;
 }
@@ -2751,22 +2733,6 @@ legend {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
-}
-.app-session-actions {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  width: 100%;
-}
-.app-session-actions .session-logout {
-  grid-column: 2;
-}
-.app-session-actions .bell {
-  position: relative;
-  top: auto;
-  right: auto;
-  grid-column: 3;
-  justify-self: end;
 }
 .commissioner-logo-bar {
   display: flex;

@@ -366,17 +366,6 @@ export function App() {
       <section className="phone">
         <header className="app-header">
           <img src={logoUrl} alt="Munks Werkt" />
-          <div className="app-session-actions">
-            <button className="session-logout" onClick={signOut}>
-              Uitloggen
-            </button>
-            <button
-              aria-label={`Meldingen, ${data.unreadMessages} ongelezen`}
-              className="bell"
-            >
-              ♢<span />
-            </button>
-          </div>
         </header>
         {screen === "home" && (
           <>
@@ -417,6 +406,7 @@ export function App() {
               </button>
               <button onClick={() => setScreen("goals")}>Mijn doelen</button>
               <button onClick={() => openAiAssistant()}>AI-assistent</button>
+              <button onClick={signOut}>Uitloggen</button>
             </section>
           </>
         )}
