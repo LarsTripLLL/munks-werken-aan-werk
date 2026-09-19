@@ -37,7 +37,9 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
   const [stage, setStage] = useState<Stage>('intro');
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState<string | ScoreAnswer>('');
-  const [loaded, setLoaded] = useState(false);
+  const [loadedFor, setLoadedFor] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const [loadRevision, setLoadRevision] = useState(0);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState('');
   const activity = questions[index];
@@ -45,7 +47,8 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
   useEffect(() => {
     if (stage !== 'questions') return;
     let active = true;
-    setLoaded(false);
+    setLoadedFor('');
+    setLoadError('');
     repository.get(participantId, trajectoryCode, activity.id).then(answer => {
       if (!active) return;
       const stored = answer?.value;
@@ -55,20 +58,20 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
           : {})
         : (typeof stored === 'string' ? stored : ''));
       setSaveState(answer ? 'saved' : 'idle');
-      setLoaded(true);
-    });
+      setLoadedFor(activity.id);
+    }).catch(() => { if (active) setLoadError('Het antwoord kon niet worden geladen.'); });
     return () => { active = false; };
-  }, [activity.id, activity.kind, participantId, repository, stage, trajectoryCode]);
+  }, [activity.id, activity.kind, loadRevision, participantId, repository, stage, trajectoryCode]);
 
   useEffect(() => {
-    if (!loaded || stage !== 'questions' || activity.kind === 'measurement') return;
+    if (loadedFor !== activity.id || stage !== 'questions' || activity.kind === 'measurement') return;
     setSaveState('saving');
     const timer = window.setTimeout(() => {
       const answer: ParticipantAnswer = { participantId, trajectoryCode, activityId: activity.id, value, updatedAt: new Date().toISOString() };
       repository.save(answer).then(() => setSaveState('saved')).catch(reason => { setSaveError(saveErrorMessage(reason)); setSaveState('error'); });
     }, 450);
     return () => window.clearTimeout(timer);
-  }, [activity.id, activity.kind, loaded, participantId, repository, stage, trajectoryCode, value]);
+  }, [activity.id, activity.kind, loadedFor, participantId, repository, stage, trajectoryCode, value]);
 
   const saveScores = (subject: string, score: number) => {
     const next = { ...(typeof value === 'object' && !Array.isArray(value) ? value : {}), [subject]: score };
@@ -121,6 +124,14 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     <section className="flow-card"><h2>Fijn dat je dit hebt gedaan</h2><p>Je hoeft je antwoorden niet met de groep te delen. Jij bepaalt wat je tijdens de kennismaking vertelt.</p></section>
     <button className="flow-primary orange" onClick={onClose}>Terug naar mijn route</button>
     <button className="flow-secondary" onClick={() => { setIndex(0); setStage('questions'); }}>Mijn antwoorden bekijken</button>
+  </section>;
+
+  if (loadedFor !== activity.id) return <section className="step-flow">
+    <span className="eyebrow">Stap 1 · Kennismaken</span>
+    <h1>Over jezelf en voor jezelf</h1>
+    <section className="flow-card" role="status">{loadError || 'Antwoord laden…'}</section>
+    {loadError && <button className="flow-primary" onClick={() => setLoadRevision(current => current + 1)}>Opnieuw proberen</button>}
+    <button className="flow-secondary" onClick={onClose}>Terug naar mijn route</button>
   </section>;
 
   const scores: ScoreAnswer = typeof value === 'object' && !Array.isArray(value) ? value : {};

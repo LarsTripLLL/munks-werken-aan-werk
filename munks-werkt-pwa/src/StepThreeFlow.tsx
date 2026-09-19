@@ -99,7 +99,9 @@ export function StepThreeFlow({
     phone: "06 12345678",
     email: "sam@voorbeeld.nl",
   });
-  const [loaded, setLoaded] = useState(false);
+  const [loadedFor, setLoadedFor] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [loadRevision, setLoadRevision] = useState(0);
   const [saveState, setSaveState] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
@@ -142,7 +144,8 @@ export function StepThreeFlow({
   useEffect(() => {
     if (stage !== "parts") return;
     let active = true;
-    setLoaded(false);
+    setLoadedFor("");
+    setLoadError("");
     repository.get(participantId, trajectoryCode, part.id).then((answer) => {
       if (!active) return;
       const saved = answer?.value;
@@ -153,14 +156,14 @@ export function StepThreeFlow({
             Object.entries(saved).map(([key, value]) => [key, String(value)]),
           ),
         }));
-      setLoaded(true);
-    });
+      setLoadedFor(part.id);
+    }).catch(() => { if (active) setLoadError("Dit cv-onderdeel kon niet worden geladen."); });
     return () => {
       active = false;
     };
-  }, [index, part.id, participantId, repository, stage, trajectoryCode]);
+  }, [index, loadRevision, part.id, participantId, repository, stage, trajectoryCode]);
   useEffect(() => {
-    if (stage !== "parts" || !loaded) return;
+    if (stage !== "parts" || loadedFor !== part.id) return;
     setSaveState("saving");
     const timer = window.setTimeout(
       () =>
@@ -177,7 +180,7 @@ export function StepThreeFlow({
       450,
     );
     return () => window.clearTimeout(timer);
-  }, [data, loaded, part.id, participantId, repository, stage, trajectoryCode]);
+  }, [data, loadedFor, part.id, participantId, repository, stage, trajectoryCode]);
 
   const move = async (direction: 1 | -1) => {
     try {
@@ -459,6 +462,15 @@ export function StepThreeFlow({
         </button>
       </section>
     );
+  if (loadedFor !== part.id) return (
+    <section className="step-flow">
+      <span className="eyebrow">Stap 3 · Onderdeel {index + 1} van 6</span>
+      <h1>{part.heading}</h1>
+      <section className="flow-card" role="status">{loadError || "Antwoord laden…"}</section>
+      {loadError && <button className="flow-primary" onClick={() => setLoadRevision(current => current + 1)}>Opnieuw proberen</button>}
+      <button className="flow-secondary" onClick={onClose}>Terug naar mijn route</button>
+    </section>
+  );
   return (
     <section className="step-flow">
       <span className="eyebrow">Stap 3 · Onderdeel {index + 1} van 6</span>
