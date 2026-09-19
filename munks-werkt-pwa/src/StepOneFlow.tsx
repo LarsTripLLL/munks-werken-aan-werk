@@ -42,6 +42,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
   const [loadRevision, setLoadRevision] = useState(0);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [saveError, setSaveError] = useState('');
+  const [moving, setMoving] = useState(false);
   const activity = questions[index];
 
   useEffect(() => {
@@ -95,19 +96,25 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
   };
 
   const continueAfterSave = async () => {
+    if (moving) return;
+    setMoving(true);
     try {
       await saveTextNow();
       if (index === questions.length - 1) { await onComplete(); setStage('done'); }
       else setIndex(current => current + 1);
     } catch { setSaveState('error'); }
+    finally { setMoving(false); }
   };
 
   const skipAndContinue = async () => {
+    if (moving) return;
+    setMoving(true);
     try {
       await saveTextNow(''); setValue('');
       if (index === questions.length - 1) { await onComplete(); setStage('done'); }
       else setIndex(current => current + 1);
     } catch { setSaveState('error'); }
+    finally { setMoving(false); }
   };
 
   if (stage === 'intro') return <section className="step-flow">
@@ -146,8 +153,8 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
       <VisibilityNote activity={activity}/>
       <div className={`save-state ${saveState}`} aria-live="polite">{{idle:'Nog niet ingevuld',saving:'Opslaan…',saved:'Automatisch opgeslagen',error:saveError}[saveState]}</div>
     </section>
-    <button className="flow-primary" onClick={() => void continueAfterSave()}>{index === questions.length - 1 ? 'Voorbereiding afronden' : 'Volgende vraag'}</button>
-    {activity.skippable && <button className="flow-link" onClick={() => void skipAndContinue()}>Deze vraag overslaan</button>}
+    <button className="flow-primary" disabled={moving} onClick={() => void continueAfterSave()}>{moving ? 'Even opslaan…' : index === questions.length - 1 ? 'Voorbereiding afronden' : 'Volgende vraag'}</button>
+    {activity.skippable && <button className="flow-link" disabled={moving} onClick={() => void skipAndContinue()}>Deze vraag overslaan</button>}
     <button className="flow-secondary" onClick={() => { if (activity.kind !== 'measurement') void saveTextNow(); index === 0 ? setStage('intro') : setIndex(current => current - 1); }}>{index === 0 ? 'Terug naar uitleg' : 'Vorige vraag'}</button>
   </section>;
 }

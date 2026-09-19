@@ -107,6 +107,7 @@ export function StepThreeFlow({
   >("idle");
   const [message, setMessage] = useState("");
   const [saveError, setSaveError] = useState("");
+  const [moving, setMoving] = useState(false);
   const [educationCount, setEducationCount] = useState(1);
   const [experienceCount, setExperienceCount] = useState(1);
   const part = parts[index];
@@ -183,6 +184,8 @@ export function StepThreeFlow({
   }, [data, loadedFor, part.id, participantId, repository, stage, trajectoryCode]);
 
   const move = async (direction: 1 | -1) => {
+    if (moving) return;
+    setMoving(true);
     try {
       await repository.save({
         participantId,
@@ -199,9 +202,13 @@ export function StepThreeFlow({
     } catch (reason) {
       setSaveError(saveErrorMessage(reason));
       setSaveState("error");
+    } finally {
+      setMoving(false);
     }
   };
   const skip = async () => {
+    if (moving) return;
+    setMoving(true);
     const cleared = { ...data };
     activeFields.forEach(([key]) => delete cleared[key]);
     setData(cleared);
@@ -220,6 +227,8 @@ export function StepThreeFlow({
     } catch (reason) {
       setSaveError(saveErrorMessage(reason));
       setSaveState("error");
+    } finally {
+      setMoving(false);
     }
   };
   const introduction =
@@ -548,13 +557,13 @@ export function StepThreeFlow({
           }
         </div>
       </section>
-      <button className="flow-primary" onClick={() => void move(1)}>
-        {index === parts.length - 1
+      <button className="flow-primary" disabled={moving} onClick={() => void move(1)}>
+        {moving ? "Even opslaan…" : index === parts.length - 1
           ? "Opslaan en bekijk mijn cv"
           : "Opslaan en verder"}
       </button>
       {part.skippable && (
-        <button className="flow-link" onClick={() => void skip()}>
+        <button className="flow-link" disabled={moving} onClick={() => void skip()}>
           Dit onderdeel overslaan
         </button>
       )}
