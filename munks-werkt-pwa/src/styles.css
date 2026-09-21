@@ -2744,6 +2744,42 @@ legend {
   font-weight: 700;
   cursor: pointer;
 }
+
+.idle-warning {
+  position: fixed;
+  z-index: 1000;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(26rem, calc(100vw - 2rem));
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid #e3c89e;
+  border-radius: 1rem;
+  background: #fffaf1;
+  color: #102b31;
+  box-shadow: 0 0.75rem 2rem rgb(16 43 49 / 18%);
+}
+
+.idle-warning strong {
+  font-size: 1.05rem;
+}
+
+.idle-warning span {
+  line-height: 1.45;
+}
+
+.idle-warning button {
+  justify-self: start;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: #102b31;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
 .commissioner-logo-bar {
   display: flex;
   align-items: center;

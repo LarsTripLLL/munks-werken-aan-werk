@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { AuthRepository, ParticipantHome, SessionUser } from "./domain";
 import type { AppRole } from "./domain";
@@ -224,6 +224,7 @@ export function App() {
   const [error, setError] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
   const [aiPrompt, setAiPrompt] = useState("");
+  const [idleWarning, setIdleWarning] = useState(false);
   useEffect(() => {
     const listener = (event: Event) => {
       setAiPrompt((event as CustomEvent<string>).detail || "");
@@ -232,11 +233,73 @@ export function App() {
     window.addEventListener("munks-open-ai", listener);
     return () => window.removeEventListener("munks-open-ai", listener);
   }, []);
-  const signOut = () => {
+  const signOut = useCallback(() => {
     localStorage.removeItem("munks-werkt-access-token");
     localStorage.removeItem("munks-werkt-refresh-token");
+    localStorage.removeItem("munks-werkt-last-activity");
     location.assign(`${location.origin}${location.pathname}`);
-  };
+  }, []);
+  useEffect(() => {
+    if (!authenticated) {
+      setIdleWarning(false);
+      return;
+    }
+
+    const activityKey = "munks-werkt-last-activity";
+    const idleLimit = 15 * 60 * 1000;
+    const warningAfter = 14 * 60 * 1000;
+    let warningTimer = 0;
+    let signOutTimer = 0;
+    let lastRecorded = 0;
+
+    const schedule = () => {
+      window.clearTimeout(warningTimer);
+      window.clearTimeout(signOutTimer);
+      const stored = Number(localStorage.getItem(activityKey));
+      const lastActivity = Number.isFinite(stored) && stored > 0 ? stored : Date.now();
+      if (!stored) localStorage.setItem(activityKey, String(lastActivity));
+      const inactiveFor = Date.now() - lastActivity;
+      if (inactiveFor >= idleLimit) {
+        signOut();
+        return;
+      }
+      if (inactiveFor >= warningAfter) setIdleWarning(true);
+      else {
+        setIdleWarning(false);
+        warningTimer = window.setTimeout(() => setIdleWarning(true), warningAfter - inactiveFor);
+      }
+      signOutTimer = window.setTimeout(signOut, idleLimit - inactiveFor);
+    };
+
+    const recordActivity = (event: Event) => {
+      const now = Date.now();
+      if (event.type === "pointermove" && now - lastRecorded < 1000) return;
+      lastRecorded = now;
+      localStorage.setItem(activityKey, String(now));
+      schedule();
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== activityKey) return;
+      if (event.newValue === null) signOut();
+      else schedule();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") schedule();
+    };
+    const activityEvents: Array<keyof WindowEventMap> = ["pointerdown", "pointermove", "keydown", "touchstart", "scroll"];
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, recordActivity, { passive: true }));
+    window.addEventListener("storage", handleStorage);
+    document.addEventListener("visibilitychange", handleVisibility);
+    schedule();
+    return () => {
+      window.clearTimeout(warningTimer);
+      window.clearTimeout(signOutTimer);
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, recordActivity));
+      window.removeEventListener("storage", handleStorage);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, [authenticated, signOut]);
+  const idleWarningNotice = idleWarning ? <aside className="idle-warning" role="alertdialog" aria-labelledby="idle-warning-title" aria-describedby="idle-warning-text"><strong id="idle-warning-title">Je wordt bijna uitgelogd</strong><span id="idle-warning-text">Je bent bijna 15 minuten niet actief geweest. Je wordt over één minuut automatisch uitgelogd.</span><button type="button" onClick={() => setIdleWarning(false)}>Ingelogd blijven</button></aside> : null;
   const completeStep = async (stepNumber: number) => {
     if (progressRepository) await progressRepository.completeStep(stepNumber);
     setData((current) => {
@@ -362,13 +425,16 @@ export function App() {
     );
   if (dashboardRole)
     return (
-      <DashboardPortal
-        key={sessionRevision}
-        role={dashboardRole}
-        repository={dashboardRepository}
-        messageRepository={supabaseMessageRepositories ? supabaseMessageRepositories.staff() : staffMessageRepository}
-        onSignOut={signOut}
-      />
+      <>
+        {idleWarningNotice}
+        <DashboardPortal
+          key={sessionRevision}
+          role={dashboardRole}
+          repository={dashboardRepository}
+          messageRepository={supabaseMessageRepositories ? supabaseMessageRepositories.staff() : staffMessageRepository}
+          onSignOut={signOut}
+        />
+      </>
     );
   if (error)
     return (
@@ -385,6 +451,7 @@ export function App() {
     );
   return (
     <main className="app-shell">
+      {idleWarningNotice}
       <section className="phone">
         <header className="app-header">
           <img src={logoUrl} alt="Munks Werkt" />
