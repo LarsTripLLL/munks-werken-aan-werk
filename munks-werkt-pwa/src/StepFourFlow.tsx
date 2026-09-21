@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AnswerRepository } from "./domain";
+import type { AnswerRepository, ParticipantHome } from "./domain";
 import { downloadCvAsWord } from "./cvWordDocument";
 
 type CvData = Record<string, string>;
@@ -21,12 +21,14 @@ export function StepFourFlow({
   repository,
   participantId,
   trajectoryCode,
+  personalDetails,
   onEdit,
   onClose,
 }: {
   repository: AnswerRepository;
   participantId: string;
   trajectoryCode: string;
+  personalDetails?: ParticipantHome['personalDetails'];
   onEdit: () => void;
   onClose: () => void;
 }) {
@@ -52,6 +54,11 @@ export function StepFourFlow({
           ([key, value]) => (merged[key] = String(value)),
         );
     });
+    if (personalDetails) {
+      merged.name = personalDetails.name;
+      merged.age = personalDetails.age;
+      merged.email = personalDetails.email;
+    }
     setData(merged);
     return merged;
   };

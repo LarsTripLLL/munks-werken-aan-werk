@@ -36,6 +36,7 @@ export function ParticipantDocuments({ repository, answerRepository, participant
       });
       if (personalDetails) {
         cv.name = personalDetails.name;
+        cv.age = personalDetails.age;
         cv.email = personalDetails.email;
       }
       if (!Object.values(cv).some(value => value.trim())) throw new Error('Je hebt nog geen cv-gegevens ingevuld.');

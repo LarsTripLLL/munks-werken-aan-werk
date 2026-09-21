@@ -622,6 +622,7 @@ export function App() {
             repository={answerRepository}
             participantId={data.user.id}
             trajectoryCode={data.trajectoryCode}
+            personalDetails={data.personalDetails}
             onEdit={() => setScreen("step3")}
             onClose={() => setScreen("route")}
           />

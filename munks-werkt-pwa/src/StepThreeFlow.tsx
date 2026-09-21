@@ -164,7 +164,7 @@ export function StepThreeFlow({
                 : text];
             }),
           ),
-          ...(part.id === "s3-details" ? { name: personalDetails?.name ?? "", email: personalDetails?.email ?? "" } : {}),
+          ...(part.id === "s3-details" ? { name: personalDetails?.name ?? "", age: personalDetails?.age ?? "", email: personalDetails?.email ?? "" } : {}),
         }));
       setLoadedFor(part.id);
     }).catch(() => { if (active) setLoadError("Dit cv-onderdeel kon niet worden geladen."); });
@@ -523,7 +523,7 @@ export function StepThreeFlow({
                         : "text"
                 }
                 value={data[key] || ""}
-                readOnly={part.id === "s3-details" && (key === "name" || key === "email")}
+                readOnly={part.id === "s3-details" && (key === "name" || key === "age" || key === "email")}
                 onChange={(event) =>
                   setData((current) => ({
                     ...current,
@@ -533,6 +533,7 @@ export function StepThreeFlow({
               />
             )}
             {part.id === "s3-details" && key === "name" && <small className="cv-readonly-note">Je naam is vastgelegd bij je account. Bespreek een wijziging met je begeleider.</small>}
+            {part.id === "s3-details" && key === "age" && <small className="cv-readonly-note">Je leeftijd wordt automatisch berekend op basis van je geboortedatum.</small>}
             {part.id === "s3-details" && key === "email" && <small className="cv-readonly-note">Je e-mailadres is gekoppeld aan je account. Bespreek een wijziging met je begeleider.</small>}
           </label>
         ))}

@@ -163,7 +163,7 @@ export interface DashboardParticipant {
   email?: string;
   phone?: string;
   city?: string;
-  age?: number;
+  birthDate?: string;
   appSteps: boolean[];
   attendance: Array<boolean | null>;
   needsAttention: boolean;
@@ -223,8 +223,8 @@ export interface DashboardRepository {
   releaseOutcome(trajectoryCode: string, participantId: string, category: string, summary: string, status: 'provisional' | 'final', goals: DashboardParticipant['goals']): Promise<void>;
   createTrajectory(input: Pick<DashboardTrajectory, 'code' | 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void>;
   updateTrajectory(code: string, input: Pick<DashboardTrajectory, 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void>;
-  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'age' | 'coachId'>): Promise<{ activationCode: string }>;
-  updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'age' | 'coachId' | 'active'>): Promise<void>;
+  addParticipant(trajectoryCode: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'birthDate' | 'coachId'>): Promise<{ activationCode: string }>;
+  updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'birthDate' | 'coachId' | 'active'>): Promise<void>;
   renewParticipantActivation(trajectoryCode: string, participantId: string): Promise<{ activationCode: string }>;
   uploadParticipantDocument(trajectoryCode: string, participantId: string, type: 'cv' | 'talent_report', file: File): Promise<void>;
   openParticipantDocument(document: ParticipantDocument): Promise<void>;
