@@ -8,6 +8,7 @@ const allowedOrigins=new Set((Deno.env.get('ALLOWED_ORIGINS')??'http://localhost
 const sql=postgres(databaseUrl,{prepare:false});
 const cors=(origin:string)=>({'Access-Control-Allow-Origin':allowedOrigins.has(origin)?origin:'','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'});
 const json=(status:number,data:unknown,origin:string)=>new Response(JSON.stringify(data),{status,headers:{...cors(origin),'Content-Type':'application/json','Cache-Control':'private, no-store'}});
+const tokenAssuranceLevel=(token:string)=>{try{const encoded=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'),padded=encoded.padEnd(Math.ceil(encoded.length/4)*4,'=');return (JSON.parse(atob(padded)) as {aal?:string}).aal==='aal2'?'aal2':'aal1'}catch{return 'aal1'}};
 
 Deno.serve(async request=>{
  const origin=request.headers.get('origin')??'';
@@ -17,6 +18,8 @@ Deno.serve(async request=>{
   const token=(request.headers.get('authorization')??'').replace(/^Bearer\s+/i,'');
   const auth=createClient(supabaseUrl,publishableKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await auth.auth.getUser(token);if(error||!data.user)return json(401,{message:'Meld je opnieuw aan.'},origin);
+  const security=await sql<{mfa_required:boolean}[]>`select mfa_required from public.app_security_settings where singleton limit 1`;
+  if(security[0]?.mfa_required&&tokenAssuranceLevel(token)!=='aal2')return json(403,{code:'mfa_required',message:'Voltooi eerst de tweede beveiligingsstap.'},origin);
   const userId=data.user.id,body=await request.json().catch(()=>({})) as {action?:string;message?:string};
   await sql`delete from public.ai_messages where created_at<now()-interval '90 days'`;
   await sql`delete from public.ai_conversations where updated_at<now()-interval '90 days' and not exists(select 1 from public.ai_messages where ai_messages.conversation_id=ai_conversations.id)`;

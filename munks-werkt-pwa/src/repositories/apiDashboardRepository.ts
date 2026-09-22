@@ -10,6 +10,8 @@ export class ApiDashboardRepository implements DashboardRepository {
 
   listManagementOptions() { return this.api.request<import('../domain').DashboardManagementOptions>('/dashboard/management-options'); }
   saveManagedUser(user:import('../domain').ManagedUser){return this.api.request<void>('/dashboard/users',{method:'POST',body:JSON.stringify(user)})}
+  setMfaRequired(required:boolean){return this.api.request<void>('/dashboard/security/mfa',{method:'POST',body:JSON.stringify({required})})}
+  resetManagedUserMfa(userId:string){return this.api.request<void>(`/dashboard/security/mfa/${userId}/reset`,{method:'POST'})}
   saveCommissioner(organization:{code:string;name:string;active:boolean}){return this.api.request<void>('/dashboard/commissioners',{method:'POST',body:JSON.stringify(organization)})}
   listAppointments(trajectoryCode:string){return this.api.request<import('../domain').DashboardAppointment[]>(`/dashboard/trajectories/${encodeURIComponent(trajectoryCode)}/appointments`)}
   saveAppointment(appointment:Omit<import('../domain').DashboardAppointment,'coachName'|'cancelled'>){return this.api.request<void>('/dashboard/appointments',{method:'POST',body:JSON.stringify(appointment)})}

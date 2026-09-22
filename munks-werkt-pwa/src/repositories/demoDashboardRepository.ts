@@ -18,6 +18,8 @@ export class DemoDashboardRepository implements DashboardRepository {
  async saveAppointment(appointment:Omit<DashboardAppointment,'coachName'|'cancelled'>){const coachName=trajectories.find(item=>item.code===appointment.trajectoryCode)?.coaches.find(coach=>coach.id===appointment.coachId)?.name??'';const item={...appointment,coachName,cancelled:false};const index=this.appointments.findIndex(existing=>existing.id===appointment.id);if(index>=0)this.appointments[index]={...item,cancelled:this.appointments[index].cancelled};else this.appointments.push({...item,id:appointment.id||`a${Date.now()}`})}
  async setAppointmentActive(appointmentId:string,active:boolean){const item=this.appointments.find(appointment=>appointment.id===appointmentId);if(item)item.cancelled=!active}
  async saveManagedUser(){return}
+ async setMfaRequired(){return}
+ async resetManagedUserMfa(){return}
  async saveCommissioner(){return}
  async listManagementOptions(){return {coaches:[{id:'c1',name:'Eva Jansen'},{id:'c2',name:'Mohammed El Idrissi'},{id:'c3',name:'Sanne Vos'}],commissioners:[{code:'RSDZEIST',name:'Regionale Sociale Dienst Kromme Rijn Heuvelrug'}]}}
  async listTrajectories(_role:Exclude<AppRole,'participant'>){return structuredClone(trajectories)}

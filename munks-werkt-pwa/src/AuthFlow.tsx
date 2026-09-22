@@ -1,22 +1,23 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import type { AuthRepository, ConsentChoice, SessionUser } from './domain';
+import type { AuthenticationResult, AuthRepository, ConsentChoice, PendingMfaAuthentication, SessionUser } from './domain';
 const privacySummaryUrl = '/documenten/Jouw%20privacy%20in%20Munks%20Werkt%20verkort.pdf';
 const privacyFullUrl = '/documenten/Privacyverklaring%20Munks%20Werkt%20volledig.pdf';
 const consentUrl = '/documenten/Toestemmingsverklaring%20Munks%20Werkt.pdf';
 
-type AuthScreen = 'activate' | 'privacy' | 'privacy-document' | 'consent-document' | 'ai-consent' | 'ready' | 'login' | 'staff-invite' | 'reset-request' | 'reset-sent' | 'password-recovery';
+type AuthScreen = 'activate' | 'privacy' | 'privacy-document' | 'consent-document' | 'ai-consent' | 'ready' | 'login' | 'staff-invite' | 'reset-request' | 'reset-sent' | 'password-recovery' | 'mfa-enroll' | 'mfa-challenge';
 type PendingActivation = { sessionId: string; email: string; password: string };
 
 const Progress = ({ step }: { step: number }) => <div className="auth-progress" aria-label={`Stap ${step} van 3`}>{[1,2,3].map(item => <span className={item <= step ? 'active' : ''} key={item}/>)}</div>;
 
-export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepository; onAuthenticated: (user: SessionUser) => void }) {
+export function AuthFlow({ repository, initialMfa, onAuthenticated }: { repository: AuthRepository; initialMfa?: PendingMfaAuthentication; onAuthenticated: (user: SessionUser) => void }) {
   const [screen, setScreen] = useState<AuthScreen>(()=>{
     const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
     const query = new URLSearchParams(location.search);
     const type = hash.get('type') || query.get('type');
-    return type === 'recovery' ? 'password-recovery' : type === 'invite' ? 'staff-invite' : 'login';
+    return initialMfa?.status === 'mfa_enroll' ? 'mfa-enroll' : initialMfa?.status === 'mfa_challenge' ? 'mfa-challenge' : type === 'recovery' ? 'password-recovery' : type === 'invite' ? 'staff-invite' : 'login';
   });
+  const [mfa, setMfa] = useState<PendingMfaAuthentication | undefined>(initialMfa);
   const [pending, setPending] = useState<PendingActivation>();
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [consentAccepted, setConsentAccepted] = useState(false);
@@ -26,6 +27,11 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
   const [busy, setBusy] = useState(false);
 
   const run = async (task: () => Promise<void>) => { setError(''); setBusy(true); try { await task(); } catch (reason) { setError(reason instanceof Error ? reason.message : 'Er ging iets mis. Probeer het opnieuw.'); } finally { setBusy(false); } };
+  const handleAuthentication = (result: AuthenticationResult) => {
+    if (result.status === 'authenticated') return onAuthenticated(result.user);
+    setMfa(result);
+    setScreen(result.status === 'mfa_enroll' ? 'mfa-enroll' : 'mfa-challenge');
+  };
 
   const activate = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,7 +53,33 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
 
   const login = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); const fields = new FormData(event.currentTarget);
-    void run(async () => { const user = await repository.signIn(String(fields.get('email') ?? ''), String(fields.get('password') ?? '')); onAuthenticated(user); });
+    void run(async () => { handleAuthentication(await repository.signIn(String(fields.get('email') ?? ''), String(fields.get('password') ?? ''))); });
+  };
+  const verifyMfa = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const code = String(new FormData(event.currentTarget).get('mfaCode') ?? '').replace(/\s/g, '');
+    void run(async () => {
+      if (!mfa || !repository.verifyMfa) throw new Error('De tweede beveiligingsstap is niet beschikbaar. Log opnieuw in.');
+      onAuthenticated(await repository.verifyMfa(mfa.factorId, code));
+    });
+  };
+  const copyMfaSecret = () => {
+    if (mfa?.status !== 'mfa_enroll') return;
+    void run(async () => {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(mfa.secret);
+      else {
+        const field = document.createElement('textarea');
+        field.value = mfa.secret;
+        field.style.position = 'fixed';
+        field.style.opacity = '0';
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand('copy');
+        field.remove();
+        if (!copied) throw new Error('Kopiëren is niet toegestaan. Neem de zichtbare instelsleutel handmatig over.');
+      }
+      setNotice('Instelsleutel gekopieerd.');
+    });
   };
   const requestReset = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -71,13 +103,17 @@ export function AuthFlow({ repository, onAuthenticated }: { repository: AuthRepo
       setScreen('login');
     });
   };
-  const finishStaffInvite=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),password=String(data.get('password')||''),repeat=String(data.get('repeat')||'');if(password.length<8)return setError('Gebruik een wachtwoord van minimaal 8 tekens.');if(password!==repeat)return setError('De wachtwoorden zijn niet hetzelfde.');void run(async()=>{if(!repository.completeStaffInvite)throw new Error('Deze uitnodiging kan hier niet worden afgerond.');onAuthenticated(await repository.completeStaffInvite(password))})};
+  const finishStaffInvite=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),password=String(data.get('password')||''),repeat=String(data.get('repeat')||'');if(password.length<8)return setError('Gebruik een wachtwoord van minimaal 8 tekens.');if(password!==repeat)return setError('De wachtwoorden zijn niet hetzelfde.');void run(async()=>{if(!repository.completeStaffInvite)throw new Error('Deze uitnodiging kan hier niet worden afgerond.');handleAuthentication(await repository.completeStaffInvite(password))})};
+
+  const qrCodeUrl = mfa?.status === 'mfa_enroll' ? (mfa.qrCode.startsWith('data:') ? mfa.qrCode : `data:image/svg+xml;utf8,${encodeURIComponent(mfa.qrCode)}`) : '';
 
   return <section className="auth-screen">
     {screen==='staff-invite'&&<><span className="eyebrow">Uitnodiging</span><h1>Maak je account af</h1><p>Kies een persoonlijk wachtwoord voor je medewerkersaccount.</p><form className="form-card" onSubmit={finishStaffInvite}><label>Kies een wachtwoord<input name="password" type="password" autoComplete="new-password" minLength={8} required/></label><label>Herhaal je wachtwoord<input name="repeat" type="password" autoComplete="new-password" minLength={8} required/></label><button className="auth-primary" disabled={busy}>{busy?'Account activeren…':'Account activeren'}</button></form></>}
     {screen==='password-recovery'&&<><span className="eyebrow">Wachtwoord herstellen</span><h1>Kies een nieuw wachtwoord</h1><p>Gebruik een wachtwoord van minimaal 8 tekens.</p><form className="form-card" onSubmit={completeReset}><label>Nieuw wachtwoord<input name="password" type="password" autoComplete="new-password" minLength={8} required/></label><label>Herhaal nieuw wachtwoord<input name="repeat" type="password" autoComplete="new-password" minLength={8} required/></label><button className="auth-primary" disabled={busy}>{busy?'Wachtwoord opslaan…':'Wachtwoord opslaan'}</button></form></>}
     {screen==='reset-request'&&<><span className="eyebrow">Wachtwoord herstellen</span><h1>Wachtwoord vergeten?</h1><p>Vul je e-mailadres in. Als het account bestaat, ontvang je een link om een nieuw wachtwoord te kiezen.</p><form className="form-card" onSubmit={requestReset}><label>E-mailadres<input name="email" type="email" autoComplete="email" required/></label><button className="auth-primary" disabled={busy}>{busy?'Resetmail versturen…':'Stuur resetmail'}</button></form><button className="auth-secondary" onClick={()=>{setError('');setScreen('login')}}>Terug naar inloggen</button></>}
     {screen==='reset-sent'&&<><span className="eyebrow">Controleer je e-mail</span><h1>Resetmail aangevraagd</h1><p>Als dit e-mailadres bij een account hoort, ontvang je een link. Gebruik de nieuwste mail en controleer zo nodig je spammap.</p><button className="auth-secondary" onClick={()=>setScreen('login')}>Terug naar inloggen</button></>}
+    {screen==='mfa-enroll'&&mfa?.status==='mfa_enroll'&&<><span className="eyebrow">Extra beveiliging</span><h1>Koppel je authenticator-app</h1><p>Scan de QR-code met bijvoorbeeld Microsoft Authenticator of Google Authenticator.</p><div className="form-card mfa-card"><img className="mfa-qr" src={qrCodeUrl} alt="QR-code om Munks Werkt aan je authenticator-app te koppelen"/><details><summary>Kan je de QR-code niet scannen?</summary><p>Voeg in je authenticator-app handmatig een account toe en gebruik deze instelsleutel:</p><code className="mfa-secret">{mfa.secret}</code><button type="button" className="auth-secondary" disabled={busy} onClick={copyMfaSecret}>Kopieer instelsleutel</button></details><form onSubmit={verifyMfa}><label>Zescijferige code<input name="mfaCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} required/></label><button className="auth-primary" disabled={busy}>{busy?'Controleren…':'Authenticator koppelen'}</button></form></div><p className="auth-note">Bewaar de instelsleutel niet in een bericht of onbeveiligd document. Bij verlies van je telefoon neem je contact op met je beheerder.</p></>}
+    {screen==='mfa-challenge'&&mfa?.status==='mfa_challenge'&&<><span className="eyebrow">Extra beveiliging</span><h1>Vul je authenticatorcode in</h1><p>Open je authenticator-app en vul de actuele zescijferige code voor Munks Werkt in.</p><form className="form-card" onSubmit={verifyMfa}><label>Authenticatorcode<input name="mfaCode" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} autoFocus required/></label><button className="auth-primary" disabled={busy}>{busy?'Controleren…':'Veilig inloggen'}</button></form><p className="auth-note">Geen toegang meer tot je authenticator? Neem contact op met je beheerder om de koppeling na identiteitscontrole te laten herstellen.</p></>}
     {screen === 'privacy-document' && <section className="auth-document auth-privacy-document"><div className="auth-privacy-content"><header><button className="document-back" aria-label="Terug naar jouw privacy" onClick={() => setScreen('privacy')}>←</button><strong><span>MUNKS</span> WERKT</strong></header><span className="eyebrow">Jouw privacy</span><h1>Wat gebeurt er met je gegevens?</h1><p>Hier leggen we in gewone taal uit welke gegevens Munks Werkt gebruikt en wie deze kan bekijken.</p><div className="privacy-summary">We gebruiken je gegevens alleen om je traject te begeleiden, je voortgang te tonen en afspraken te maken over jouw volgende stap.</div><details open><summary>Welke gegevens bewaren we?</summary><p>Bijvoorbeeld je naam, contactgegevens, antwoorden, trajectvoortgang, afspraken, cv en de begin- en eindmeting.</p></details><details><summary>Wie kan wat bekijken?</summary><p>Jij en de betrokken begeleiders kunnen je trajectgegevens bekijken. De opdrachtgever ziet alleen de afgesproken voortgangs- en meetgegevens, niet al je persoonlijke antwoorden.</p></details><details><summary>Hoe zit het met de AI-assistent?</summary><p>De AI-assistent gebruikt alleen gegevens die nodig zijn voor jouw vraag. Gesprekken zijn niet automatisch zichtbaar voor begeleiders of de opdrachtgever.</p></details><details><summary>Hoe lang bewaren we gegevens?</summary><p>Gegevens worden niet langer bewaard dan nodig. De precieze bewaartermijnen staan in de volledige privacyverklaring.</p></details><details><summary>Welke rechten heb je?</summary><p>Je mag vragen welke gegevens we hebben, gegevens laten verbeteren en in bepaalde gevallen vragen om verwijdering of beperking.</p></details><a className="privacy-full-link" href={privacyFullUrl} target="_blank" rel="noreferrer">Open de volledige privacyverklaring</a><p className="privacy-question"><strong>Heb je een vraag?</strong><br/>Stel die aan je begeleider of aan de privacycontactpersoon van Munks.</p></div></section>}
     {screen === 'consent-document' && <section className="auth-document auth-privacy-document"><div className="auth-privacy-content consent-content"><header><button className="document-back" aria-label="Terug naar jouw privacy" onClick={() => setScreen('privacy')}><span aria-hidden="true">&larr;</span></button><strong><span>MUNKS</span> WERKT</strong></header><span className="eyebrow">Toestemming en informatie</span><h1>Jouw keuzes in Munks Werkt</h1><p>Lees rustig waarvoor je toestemming geeft. Je kunt hierover altijd vragen stellen aan je begeleider.</p><section className="consent-info-card"><span className="question-count">Nodig voor deelname</span><h2>Gebruik van je trajectgegevens</h2><p>Je gegevens worden gebruikt om je te begeleiden, je voortgang bij te houden en alleen de afgesproken voortgangs- en resultaatgegevens met de opdrachtgever te delen.</p><label className="check"><input type="checkbox" checked={consentAccepted} onChange={event => setConsentAccepted(event.target.checked)}/><span>Ik heb deze informatie gelezen en ga akkoord met het gebruik van mijn gegevens voor mijn traject.</span></label></section><section className="consent-info-card"><h2>Goed om te weten</h2><ul><li>Je persoonlijke antwoorden worden niet met de groep gedeeld.</li><li>Je AI-keuze maak je afzonderlijk op het volgende scherm.</li><li>Toestemming voor de talententest wordt bij die stap gevraagd.</li><li>Je kunt vragen stellen of een toestemming later intrekken.</li></ul></section><a className="privacy-full-link" href={consentUrl} download>Download het volledige toestemmingsformulier</a><button className="auth-primary" disabled={!consentAccepted} onClick={() => setScreen('privacy')}>Verder met activeren</button></div></section>}
     {screen === 'activate' && <><Progress step={1}/><span className="eyebrow">Eerste keer</span><h1>Activeer je account</h1><p>Je krijgt de activatiecode van je begeleider. Daarna kies je zelf een wachtwoord.</p><form className="form-card" onSubmit={activate}><label>E-mailadres<input name="email" type="email" autoComplete="email" required placeholder="jij@voorbeeld.nl"/></label><label>Activatiecode<input name="code" inputMode="numeric" pattern="[0-9]{6,8}" required placeholder="Bijvoorbeeld 482913"/></label><label>Kies een wachtwoord<input name="password" type="password" autoComplete="new-password" minLength={8} required placeholder="Minimaal 8 tekens"/></label><label>Herhaal je wachtwoord<input name="repeat" type="password" autoComplete="new-password" minLength={8} required/></label><button className="auth-primary" disabled={busy}>{busy?'Gegevens controleren…':'Verder naar privacy'}</button></form><button className="auth-secondary" onClick={() => setScreen('login')}>Ik heb al een account</button></>}

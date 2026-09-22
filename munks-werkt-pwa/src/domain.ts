@@ -8,6 +8,14 @@ export interface SessionUser {
   organizationId: string;
 }
 
+export type PendingMfaAuthentication =
+  | { status: 'mfa_challenge'; factorId: string }
+  | { status: 'mfa_enroll'; factorId: string; qrCode: string; secret: string };
+
+export type AuthenticationResult =
+  | { status: 'authenticated'; user: SessionUser }
+  | PendingMfaAuthentication;
+
 export interface JourneyStep {
   number: number;
   title: string;
@@ -54,11 +62,12 @@ export interface ConsentChoice {
 export interface AuthRepository {
   beginActivation(email: string, activationCode: string): Promise<{ activationSessionId: string }>;
   completeActivation(activationSessionId: string, password: string, consent: ConsentChoice): Promise<void>;
-  completeStaffInvite?(password: string): Promise<SessionUser>;
+  completeStaffInvite?(password: string): Promise<AuthenticationResult>;
   requestPasswordReset?(email: string): Promise<void>;
   completePasswordReset?(password: string): Promise<void>;
-  signIn(email: string, password: string): Promise<SessionUser>;
-  restoreSession?(): Promise<SessionUser | undefined>;
+  signIn(email: string, password: string): Promise<AuthenticationResult>;
+  restoreSession?(): Promise<AuthenticationResult | undefined>;
+  verifyMfa?(factorId: string, code: string): Promise<SessionUser>;
   registerBiometric(): Promise<'registered' | 'unsupported'>;
 }
 
@@ -196,6 +205,7 @@ export interface DashboardManagementOptions {
   commissioners: Array<{ code: string; name: string }>;
   organizations?: Array<{ code: string; name: string; active: boolean }>;
   users?: ManagedUser[];
+  security?: { mfaRequired: boolean };
 }
 export type ManagedRole = 'project_leader' | 'coach' | 'commissioner';
 export interface ManagedUser { id:string; name:string; email:string; role:ManagedRole; organization:string; commissionerCode?:string; trajectoryCodes:string[]; active:boolean }
@@ -215,6 +225,8 @@ export interface DashboardRepository {
   listTrajectories(role: Exclude<AppRole, 'participant'>): Promise<DashboardTrajectory[]>;
   listManagementOptions(): Promise<DashboardManagementOptions>;
   saveManagedUser(user: ManagedUser): Promise<void>;
+  setMfaRequired(required: boolean): Promise<void>;
+  resetManagedUserMfa(userId: string): Promise<void>;
   saveCommissioner(organization: { code:string; name:string; active:boolean }): Promise<void>;
   listAppointments(trajectoryCode: string): Promise<DashboardAppointment[]>;
   saveAppointment(appointment: Omit<DashboardAppointment, 'coachName' | 'cancelled' | 'participantName'>): Promise<void>;

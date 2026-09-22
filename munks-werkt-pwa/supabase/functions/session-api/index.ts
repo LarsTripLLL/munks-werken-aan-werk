@@ -38,6 +38,17 @@ const parseDutchDate = (value: string) => {
     : null;
 };
 
+const tokenAssuranceLevel = (authorization: string) => {
+  try {
+    const token = authorization.replace(/^Bearer\s+/i, '');
+    const encoded = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+    return (JSON.parse(atob(padded)) as { aal?: string }).aal === 'aal2' ? 'aal2' : 'aal1';
+  } catch {
+    return 'aal1';
+  }
+};
+
 Deno.serve(async request => {
   const origin = request.headers.get('Origin');
   if (origin && !allowedOrigins.has(origin)) return json(403, { message: 'Deze herkomst is niet toegestaan.' }, origin);
@@ -68,6 +79,16 @@ Deno.serve(async request => {
     const profile = profileResult.rows[0];
     if (!profile) return json(403, { message: 'Bij dit account ontbreekt een gebruikersprofiel.' }, origin);
     if (!profile.account_active) return json(403, { message: 'Dit account is niet actief.' }, origin);
+    const securitySettings = await connection.queryObject<{ mfa_required: boolean }>`
+      select mfa_required from public.app_security_settings where singleton limit 1
+    `;
+    const mfaRequired = securitySettings.rows[0]?.mfa_required === true;
+    if (new URL(request.url).searchParams.get('security') === '1') {
+      return json(200, { security: { mfaRequired } }, origin);
+    }
+    if (mfaRequired && tokenAssuranceLevel(authorization) !== 'aal2') {
+      return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
+    }
     const commissionerAccess = await connection.queryObject<{ has_commissioner_role: boolean; has_active_organization: boolean }>`
       select
         exists (
@@ -90,7 +111,31 @@ Deno.serve(async request => {
       return json(403, { message: 'Deze opdrachtgever is niet actief.' }, origin);
     }
     if (request.method === 'POST') {
-      const body = await request.json().catch(() => ({})) as { action?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      const body = await request.json().catch(() => ({})) as { action?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; required?:boolean; confirmed?:boolean; targetUserId?:string; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      if(body.action==='set_mfa_required'){
+        const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
+        if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag tweestapsverificatie wijzigen.'},origin);
+        if(typeof body.required!=='boolean'||body.confirmed!==true)return json(400,{message:'Bevestig deze beveiligingswijziging.'},origin);
+        await connection.queryObject`update public.app_security_settings set mfa_required=${body.required},updated_by=${userId}::uuid,updated_at=now() where singleton`;
+        await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,${body.required?'mfa_required_enabled':'mfa_required_disabled'},'security','app_security_settings','global',${JSON.stringify({required:body.required})}::jsonb)`;
+        return json(200,{saved:true,mfaRequired:body.required},origin);
+      }
+      if(body.action==='reset_user_mfa'){
+        const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
+        if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag een authenticator resetten.'},origin);
+        if(!body.targetUserId||body.confirmed!==true)return json(400,{message:'Kies een gebruiker en bevestig de identiteitscontrole.'},origin);
+        if(body.targetUserId===userId)return json(400,{message:'Je kunt je eigen authenticator niet vanuit deze beheerdersroute resetten.'},origin);
+        const target=await connection.queryObject<{exists:boolean}>`select exists(select 1 from public.profiles where id=${body.targetUserId}::uuid) as exists`;
+        if(!target.rows[0]?.exists)return json(404,{message:'De gebruiker is niet gevonden.'},origin);
+        const admin=createClient(supabaseUrl,serviceRoleKey,{auth:{persistSession:false,autoRefreshToken:false}});
+        const found=await admin.auth.admin.getUserById(body.targetUserId);
+        if(found.error||!found.data.user)return json(404,{message:'Het aanmeldaccount is niet gevonden.'},origin);
+        const factors=(found.data.user.factors??[]).filter(factor=>factor.factor_type==='totp');
+        if(!factors.length)return json(400,{message:'Deze gebruiker heeft nog geen authenticator gekoppeld.'},origin);
+        for(const factor of factors){const removed=await admin.auth.admin.mfa.deleteFactor({userId:body.targetUserId,id:factor.id});if(removed.error)return json(500,{message:'De authenticator kon niet volledig worden gereset.'},origin)}
+        await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_reset','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.length,identityChecked:true})}::jsonb)`;
+        return json(200,{reset:true},origin);
+      }
       if(body.action==='set_appointment_active'){
         if(!body.appointmentId||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);
         const target=await connection.queryObject<{id:string;trajectory_run_id:string;step_id:string;coach_id:string;starts_at:string;ends_at:string;kind:string;participant_id:string|null;allowed:boolean}>`select appointments.id::text,appointments.trajectory_run_id::text,appointments.step_id::text,appointments.coach_id::text,appointments.starts_at::text,appointments.ends_at::text,appointments.kind::text,(select enrollment_id::text from public.appointment_participants where appointment_id=appointments.id limit 1) as participant_id,(exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) or exists(select 1 from public.trajectory_staff where trajectory_run_id=appointments.trajectory_run_id and user_id=${userId}::uuid and active and role in ('primary_coach','trajectory_coach'))) as allowed from public.appointments where appointments.id=${body.appointmentId}::uuid limit 1`;
@@ -865,6 +910,7 @@ Deno.serve(async request => {
       commissioners: (await connection.queryObject<{ code: string; name: string }>`select code, name from public.organizations where active order by name`).rows,
       organizations: (await connection.queryObject<{ code:string;name:string;active:boolean }>`select code,name,active from public.organizations order by name`).rows,
       users: [...managedUsersMap.values()],
+      security: { mfaRequired },
     } : undefined;
 
     return json(200, {
@@ -880,6 +926,7 @@ Deno.serve(async request => {
       dashboardTrajectories,
       dashboardAppointments,
       dashboardManagementOptions,
+      security: { mfaRequired },
     }, origin);
   } catch (error) {
     console.error('session database lookup failed', error);

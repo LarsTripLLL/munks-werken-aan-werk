@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type { AuthRepository, ParticipantHome, SessionUser } from "./domain";
+import type { AuthRepository, ParticipantHome, PendingMfaAuthentication, SessionUser } from "./domain";
 import type { AppRole } from "./domain";
 import { DashboardPortal } from "./DashboardPortal";
 import { MessageInbox } from "./MessageInbox";
@@ -207,6 +207,7 @@ export function App() {
     "role",
   ) as AppRole | null;
   const [sessionUser, setSessionUser] = useState<SessionUser>();
+  const [pendingMfa, setPendingMfa] = useState<PendingMfaAuthentication>();
   const [authChecked, setAuthChecked] = useState(!useSupabaseAuth || isStaffInvite);
   const [authRestoreFailed, setAuthRestoreFailed] = useState(false);
   const [authRestoreAttempt, setAuthRestoreAttempt] = useState(0);
@@ -333,10 +334,17 @@ export function App() {
     setAuthRestoreFailed(false);
     authRepository
       .restoreSession()
-      .then((user) => {
-        if (!active || !user) return;
-        setSessionUser(user);
-        setAuthenticated(true);
+      .then((result) => {
+        if (!active || !result) return;
+        if (result.status === "authenticated") {
+          setPendingMfa(undefined);
+          setSessionUser(result.user);
+          setAuthenticated(true);
+        } else {
+          setPendingMfa(result);
+          setSessionUser(undefined);
+          setAuthenticated(false);
+        }
       })
       .catch(() => { if (active) setAuthRestoreFailed(true); })
       .finally(() => active && setAuthChecked(true));
@@ -352,16 +360,23 @@ export function App() {
       if (document.visibilityState !== "visible" || checking) return;
       checking = true;
       try {
-        const user = await authRepository.restoreSession?.();
+        const result = await authRepository.restoreSession?.();
         if (!active) return;
-        if (user) {
+        if (result?.status === "authenticated") {
+          const user = result.user;
           const accountChanged = sessionUser?.id !== user.id || sessionUser?.role !== user.role || sessionUser?.organizationId !== user.organizationId;
           setSessionUser(user);
           if (accountChanged) {
             setData(undefined);
             setSessionRevision((current) => current + 1);
           }
+        } else if (!result) {
+          setData(undefined);
+          setSessionUser(undefined);
+          setScreen("home");
+          setAuthenticated(false);
         } else {
+          setPendingMfa(result);
           setData(undefined);
           setSessionUser(undefined);
           setScreen("home");
@@ -412,7 +427,9 @@ export function App() {
           </header>
           <AuthFlow
             repository={authRepository}
+            initialMfa={pendingMfa}
             onAuthenticated={(user) => {
+              setPendingMfa(undefined);
               setScreen("home");
               setData(undefined);
               setError(false);

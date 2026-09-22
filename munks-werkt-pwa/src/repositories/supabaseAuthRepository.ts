@@ -1,4 +1,5 @@
-import type { AppRole, AuthRepository, ConsentChoice, SessionUser } from '../domain';
+import type { AppRole, AuthenticationResult, AuthRepository, ConsentChoice, SessionUser } from '../domain';
+import { MfaAuthClient } from '../mfa/MfaAuthClient';
 
 type TokenResponse = {
   access_token: string;
@@ -25,6 +26,16 @@ type SessionResponse = {
   globalRoles: string[];
   trajectoryRoles: Array<{ trajectory_run_id: string; role: string }>;
   enrollments: Array<{ id: string; trajectory_run_id: string; status: string }> | null;
+  security?: { mfaRequired?: boolean };
+};
+
+const assuranceLevel = (token: string): 'aal1' | 'aal2' => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { aal?: string };
+    return payload.aal === 'aal2' ? 'aal2' : 'aal1';
+  } catch {
+    return 'aal1';
+  }
 };
 
 const roleFor = (session: SessionResponse): AppRole => {
@@ -52,7 +63,7 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   private async activationRequest<T>(body:Record<string,unknown>):Promise<T>{const response=await fetch(`${this.supabaseUrl}/functions/v1/activation-api`,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json().catch(()=>({})) as T&{message?:string};if(!response.ok)throw new Error(result.message||'De accountactivatie is niet gelukt.');return result}
 
-  async signIn(email: string, password: string): Promise<SessionUser> {
+  async signIn(email: string, password: string): Promise<AuthenticationResult> {
     const tokenResponse = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: {
@@ -69,23 +80,23 @@ export class SupabaseAuthRepository implements AuthRepository {
     const token = await tokenResponse.json() as TokenResponse;
     localStorage.setItem(accessTokenKey, token.access_token);
     localStorage.setItem(refreshTokenKey, token.refresh_token);
-    return this.getSessionUser(token.access_token, token.user.id);
+    return this.resolveAuthentication(token.access_token, token.user.id);
   }
 
-  async restoreSession(): Promise<SessionUser | undefined> {
+  async restoreSession(): Promise<AuthenticationResult | undefined> {
     const token = localStorage.getItem(accessTokenKey);
     if (!token && !localStorage.getItem(refreshTokenKey)) return undefined;
     try {
       const accessToken = !token || tokenExpiresSoon(token) ? await this.refreshAccessToken() : token;
       try {
-        return await this.getSessionUser(accessToken);
+        return await this.resolveAuthentication(accessToken);
       } catch (error) {
         if (!(error instanceof ExpiredSessionError)) throw error;
         if (!localStorage.getItem(refreshTokenKey)) {
           localStorage.removeItem(accessTokenKey);
           return undefined;
         }
-        return await this.getSessionUser(await this.refreshAccessToken());
+        return await this.resolveAuthentication(await this.refreshAccessToken());
       }
     } catch (error) {
       if (error instanceof ExpiredSessionError) {
@@ -179,9 +190,42 @@ export class SupabaseAuthRepository implements AuthRepository {
     history.replaceState(null, '', location.pathname);
   }
 
-  async completeStaffInvite(password:string):Promise<SessionUser>{const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));const queryParams=new URLSearchParams(location.search);const token=hashParams.get('access_token')||queryParams.get('access_token');if(!token)throw new Error('De uitnodigingslink is ongeldig of verlopen. Vraag zo nodig een nieuwe uitnodiging aan.');const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');const user=await response.json() as {id:string};localStorage.setItem(accessTokenKey,token);const refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);history.replaceState(null,'',location.pathname);return this.getSessionUser(token,user.id)}
+  async completeStaffInvite(password:string):Promise<AuthenticationResult>{const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));const queryParams=new URLSearchParams(location.search);const token=hashParams.get('access_token')||queryParams.get('access_token');if(!token)throw new Error('De uitnodigingslink is ongeldig of verlopen. Vraag zo nodig een nieuwe uitnodiging aan.');const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');const user=await response.json() as {id:string};localStorage.setItem(accessTokenKey,token);const refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);history.replaceState(null,'',location.pathname);return this.resolveAuthentication(token,user.id)}
 
-  private async getSessionUser(accessToken: string, authenticatedUserId?: string): Promise<SessionUser> {
+  async verifyMfa(factorId: string, code: string): Promise<SessionUser> {
+    const session = await this.mfaClient().verify(factorId, code);
+    localStorage.setItem(accessTokenKey, session.access_token);
+    localStorage.setItem(refreshTokenKey, session.refresh_token);
+    return this.getSessionUser(session.access_token);
+  }
+
+  private mfaClient() {
+    return new MfaAuthClient(this.supabaseUrl, this.publishableKey, () => localStorage.getItem(accessTokenKey));
+  }
+
+  private async resolveAuthentication(accessToken: string, authenticatedUserId?: string): Promise<AuthenticationResult> {
+    const mfaRequired = await this.getSecurityStatus(accessToken);
+    if (!mfaRequired || assuranceLevel(accessToken) === 'aal2') return { status: 'authenticated', user: await this.getSessionUser(accessToken, authenticatedUserId) };
+    const client = this.mfaClient();
+    const factors = await client.listFactors();
+    const verified = factors.find(factor => factor.status === 'verified');
+    if (verified) return { status: 'mfa_challenge', factorId: verified.id };
+    await client.removeUnverifiedFactors();
+    const enrollment = await client.enroll();
+    return { status: 'mfa_enroll', factorId: enrollment.id, qrCode: enrollment.totp.qr_code, secret: enrollment.totp.secret };
+  }
+
+  private async getSecurityStatus(accessToken: string): Promise<boolean> {
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api?security=1`, {
+      headers: { apikey: this.publishableKey, Authorization: `Bearer ${accessToken}` },
+    });
+    if (response.status === 401) throw new ExpiredSessionError('De sessie is verlopen.');
+    if (!response.ok) throw new Error('De beveiligingsinstellingen konden niet worden gecontroleerd.');
+    const result = await response.json() as { security?: { mfaRequired?: boolean } };
+    return result.security?.mfaRequired === true;
+  }
+
+  private async getSessionContext(accessToken: string, authenticatedUserId?: string): Promise<{ user: SessionUser; mfaRequired: boolean }> {
     const sessionResponse = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       headers: {
         apikey: this.publishableKey,
@@ -201,11 +245,18 @@ export class SupabaseAuthRepository implements AuthRepository {
       ?? 'global';
 
     return {
-      id: authenticatedUserId ?? session.user.id,
-      displayName: session.user.displayName,
-      role: roleFor(session),
-      organizationId,
+      user: {
+        id: authenticatedUserId ?? session.user.id,
+        displayName: session.user.displayName,
+        role: roleFor(session),
+        organizationId,
+      },
+      mfaRequired: session.security?.mfaRequired === true,
     };
+  }
+
+  private async getSessionUser(accessToken: string, authenticatedUserId?: string): Promise<SessionUser> {
+    return (await this.getSessionContext(accessToken, authenticatedUserId)).user;
   }
 
   async registerBiometric() {

@@ -1,4 +1,4 @@
-import type { AuthRepository, ConsentChoice, SessionUser } from '../domain';
+import type { AuthRepository, ConsentChoice } from '../domain';
 
 const wait = () => new Promise(resolve => window.setTimeout(resolve, 220));
 
@@ -14,10 +14,10 @@ export class DemoAuthRepository implements AuthRepository {
     if (!consent.privacyAccepted || !consent.consentAccepted) throw new Error('Beide verklaringen moeten zijn geaccepteerd.');
   }
 
-  async signIn(email: string, password: string): Promise<SessionUser> {
+  async signIn(email: string, password: string) {
     await wait();
     if (!email.includes('@') || password.length < 8) throw new Error('Controleer je e-mailadres en wachtwoord.');
-    return { id: 'demo-participant', displayName: 'Sam', role: 'participant', organizationId: 'demo-rsd' };
+    return { status: 'authenticated' as const, user: { id: 'demo-participant', displayName: 'Sam', role: 'participant' as const, organizationId: 'demo-rsd' } };
   }
 
   async registerBiometric() {
