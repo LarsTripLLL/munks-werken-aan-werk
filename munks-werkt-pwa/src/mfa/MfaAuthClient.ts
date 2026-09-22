@@ -59,7 +59,7 @@ export class MfaAuthClient {
     return this.request<TotpEnrollment>('factors', 'POST', {
       factor_type: 'totp',
       friendly_name: 'Munks Werkt',
-      issuer: 'https://munkswerkt.nl',
+      issuer: 'munkswerkt.nl',
     });
   }
 
