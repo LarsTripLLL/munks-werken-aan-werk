@@ -62,9 +62,9 @@ export interface ConsentChoice {
 export interface AuthRepository {
   beginActivation(email: string, activationCode: string): Promise<{ activationSessionId: string }>;
   completeActivation(activationSessionId: string, password: string, consent: ConsentChoice): Promise<void>;
-  completeStaffInvite?(password: string): Promise<AuthenticationResult>;
+  completeStaffInvite?(email: string, code: string, password: string): Promise<AuthenticationResult>;
   requestPasswordReset?(email: string): Promise<void>;
-  completePasswordReset?(password: string): Promise<void>;
+  completePasswordReset?(email: string, code: string, password: string): Promise<void>;
   signIn(email: string, password: string): Promise<AuthenticationResult>;
   restoreSession?(): Promise<AuthenticationResult | undefined>;
   verifyMfa?(factorId: string, code: string): Promise<SessionUser>;

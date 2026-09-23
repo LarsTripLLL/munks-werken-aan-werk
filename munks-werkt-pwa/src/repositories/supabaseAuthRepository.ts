@@ -158,12 +158,23 @@ export class SupabaseAuthRepository implements AuthRepository {
     }
   }
 
-  async completePasswordReset(password: string): Promise<void> {
-    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
-    const token = hashParams.get('access_token');
-    if (hashParams.get('type') !== 'recovery' || !token) {
-      throw new Error('De resetlink is ongeldig of verlopen. Vraag een nieuwe resetmail aan.');
+  private async verifyEmailCode(email:string,code:string,type:'invite'|'recovery'):Promise<TokenResponse>{
+    const cleanCode=code.replace(/\s/g,'');
+    if(!email.trim()||!/^\d{6}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de zescijferige code uit de nieuwste e-mail in.');
+    const response=await fetch(`${this.supabaseUrl}/auth/v1/verify`,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify({email:email.trim().toLowerCase(),token:cleanCode,type})});
+    const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{code?:string;error_code?:string;message?:string;msg?:string};
+    if(!response.ok||!result.access_token||!result.refresh_token){
+      const errorCode=result.code??result.error_code??'';
+      if(errorCode==='otp_expired'||response.status===401||/expired|invalid/i.test(`${result.message??''} ${result.msg??''}`))throw new Error('De code is ongeldig of verlopen. Vraag een nieuwe e-mail aan en gebruik de nieuwste code.');
+      throw new Error('De code kon niet worden gecontroleerd. Probeer het opnieuw.');
     }
+    return result as TokenResponse;
+  }
+
+  async completePasswordReset(email:string,code:string,password: string): Promise<void> {
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    let token=hashParams.get('access_token');
+    if(!token){token=(await this.verifyEmailCode(email,code,'recovery')).access_token}
     const response = await fetch(`${this.supabaseUrl}/auth/v1/user`, {
       method: 'PUT',
       headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -190,7 +201,20 @@ export class SupabaseAuthRepository implements AuthRepository {
     history.replaceState(null, '', location.pathname);
   }
 
-  async completeStaffInvite(password:string):Promise<AuthenticationResult>{const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));const queryParams=new URLSearchParams(location.search);const token=hashParams.get('access_token')||queryParams.get('access_token');if(!token)throw new Error('De uitnodigingslink is ongeldig of verlopen. Vraag zo nodig een nieuwe uitnodiging aan.');const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');const user=await response.json() as {id:string};localStorage.setItem(accessTokenKey,token);const refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);history.replaceState(null,'',location.pathname);return this.resolveAuthentication(token,user.id)}
+  async completeStaffInvite(email:string,code:string,password:string):Promise<AuthenticationResult>{
+    const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
+    const queryParams=new URLSearchParams(location.search);
+    let token=hashParams.get('access_token')||queryParams.get('access_token');
+    let refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');
+    if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token;refreshToken=verified.refresh_token}
+    const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});
+    if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');
+    const user=await response.json() as {id:string};
+    localStorage.setItem(accessTokenKey,token);
+    if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);
+    history.replaceState(null,'',location.pathname);
+    return this.resolveAuthentication(token,user.id);
+  }
 
   async verifyMfa(factorId: string, code: string): Promise<SessionUser> {
     const session = await this.mfaClient().verify(factorId, code);

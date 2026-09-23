@@ -202,8 +202,16 @@ function Mountain({ data }: { data: ParticipantHome }) {
 }
 
 export function App() {
-  const isStaffInvite = location.hash.includes("type=invite") || location.hash.includes("type=recovery") || location.search.includes("type=invite") || location.search.includes("type=recovery");
-  const requestedRole = new URLSearchParams(location.search).get(
+  const searchParams = new URLSearchParams(location.search);
+  const requestedAuthFlow = searchParams.get("auth");
+  const isStaffInvite =
+    location.hash.includes("type=invite") ||
+    location.hash.includes("type=recovery") ||
+    location.search.includes("type=invite") ||
+    location.search.includes("type=recovery") ||
+    requestedAuthFlow === "invite" ||
+    requestedAuthFlow === "recovery";
+  const requestedRole = searchParams.get(
     "role",
   ) as AppRole | null;
   const [sessionUser, setSessionUser] = useState<SessionUser>();

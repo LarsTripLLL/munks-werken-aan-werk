@@ -20,6 +20,15 @@ export class DemoAuthRepository implements AuthRepository {
     return { status: 'authenticated' as const, user: { id: 'demo-participant', displayName: 'Sam', role: 'participant' as const, organizationId: 'demo-rsd' } };
   }
 
+  async completeStaffInvite(email:string,code:string,password:string){
+    await wait();
+    if(!email.includes('@')||!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.');
+    return {status:'authenticated' as const,user:{id:'demo-staff',displayName:'Testgebruiker',role:'coach' as const,organizationId:'demo'}};
+  }
+
+  async requestPasswordReset(){await wait()}
+  async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
+
   async registerBiometric() {
     await wait();
     return window.PublicKeyCredential ? 'registered' as const : 'unsupported' as const;
