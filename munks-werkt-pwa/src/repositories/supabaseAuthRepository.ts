@@ -160,7 +160,7 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   private async verifyEmailCode(email:string,code:string,type:'invite'|'recovery'):Promise<TokenResponse>{
     const cleanCode=code.replace(/\s/g,'');
-    if(!email.trim()||!/^\d{6}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de zescijferige code uit de nieuwste e-mail in.');
+    if(!email.trim()||!/^\d{6,8}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de code uit de nieuwste e-mail in.');
     const response=await fetch(`${this.supabaseUrl}/auth/v1/verify`,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify({email:email.trim().toLowerCase(),token:cleanCode,type})});
     const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{code?:string;error_code?:string;message?:string;msg?:string};
     if(!response.ok||!result.access_token||!result.refresh_token){

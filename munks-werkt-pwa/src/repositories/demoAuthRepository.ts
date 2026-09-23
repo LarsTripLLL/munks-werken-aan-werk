@@ -22,12 +22,12 @@ export class DemoAuthRepository implements AuthRepository {
 
   async completeStaffInvite(email:string,code:string,password:string){
     await wait();
-    if(!email.includes('@')||!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.');
+    if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.');
     return {status:'authenticated' as const,user:{id:'demo-staff',displayName:'Testgebruiker',role:'coach' as const,organizationId:'demo'}};
   }
 
   async requestPasswordReset(){await wait()}
-  async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
+  async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
 
   async registerBiometric() {
     await wait();
