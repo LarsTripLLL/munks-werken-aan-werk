@@ -1,4 +1,4 @@
-import type { AppRole, AuthenticationResult, AuthRepository, ConsentChoice, SessionUser } from '../domain';
+import type { AppRole, AuthenticationResult, AuthRepository, ConsentChoice, PendingMfaAuthentication, SessionUser } from '../domain';
 import { MfaAuthClient } from '../mfa/MfaAuthClient';
 
 type TokenResponse = {
@@ -171,10 +171,17 @@ export class SupabaseAuthRepository implements AuthRepository {
     return result as TokenResponse;
   }
 
-  async completePasswordReset(email:string,code:string,password: string): Promise<void> {
+  async completePasswordReset(email:string,code:string,password: string): Promise<PendingMfaAuthentication | void> {
     const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
     let token=hashParams.get('access_token');
-    if(!token){token=(await this.verifyEmailCode(email,code,'recovery')).access_token}
+    let refreshToken=hashParams.get('refresh_token');
+    if(!token){
+      const verified=await this.verifyEmailCode(email,code,'recovery');
+      token=verified.access_token;
+      refreshToken=verified.refresh_token;
+    }
+    localStorage.setItem(accessTokenKey,token);
+    if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);
     const response = await fetch(`${this.supabaseUrl}/auth/v1/user`, {
       method: 'PUT',
       headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -184,6 +191,11 @@ export class SupabaseAuthRepository implements AuthRepository {
       const problem = await response.json().catch(() => ({})) as { code?: string; error_code?: string; msg?: string; message?: string; error_description?: string };
       const code = problem.code ?? problem.error_code ?? '';
       const detail = [problem.msg, problem.message, problem.error_description].filter(Boolean).join(' ');
+      if (code === 'insufficient_aal' || /AAL2/i.test(detail)) {
+        const authentication = await this.resolveAuthentication(token);
+        if (authentication.status === 'authenticated') throw new Error('De extra beveiligingscontrole kon niet worden gestart. Vraag een nieuwe herstelcode aan.');
+        return authentication;
+      }
       if (code === 'same_password' || /same password|different from the old password/i.test(detail)) {
         throw new Error('Kies een ander wachtwoord dan je huidige wachtwoord.');
       }
@@ -199,6 +211,26 @@ export class SupabaseAuthRepository implements AuthRepository {
     localStorage.removeItem(accessTokenKey);
     localStorage.removeItem(refreshTokenKey);
     history.replaceState(null, '', location.pathname);
+  }
+
+  async completePasswordResetMfa(factorId:string,code:string,password:string):Promise<void>{
+    const session=await this.mfaClient().verify(factorId,code);
+    const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{
+      method:'PUT',
+      headers:{apikey:this.publishableKey,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({password}),
+    });
+    if(!response.ok){
+      const problem=await response.json().catch(()=>({})) as {code?:string;error_code?:string;message?:string;msg?:string};
+      const errorCode=problem.code??problem.error_code??'';
+      const detail=`${problem.message??''} ${problem.msg??''}`;
+      if(errorCode==='same_password'||/same password/i.test(detail))throw new Error('Kies een ander wachtwoord dan je huidige wachtwoord.');
+      if(errorCode==='weak_password'||/weak password|too short/i.test(detail))throw new Error('Dit wachtwoord voldoet niet aan de beveiligingseisen. Kies een sterker wachtwoord.');
+      throw new Error('Het wachtwoord kon na de authenticatorcontrole niet worden opgeslagen. Vraag een nieuwe herstelcode aan.');
+    }
+    localStorage.removeItem(accessTokenKey);
+    localStorage.removeItem(refreshTokenKey);
+    history.replaceState(null,'',location.pathname);
   }
 
   async completeStaffInvite(email:string,code:string,password:string):Promise<AuthenticationResult>{

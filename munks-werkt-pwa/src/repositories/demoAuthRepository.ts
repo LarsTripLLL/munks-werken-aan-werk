@@ -28,6 +28,7 @@ export class DemoAuthRepository implements AuthRepository {
 
   async requestPasswordReset(){await wait()}
   async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
+  async completePasswordResetMfa(_factorId:string,code:string,password:string){await wait();if(!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer de authenticatorcode en het wachtwoord.')}
 
   async registerBiometric() {
     await wait();
