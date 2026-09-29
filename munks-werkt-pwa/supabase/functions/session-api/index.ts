@@ -303,6 +303,11 @@ Deno.serve(async request => {
         const createdUser = await adminClient.auth.admin.createUser({ email: body.email.trim().toLowerCase(), password: temporaryPassword, email_confirm: true });
         if (createdUser.error || !createdUser.data.user) return json(409, { message: createdUser.error?.message?.includes('registered') ? 'Er bestaat al een account met dit e-mailadres.' : 'Het account kon niet worden aangemaakt.' }, origin);
         const participantId = createdUser.data.user.id;
+        const blockedPendingAccount = await adminClient.auth.admin.updateUserById(participantId, { ban_duration: '876000h' });
+        if (blockedPendingAccount.error) {
+          await adminClient.auth.admin.deleteUser(participantId);
+          return json(500, { message: 'Het account kon niet veilig als nog te activeren account worden ingesteld.' }, origin);
+        }
         await connection.queryObject`insert into public.profiles(id,first_name,last_name,email,phone,city,date_of_birth) values(${participantId}::uuid,${firstName},${lastName},${body.email.trim().toLowerCase()},${body.phone?.trim() || null},${city},${birthDate}::date)`;
         const enrollment = await connection.queryObject<{ id: string }>`insert into public.enrollments(trajectory_run_id,participant_id,primary_coach_id,status,invited_at) values(${target.rows[0].id}::uuid,${participantId}::uuid,${body.coachId}::uuid,'invited',now()) returning id::text`;
         await connection.queryObject`insert into public.enrollment_steps(enrollment_id,step_id) select ${enrollment.rows[0].id}::uuid,steps.id from public.steps join public.trajectory_runs on trajectory_runs.program_id=steps.program_id where trajectory_runs.id=${target.rows[0].id}::uuid on conflict do nothing`;
