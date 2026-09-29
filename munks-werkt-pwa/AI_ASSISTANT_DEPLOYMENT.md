@@ -25,6 +25,8 @@ Open in Supabase het project en ga naar **Edge Functions → Secrets**. Voeg toe
 - `OPENAI_API_KEY`: een project-API-sleutel van het OpenAI API Platform.
 - `OPENAI_MODEL`: optioneel, standaard wordt `gpt-5-mini` gebruikt.
 - `AI_DAILY_GLOBAL_LIMIT`: optioneel, standaard `500` vragen per dag.
+- `AI_ASSISTANT_ENABLED`: standaard staat de assistent uit. Gebruik alleen
+  `true` wanneer de organisatie de assistent bewust weer wil activeren.
 
 Plaats de API-sleutel nooit in `.env`, frontendcode, screenshots, Git of deze chat.
 

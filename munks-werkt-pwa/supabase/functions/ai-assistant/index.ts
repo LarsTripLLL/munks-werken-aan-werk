@@ -4,6 +4,7 @@ import postgres from 'https://deno.land/x/postgresjs@v3.4.5/mod.js';
 const supabaseUrl=Deno.env.get('SUPABASE_URL')??'',publishableKey=Deno.env.get('SUPABASE_ANON_KEY')??'',databaseUrl=Deno.env.get('SUPABASE_DB_URL')??Deno.env.get('DATABASE_URL')??'',openAiKey=Deno.env.get('OPENAI_API_KEY')??'',model=Deno.env.get('OPENAI_MODEL')??'gpt-5-mini';
 const configuredGlobalLimit=Number(Deno.env.get('AI_DAILY_GLOBAL_LIMIT')??'500');
 const globalDailyLimit=Number.isInteger(configuredGlobalLimit)&&configuredGlobalLimit>0?configuredGlobalLimit:500;
+const assistantEnabled=Deno.env.get('AI_ASSISTANT_ENABLED')==='true';
 const allowedOrigins=new Set((Deno.env.get('ALLOWED_ORIGINS')??'http://localhost:5173,http://127.0.0.1:5173').split(',').map(v=>v.trim()).filter(Boolean));
 const sql=postgres(databaseUrl,{prepare:false});
 const cors=(origin:string)=>({'Access-Control-Allow-Origin':allowedOrigins.has(origin)?origin:'','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'});
@@ -14,6 +15,7 @@ Deno.serve(async request=>{
  const origin=request.headers.get('origin')??'';
  if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors(origin)});
  if(request.method!=='POST'||!allowedOrigins.has(origin))return json(403,{message:'Deze aanvraag is niet toegestaan.'},origin);
+ if(!assistantEnabled)return json(503,{code:'ai_assistant_disabled',message:'De AI-assistent is momenteel niet beschikbaar.'},origin);
  try{
   const token=(request.headers.get('authorization')??'').replace(/^Bearer\s+/i,'');
   const auth=createClient(supabaseUrl,publishableKey,{auth:{persistSession:false,autoRefreshToken:false}});
