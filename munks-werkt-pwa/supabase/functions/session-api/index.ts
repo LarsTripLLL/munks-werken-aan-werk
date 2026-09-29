@@ -49,6 +49,18 @@ const tokenAssuranceLevel = (authorization: string) => {
   }
 };
 
+const tokenSessionId = (authorization: string) => {
+  try {
+    const token = authorization.replace(/^Bearer\s+/i, '');
+    const encoded = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+    const sessionId = (JSON.parse(atob(padded)) as { session_id?: unknown }).session_id;
+    return typeof sessionId === 'string' && /^[0-9a-f-]{36}$/i.test(sessionId) ? sessionId : null;
+  } catch {
+    return null;
+  }
+};
+
 Deno.serve(async request => {
   const origin = request.headers.get('Origin');
   if (origin && !allowedOrigins.has(origin)) return json(403, { message: 'Deze herkomst is niet toegestaan.' }, origin);
@@ -66,8 +78,19 @@ Deno.serve(async request => {
   if (userError || !userData.user) return json(401, { message: 'De sessie is ongeldig of verlopen.' }, origin);
 
   const userId = userData.user.id;
+  const sessionId = tokenSessionId(authorization);
+  if (!sessionId) return json(401, { message: 'De sessie is ongeldig of verlopen.' }, origin);
   const connection = await pool.connect();
   try {
+    const activeSessionResult = await connection.queryObject<{ active: boolean }>`
+      select exists (
+        select 1 from auth.sessions
+        where id = ${sessionId}::uuid and user_id = ${userId}::uuid
+      ) as active
+    `;
+    if (!activeSessionResult.rows[0]?.active) {
+      return json(401, { message: 'De sessie is uitgelogd of verlopen.' }, origin);
+    }
     const profileResult = await connection.queryObject<{ first_name: string; last_name: string; email: string; phone: string | null; city: string | null; age_years: number | null; date_of_birth: string | null; calculated_age: number | null; account_active: boolean }>`
       select first_name, last_name, email, phone, city, age_years, date_of_birth::text,
         extract(year from age(current_date, date_of_birth))::int as calculated_age,
