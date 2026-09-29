@@ -83,6 +83,21 @@ export class SupabaseAuthRepository implements AuthRepository {
     return this.resolveAuthentication(token.access_token, token.user.id);
   }
 
+  async signOut(): Promise<void> {
+    const token = localStorage.getItem(accessTokenKey);
+    if (!token) return;
+    const response = await fetch(`${this.supabaseUrl}/auth/v1/logout?scope=global`, {
+      method: 'POST',
+      headers: {
+        apikey: this.publishableKey,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok && response.status !== 401) {
+      throw new Error('De sessie kon niet aan de serverzijde worden beëindigd.');
+    }
+  }
+
   async restoreSession(): Promise<AuthenticationResult | undefined> {
     const token = localStorage.getItem(accessTokenKey);
     if (!token && !localStorage.getItem(refreshTokenKey)) return undefined;

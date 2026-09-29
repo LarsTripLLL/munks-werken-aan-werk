@@ -242,11 +242,15 @@ export function App() {
     window.addEventListener("munks-open-ai", listener);
     return () => window.removeEventListener("munks-open-ai", listener);
   }, []);
-  const signOut = useCallback(() => {
-    localStorage.removeItem("munks-werkt-access-token");
-    localStorage.removeItem("munks-werkt-refresh-token");
-    localStorage.removeItem("munks-werkt-last-activity");
-    location.assign(`${location.origin}${location.pathname}`);
+  const signOut = useCallback(async () => {
+    try {
+      await authRepository.signOut?.();
+    } finally {
+      localStorage.removeItem("munks-werkt-access-token");
+      localStorage.removeItem("munks-werkt-refresh-token");
+      localStorage.removeItem("munks-werkt-last-activity");
+      location.assign(`${location.origin}${location.pathname}`);
+    }
   }, []);
   useEffect(() => {
     if (!authenticated) {

@@ -67,6 +67,7 @@ export interface AuthRepository {
   completePasswordReset?(email: string, code: string, password: string): Promise<PendingMfaAuthentication | void>;
   completePasswordResetMfa?(factorId: string, code: string, password: string): Promise<void>;
   signIn(email: string, password: string): Promise<AuthenticationResult>;
+  signOut?(): Promise<void>;
   restoreSession?(): Promise<AuthenticationResult | undefined>;
   verifyMfa?(factorId: string, code: string): Promise<SessionUser>;
   registerBiometric(): Promise<'registered' | 'unsupported'>;
