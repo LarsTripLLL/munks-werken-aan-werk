@@ -154,8 +154,11 @@ Deno.serve(async request => {
         const found=await admin.auth.admin.getUserById(body.targetUserId);
         if(found.error||!found.data.user)return json(404,{message:'Het aanmeldaccount is niet gevonden.'},origin);
         const factors=(found.data.user.factors??[]).filter(factor=>factor.factor_type==='totp');
-        if(!factors.length)return json(400,{message:'Deze gebruiker heeft nog geen authenticator gekoppeld.'},origin);
         for(const factor of factors){const removed=await admin.auth.admin.mfa.deleteFactor({userId:body.targetUserId,id:factor.id});if(removed.error)return json(500,{message:'De authenticator kon niet volledig worden gereset.'},origin)}
+        // De Supabase-beheerroute verlaagt bestaande factor-sessies alleen naar
+        // AAL1. Een beheerreset moet de gebruiker echter op ieder apparaat
+        // opnieuw laten aanmelden, dus trek daarna alle sessies expliciet in.
+        await connection.queryObject`delete from auth.sessions where user_id=${body.targetUserId}::uuid`;
         const remainingSessions=await connection.queryObject<{count:number}>`select count(*)::int as count from auth.sessions where user_id=${body.targetUserId}::uuid`;
         if((remainingSessions.rows[0]?.count??0)>0)return json(500,{message:'De authenticator is verwijderd, maar niet alle bestaande sessies zijn beëindigd. Neem direct contact op met technisch beheer.'},origin);
         await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_reset','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.length,identityChecked:true})}::jsonb)`;
