@@ -156,6 +156,8 @@ Deno.serve(async request => {
         const factors=(found.data.user.factors??[]).filter(factor=>factor.factor_type==='totp');
         if(!factors.length)return json(400,{message:'Deze gebruiker heeft nog geen authenticator gekoppeld.'},origin);
         for(const factor of factors){const removed=await admin.auth.admin.mfa.deleteFactor({userId:body.targetUserId,id:factor.id});if(removed.error)return json(500,{message:'De authenticator kon niet volledig worden gereset.'},origin)}
+        const remainingSessions=await connection.queryObject<{count:number}>`select count(*)::int as count from auth.sessions where user_id=${body.targetUserId}::uuid`;
+        if((remainingSessions.rows[0]?.count??0)>0)return json(500,{message:'De authenticator is verwijderd, maar niet alle bestaande sessies zijn beëindigd. Neem direct contact op met technisch beheer.'},origin);
         await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_reset','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.length,identityChecked:true})}::jsonb)`;
         return json(200,{reset:true},origin);
       }

@@ -63,6 +63,16 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   private async activationRequest<T>(body:Record<string,unknown>):Promise<T>{const response=await fetch(`${this.supabaseUrl}/functions/v1/activation-api`,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json().catch(()=>({})) as T&{message?:string};if(!response.ok)throw new Error(result.message||'De accountactivatie is niet gelukt.');return result}
 
+  private async revokeAllSessions(token: string): Promise<void> {
+    const response = await fetch(`${this.supabaseUrl}/auth/v1/logout?scope=global`, {
+      method: 'POST',
+      headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok && response.status !== 401) {
+      throw new Error('Het wachtwoord is gewijzigd, maar niet alle bestaande sessies konden worden beëindigd. Neem contact op met de beheerder.');
+    }
+  }
+
   async signIn(email: string, password: string): Promise<AuthenticationResult> {
     const tokenResponse = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=password`, {
       method: 'POST',
@@ -223,9 +233,13 @@ export class SupabaseAuthRepository implements AuthRepository {
       const safeCode = /^[a-z0-9_]{1,64}$/.test(code) ? code : `HTTP ${response.status}`;
       throw new Error(`Het wachtwoord kon niet worden gewijzigd (foutcode: ${safeCode}). Probeer het opnieuw.`);
     }
-    localStorage.removeItem(accessTokenKey);
-    localStorage.removeItem(refreshTokenKey);
-    history.replaceState(null, '', location.pathname);
+    try {
+      await this.revokeAllSessions(token);
+    } finally {
+      localStorage.removeItem(accessTokenKey);
+      localStorage.removeItem(refreshTokenKey);
+      history.replaceState(null, '', location.pathname);
+    }
   }
 
   async completePasswordResetMfa(factorId:string,code:string,password:string):Promise<void>{
@@ -243,9 +257,13 @@ export class SupabaseAuthRepository implements AuthRepository {
       if(errorCode==='weak_password'||/weak password|too short/i.test(detail))throw new Error('Dit wachtwoord voldoet niet aan de beveiligingseisen. Kies een sterker wachtwoord.');
       throw new Error('Het wachtwoord kon na de authenticatorcontrole niet worden opgeslagen. Vraag een nieuwe herstelcode aan.');
     }
-    localStorage.removeItem(accessTokenKey);
-    localStorage.removeItem(refreshTokenKey);
-    history.replaceState(null,'',location.pathname);
+    try {
+      await this.revokeAllSessions(session.access_token);
+    } finally {
+      localStorage.removeItem(accessTokenKey);
+      localStorage.removeItem(refreshTokenKey);
+      history.replaceState(null,'',location.pathname);
+    }
   }
 
   async completeStaffInvite(email:string,code:string,password:string):Promise<AuthenticationResult>{
