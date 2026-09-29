@@ -18,12 +18,25 @@ Deno.serve(async request => {
   try {
     if(body.action==='begin_activation'){
       if(!body.email?.trim()||!/^\d{6,8}$/.test(body.code??''))return json(400,{message:'Controleer je e-mailadres en activatiecode.'},origin);
-      const invite=await connection.queryObject<{id:string}>`
-        update public.activation_invites set attempts=attempts+1
-        where id=(select id from public.activation_invites where lower(email)=lower(${body.email.trim()}) and used_at is null and expires_at>now() and attempts<5 and crypt(${body.code},code_hash)=code_hash order by created_at desc limit 1)
-        returning id::text
+      const invite=await connection.queryObject<{id:string;matches:boolean;attempts:number}>`
+        with candidate as (
+          select id, crypt(${body.code},code_hash)=code_hash as matches
+          from public.activation_invites
+          where lower(email)=lower(${body.email.trim()})
+            and used_at is null
+            and expires_at>now()
+            and attempts<5
+          order by created_at desc
+          limit 1
+          for update
+        )
+        update public.activation_invites invite
+        set attempts=invite.attempts+case when candidate.matches then 0 else 1 end
+        from candidate
+        where invite.id=candidate.id
+        returning invite.id::text,candidate.matches,invite.attempts
       `;
-      if(!invite.rows.length)return json(403,{message:'De activatiecode is niet geldig, verlopen of te vaak geprobeerd.'},origin);
+      if(!invite.rows.length||!invite.rows[0].matches)return json(403,{message:'De activatiecode is niet geldig, verlopen of te vaak geprobeerd.'},origin);
       const token=`${crypto.randomUUID()}${crypto.randomUUID()}`;
       await connection.queryObject`update public.activation_invites set session_token_hash=crypt(${token},gen_salt('bf')),session_expires_at=now()+interval '20 minutes' where id=${invite.rows[0].id}::uuid`;
       return json(200,{activationSessionId:`${invite.rows[0].id}.${token}`},origin);
