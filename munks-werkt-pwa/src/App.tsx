@@ -287,8 +287,17 @@ export function App() {
     const recordActivity = (event: Event) => {
       const now = Date.now();
       if (event.type === "pointermove" && now - lastRecorded < 1000) return;
+      const stored = Number(localStorage.getItem(activityKey));
+      if (Number.isFinite(stored) && stored > 0 && now - stored >= idleLimit) {
+        void signOut();
+        return;
+      }
       lastRecorded = now;
       localStorage.setItem(activityKey, String(now));
+      schedule();
+    };
+    const keepSession = () => {
+      localStorage.setItem(activityKey, String(Date.now()));
       schedule();
     };
     const handleStorage = (event: StorageEvent) => {
@@ -302,6 +311,7 @@ export function App() {
     const activityEvents: Array<keyof WindowEventMap> = ["pointerdown", "pointermove", "keydown", "touchstart", "scroll"];
     activityEvents.forEach((eventName) => window.addEventListener(eventName, recordActivity, { passive: true }));
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("munks-keep-session", keepSession);
     document.addEventListener("visibilitychange", handleVisibility);
     schedule();
     return () => {
@@ -309,10 +319,11 @@ export function App() {
       window.clearTimeout(signOutTimer);
       activityEvents.forEach((eventName) => window.removeEventListener(eventName, recordActivity));
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("munks-keep-session", keepSession);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [authenticated, signOut]);
-  const idleWarningNotice = idleWarning ? <aside className="idle-warning" role="alertdialog" aria-labelledby="idle-warning-title" aria-describedby="idle-warning-text"><strong id="idle-warning-title">Je wordt bijna uitgelogd</strong><span id="idle-warning-text">Je bent bijna 15 minuten niet actief geweest. Je wordt over één minuut automatisch uitgelogd.</span><button type="button" onClick={() => setIdleWarning(false)}>Ingelogd blijven</button></aside> : null;
+  const idleWarningNotice = idleWarning ? <aside className="idle-warning" role="alertdialog" aria-labelledby="idle-warning-title" aria-describedby="idle-warning-text"><strong id="idle-warning-title">Je wordt bijna uitgelogd</strong><span id="idle-warning-text">Je bent bijna 15 minuten niet actief geweest. Je wordt over één minuut automatisch uitgelogd.</span><button type="button" onClick={() => window.dispatchEvent(new Event("munks-keep-session"))}>Ingelogd blijven</button></aside> : null;
   const completeStep = async (stepNumber: number) => {
     if (progressRepository) await progressRepository.completeStep(stepNumber);
     setData((current) => {

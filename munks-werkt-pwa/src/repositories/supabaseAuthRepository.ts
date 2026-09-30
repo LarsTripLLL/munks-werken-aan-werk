@@ -111,6 +111,17 @@ export class SupabaseAuthRepository implements AuthRepository {
   async restoreSession(): Promise<AuthenticationResult | undefined> {
     const token = localStorage.getItem(accessTokenKey);
     if (!token && !localStorage.getItem(refreshTokenKey)) return undefined;
+    const lastActivity = Number(localStorage.getItem('munks-werkt-last-activity'));
+    if (Number.isFinite(lastActivity) && lastActivity > 0 && Date.now() - lastActivity >= 15 * 60 * 1000) {
+      try {
+        await this.signOut();
+      } finally {
+        localStorage.removeItem(accessTokenKey);
+        localStorage.removeItem(refreshTokenKey);
+        localStorage.removeItem('munks-werkt-last-activity');
+      }
+      return undefined;
+    }
     try {
       const accessToken = !token || tokenExpiresSoon(token) ? await this.refreshAccessToken() : token;
       try {
