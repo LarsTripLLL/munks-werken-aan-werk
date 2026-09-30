@@ -168,6 +168,7 @@ export interface ParticipantDocument {
 
 export interface DashboardParticipant {
   id: string;
+  accountId?: string;
   active?: boolean;
   activatedAt?: string;
   name: string;

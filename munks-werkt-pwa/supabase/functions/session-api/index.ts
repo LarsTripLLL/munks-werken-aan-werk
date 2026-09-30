@@ -723,9 +723,10 @@ Deno.serve(async request => {
           and profiles.account_active
           and trajectory_staff.role in ('primary_coach', 'trajectory_coach')
       `;
-      const participants = await connection.queryObject<{ enrollment_id: string; name: string; email: string; phone: string | null; city: string | null; birth_date: string | null; active: boolean; activated_at: string | null; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
+      const participants = await connection.queryObject<{ enrollment_id: string; participant_user_id: string; name: string; email: string; phone: string | null; city: string | null; birth_date: string | null; active: boolean; activated_at: string | null; coach_id: string | null; goals: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null; step_number: number; step_status: string; attendance: string; talent_completed_at: string | null; talent_released_at: string | null }>`
         select
           enrollments.id::text as enrollment_id,
+          enrollments.participant_id::text as participant_user_id,
           trim(profiles.first_name || ' ' || profiles.last_name) as name,
           profiles.email,
           profiles.phone,
@@ -844,6 +845,7 @@ Deno.serve(async request => {
           });
           return {
             id: first.enrollment_id,
+            accountId: first.participant_user_id,
             active: first.active,
             activatedAt: first.activated_at ?? undefined,
             name: first.name,
