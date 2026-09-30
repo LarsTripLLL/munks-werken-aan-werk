@@ -76,38 +76,31 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     if (!token) throw new Error('Aanmelden is vereist.');
     if (type !== 'talent_report' || file.type !== 'application/pdf') throw new Error('Kies een pdf-bestand van de talententest.');
     if (file.size > 10 * 1024 * 1024) throw new Error('Het bestand mag maximaal 10 MB zijn.');
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '-');
-    const storagePath = `${participantId}/talent_report/${Date.now()}-${safeName}`;
-    const upload = await fetch(`${this.supabaseUrl}/storage/v1/object/participant-documents/${storagePath}`, {
+    const form = new FormData();
+    form.set('trajectoryCode', trajectoryCode);
+    form.set('enrollmentId', participantId);
+    form.set('file', file);
+    const upload = await fetch(`${this.supabaseUrl}/functions/v1/document-api`, {
       method: 'POST',
-      headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': file.type, 'x-upsert': 'false' },
-      body: file,
+      headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` },
+      body: form,
     });
     if (!upload.ok) {
       const problem = await upload.json().catch(() => ({})) as { message?: string };
       throw new Error(problem.message || 'Het rapport kon niet worden geüpload.');
-    }
-    const register = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
-      method: 'POST',
-      headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'register_document', trajectoryCode, enrollmentId: participantId, documentType: type, displayName: file.name, storagePath, mimeType: file.type, fileSize: file.size }),
-    });
-    if (!register.ok) {
-      const problem = await register.json().catch(() => ({})) as { message?: string };
-      throw new Error(problem.message || 'Het rapport is geüpload, maar kon niet worden geregistreerd.');
     }
   }
   async openParticipantDocument(document: ParticipantDocument): Promise<void> {
     const token = localStorage.getItem('munks-werkt-access-token');
     if (!token) throw new Error('Aanmelden is vereist.');
     if (!document.storagePath) throw new Error('Het bestand is niet beschikbaar.');
-    const response = await fetch(`${this.supabaseUrl}/storage/v1/object/authenticated/participant-documents/${document.storagePath}`, {
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/document-api?path=${encodeURIComponent(document.storagePath)}`, {
       headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error('Het rapport kon niet veilig worden geopend.');
     const url = URL.createObjectURL(await response.blob());
     const link = window.document.createElement('a');
-    link.href = url; link.target = '_blank'; link.rel = 'noopener';
+    link.href = url; link.download = document.fileName || 'rapport.pdf'; link.rel = 'noopener';
     window.document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }

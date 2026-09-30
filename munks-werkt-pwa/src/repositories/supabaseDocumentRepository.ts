@@ -21,7 +21,7 @@ export class SupabaseDocumentRepository implements ParticipantDocumentRepository
 
   async open(document: ParticipantDocument): Promise<void> {
     if (!document.storagePath) throw new Error('Dit document is nog niet beschikbaar om te openen.');
-    const response = await fetch(`${this.supabaseUrl}/storage/v1/object/authenticated/participant-documents/${document.storagePath}`, {
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/document-api?path=${encodeURIComponent(document.storagePath)}`, {
       headers: { apikey: this.publishableKey, Authorization: `Bearer ${this.token()}` },
     });
     if (!response.ok) throw new Error('Het document kon niet veilig worden geopend.');
@@ -29,9 +29,8 @@ export class SupabaseDocumentRepository implements ParticipantDocumentRepository
     const url = URL.createObjectURL(blob);
     const link = window.document.createElement('a');
     link.href = url;
-    link.target = '_blank';
+    link.download = document.fileName || 'document.pdf';
     link.rel = 'noopener';
-    if (document.type === 'cv') link.download = document.fileName;
     window.document.body.appendChild(link);
     link.click();
     link.remove();

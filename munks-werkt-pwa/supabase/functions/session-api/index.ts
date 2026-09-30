@@ -457,48 +457,6 @@ Deno.serve(async request => {
         `;
         return json(200, { released: true }, origin);
       }
-      if (body.action === 'register_document') {
-        if (!body.enrollmentId || !body.trajectoryCode || body.documentType !== 'talent_report' || !body.displayName || !body.storagePath || body.mimeType !== 'application/pdf' || !body.fileSize || body.fileSize > 10485760) {
-          return json(400, { message: 'De documentgegevens zijn niet geldig.' }, origin);
-        }
-        if (!body.storagePath.startsWith(`${body.enrollmentId}/talent_report/`)) return json(400, { message: 'Het opslagpad is niet geldig.' }, origin);
-        const allowed = await connection.queryObject<{ enrollment_id: string }>`
-          select enrollments.id::text as enrollment_id
-          from public.enrollments
-          join public.trajectory_runs on trajectory_runs.id = enrollments.trajectory_run_id
-          join public.trajectory_staff on trajectory_staff.trajectory_run_id = trajectory_runs.id
-          where enrollments.id = ${body.enrollmentId}::uuid
-            and trajectory_runs.code = ${body.trajectoryCode}
-            and trajectory_staff.user_id = ${userId}::uuid
-            and trajectory_staff.active
-            and trajectory_staff.role in ('primary_coach', 'trajectory_coach')
-          limit 1
-        `;
-        if (!allowed.rows.length) return json(403, { message: 'Je mag voor deze deelnemer geen rapport uploaden.' }, origin);
-        await connection.queryObject`
-          update public.documents set archived_at = now()
-          where enrollment_id = ${body.enrollmentId}::uuid and document_type = 'talent_report' and archived_at is null
-        `;
-        await connection.queryObject`
-          insert into public.documents (enrollment_id, uploaded_by, document_type, display_name, storage_path, mime_type, file_size_bytes, participant_visible)
-          values (${body.enrollmentId}::uuid, ${userId}::uuid, 'talent_report', ${body.displayName}, ${body.storagePath}, ${body.mimeType}, ${body.fileSize}, false)
-        `;
-        await connection.queryObject`
-          insert into public.talent_test_status (enrollment_id, completed_at, updated_at)
-          values (${body.enrollmentId}::uuid, now(), now())
-          on conflict (enrollment_id) do update set completed_at = now(),
-            results_released_at = null, results_released_by = null, updated_at = now()
-        `;
-        await connection.queryObject`
-          update public.enrollment_steps set status = 'in_progress', completed_at = null, updated_at = now()
-          from public.steps, public.enrollments, public.trajectory_runs
-          where enrollment_steps.enrollment_id = ${body.enrollmentId}::uuid
-            and enrollment_steps.step_id = steps.id and steps.step_number = 2
-            and enrollments.id = enrollment_steps.enrollment_id
-            and trajectory_runs.id = enrollments.trajectory_run_id and steps.program_id = trajectory_runs.program_id
-        `;
-        return json(200, { registered: true }, origin);
-      }
       if (body.action === 'get_answer' || body.action === 'save_answer') {
         if (!body.trajectoryCode || !body.activityId) return json(400, { message: 'Het traject of onderdeel ontbreekt.' }, origin);
         const target = await connection.queryObject<{ enrollment_id: string; content_id: string }>`
