@@ -1120,7 +1120,7 @@ export function DashboardPortal({
                               )
                           }
                         >
-                          Open rapport
+                          Rapport downloaden
                         </button>
                       )}
                       <label className="document-upload">
