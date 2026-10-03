@@ -663,10 +663,10 @@ Deno.serve(async request => {
                 : 'locked',
         })),
         appointments: participantAppointments.map(item=>({id:item.id,stepNumber:item.step_number,title:item.title,date:item.date,startTime:item.start_time,endTime:item.end_time,coachName:item.coach_name,location:item.location,explanation:item.explanation})),
-        outcome: enrollment.exit_advice_status && enrollment.exit_category && enrollment.exit_advice_summary ? {
+        outcome: enrollment.exit_advice_status === 'final' && enrollment.exit_category && enrollment.exit_advice_summary ? {
           category: enrollment.exit_category,
           summary: enrollment.exit_advice_summary,
-          status: enrollment.exit_advice_status,
+          status: 'final',
         } : undefined,
       };
       const ownDocuments = await connection.queryObject<{ document_type: string; display_name: string; created_at: string; storage_path: string }>`
@@ -722,7 +722,11 @@ Deno.serve(async request => {
       drivingLicense: 'Rijbewijs', languages: 'Talen', certificates: 'Certificaten',
     };
     for (const trajectory of trajectoryResult.rows) {
-      const canSeeAllParticipants = globalRolesResult.rows.some(item => item.role === 'functional_admin') || staffResult.rows.some(item => item.trajectory_run_id === trajectory.id && item.role === 'rsd_user');
+      const isFunctionalAdmin = globalRolesResult.rows.some(item => item.role === 'functional_admin');
+      const trajectoryRoles = staffResult.rows.filter(item => item.trajectory_run_id === trajectory.id).map(item => item.role);
+      const mayReadAnswers = trajectoryRoles.some(role => ['primary_coach', 'trajectory_coach'].includes(role));
+      const isCommissionerOnly = !isFunctionalAdmin && !mayReadAnswers && trajectoryRoles.includes('rsd_user');
+      const canSeeAllParticipants = isFunctionalAdmin || trajectoryRoles.includes('rsd_user');
       const coaches = await connection.queryObject<{ id: string; name: string }>`
         select profiles.id::text as id, trim(profiles.first_name || ' ' || profiles.last_name) as name
         from public.trajectory_staff
@@ -766,7 +770,6 @@ Deno.serve(async request => {
       `;
       const grouped = new Map<string, typeof participants.rows>();
       for (const row of participants.rows) grouped.set(row.enrollment_id, [...(grouped.get(row.enrollment_id) ?? []), row]);
-      const mayReadAnswers = staffResult.rows.some(item => item.trajectory_run_id === trajectory.id && ['primary_coach', 'trajectory_coach'].includes(item.role));
       const documentsByEnrollment = new Map<string, Array<{ enrollment_id: string; document_type: string; display_name: string; created_at: string; storage_path: string }>>();
       if (mayReadAnswers) {
         const documentResult = await connection.queryObject<{ enrollment_id: string; document_type: string; display_name: string; created_at: string; storage_path: string }>`
@@ -859,19 +862,19 @@ Deno.serve(async request => {
             active: first.active,
             activatedAt: first.activated_at ?? undefined,
             name: first.name,
-            email: first.email,
+            email: isCommissionerOnly ? undefined : first.email,
             phone: first.phone ?? undefined,
             city: first.city ?? undefined,
-            birthDate: first.birth_date ?? undefined,
+            birthDate: isCommissionerOnly ? undefined : first.birth_date ?? undefined,
             coachId: first.coach_id ?? undefined,
             appSteps,
             attendance,
             needsAttention: false,
             completed: first.exit_advice_status === 'final',
             goals: ({ yes: 'Ja', partial: 'Deels', no: 'Nee', not_assessed: 'Nog niet bekend' } as Record<string, string>)[first.goals] ?? 'Nog niet bekend',
-            outcomeCategory: first.exit_category ?? undefined,
-            outcomeSummary: first.exit_advice_summary ?? undefined,
-            outcomeStatus: first.exit_advice_status === 'final' ? 'final' : first.exit_advice_status === 'provisional' ? 'provisional' : undefined,
+            outcomeCategory: !isCommissionerOnly || first.exit_advice_status === 'final' ? first.exit_category ?? undefined : undefined,
+            outcomeSummary: !isCommissionerOnly || first.exit_advice_status === 'final' ? first.exit_advice_summary ?? undefined : undefined,
+            outcomeStatus: first.exit_advice_status === 'final' ? 'final' : !isCommissionerOnly && first.exit_advice_status === 'provisional' ? 'provisional' : undefined,
             startScores: measurements?.start,
             endScores: measurements?.end,
             appAnswers: [...(answerGroups.get(first.enrollment_id)?.values() ?? [])],
