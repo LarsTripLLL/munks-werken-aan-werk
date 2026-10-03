@@ -556,10 +556,20 @@ Deno.serve(async request => {
           and trajectory_runs.id = enrollments.trajectory_run_id
           and steps.program_id = trajectory_runs.program_id
           and enrollments.participant_id = ${userId}::uuid
+          and enrollments.status = 'active'
+          and enrollment_steps.status not in ('completed', 'skipped')
           and steps.step_number = ${Number(body.stepNumber)}
+          and steps.step_number = (
+            select min(current_steps.step_number)
+            from public.enrollment_steps current_enrollment_steps
+            join public.steps current_steps on current_steps.id = current_enrollment_steps.step_id
+            where current_enrollment_steps.enrollment_id = enrollments.id
+              and current_steps.program_id = trajectory_runs.program_id
+              and current_enrollment_steps.status not in ('completed', 'skipped')
+          )
         returning enrollment_steps.enrollment_id::text
       `;
-      if (!completed.rows.length) return json(403, { message: 'Deze stap hoort niet bij jouw actieve traject.' }, origin);
+      if (!completed.rows.length) return json(403, { message: 'Deze stap is nog niet aan de beurt of is al afgerond.' }, origin);
       return json(200, { completed: true, stepNumber: body.stepNumber }, origin);
     }
 
@@ -857,7 +867,7 @@ Deno.serve(async request => {
             appSteps,
             attendance,
             needsAttention: false,
-            completed: appSteps.every(Boolean),
+            completed: first.exit_advice_status === 'final',
             goals: ({ yes: 'Ja', partial: 'Deels', no: 'Nee', not_assessed: 'Nog niet bekend' } as Record<string, string>)[first.goals] ?? 'Nog niet bekend',
             outcomeCategory: first.exit_category ?? undefined,
             outcomeSummary: first.exit_advice_summary ?? undefined,
