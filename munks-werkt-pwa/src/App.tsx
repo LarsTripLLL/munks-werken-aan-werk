@@ -665,6 +665,7 @@ export function App() {
             personalDetails={data.personalDetails}
             onEdit={() => setScreen("step3")}
             onClose={() => setScreen("route")}
+            onComplete={() => completeStep(4)}
           />
         )}
         {screen === "step5" && (

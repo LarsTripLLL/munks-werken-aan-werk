@@ -24,6 +24,7 @@ export function StepFourFlow({
   personalDetails,
   onEdit,
   onClose,
+  onComplete,
 }: {
   repository: AnswerRepository;
   participantId: string;
@@ -31,10 +32,12 @@ export function StepFourFlow({
   personalDetails?: ParticipantHome['personalDetails'];
   onEdit: () => void;
   onClose: () => void;
+  onComplete: () => Promise<void>;
 }) {
   const [showCv, setShowCv] = useState(false);
   const [data, setData] = useState<CvData>({});
   const [loading, setLoading] = useState(false);
+  const [completing, setCompleting] = useState(false);
   const [message, setMessage] = useState("");
 
   const getCv = async () => {
@@ -89,6 +92,18 @@ export function StepFourFlow({
   const introduction =
     [data.description, data.strengths, data.energy].filter(Boolean).join(" ") ||
     "Nog niet ingevuld";
+  const complete = async () => {
+    setCompleting(true);
+    setMessage("");
+    try {
+      await onComplete();
+      onClose();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Stap 4 kon niet worden afgerond. Probeer het opnieuw.");
+    } finally {
+      setCompleting(false);
+    }
+  };
 
   if (showCv)
     return (
@@ -147,6 +162,7 @@ export function StepFourFlow({
         <button className="flow-secondary" onClick={() => setShowCv(false)}>
           Terug naar de bijeenkomst
         </button>
+        {message && <p className="auth-error" role="alert">{message}</p>}
       </section>
     );
 
@@ -211,9 +227,13 @@ export function StepFourFlow({
       <button className="flow-secondary" onClick={onEdit}>
         Mijn cv aanpassen
       </button>
+      <button className="flow-primary orange" disabled={completing} onClick={() => void complete()}>
+        {completing ? "Stap afronden…" : "Stap 4 afronden"}
+      </button>
       <button className="flow-secondary" onClick={onClose}>
         Terug naar mijn route
       </button>
+      {message && <p className="auth-error" role="alert">{message}</p>}
       <p className="attendance-note">
         Je begeleider registreert na de bijeenkomst je aanwezigheid.
       </p>
