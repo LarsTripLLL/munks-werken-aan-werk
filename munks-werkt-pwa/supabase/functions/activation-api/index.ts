@@ -46,8 +46,18 @@ Deno.serve(async request => {
       if(!body.sessionId||!body.password||body.password.length<12||body.password.length>128||!body.consent?.privacyAccepted||!body.consent?.consentAccepted)return json(400,{message:'De activatiegegevens, het wachtwoord of de toestemmingen zijn niet geldig.'},origin);
       const [inviteId,token]=body.sessionId.split('.',2);if(!inviteId||!token)return json(403,{message:'De activatiesessie is ongeldig.'},origin);
       const invite=await connection.queryObject<{enrollment_id:string;participant_id:string}>`
-        select activation_invites.enrollment_id::text,enrollments.participant_id::text from public.activation_invites join public.enrollments on enrollments.id=activation_invites.enrollment_id
-        where activation_invites.id=${inviteId}::uuid and used_at is null and session_expires_at>now() and crypt(${token},session_token_hash)=session_token_hash limit 1
+        with claimed as (
+          update public.activation_invites
+          set used_at=now(),session_token_hash=null,session_expires_at=null
+          where id=${inviteId}::uuid
+            and used_at is null
+            and session_expires_at>now()
+            and crypt(${token},session_token_hash)=session_token_hash
+          returning enrollment_id
+        )
+        select claimed.enrollment_id::text,enrollments.participant_id::text
+        from claimed
+        join public.enrollments on enrollments.id=claimed.enrollment_id
       `;
       if(!invite.rows.length)return json(403,{message:'De activatiesessie is verlopen. Begin opnieuw.'},origin);
       const admin=createClient(supabaseUrl,serviceRoleKey,{auth:{persistSession:false,autoRefreshToken:false}});
@@ -57,8 +67,7 @@ Deno.serve(async request => {
       await connection.queryObject`insert into public.ai_preferences(user_id,enabled,updated_at) values(${invite.rows[0].participant_id}::uuid,${!!body.consent.aiAssistantEnabled},now()) on conflict(user_id) do update set enabled=excluded.enabled,updated_at=now()`;
       await connection.queryObject`update public.enrollments set status='active',activated_at=now(),updated_at=now() where id=${invite.rows[0].enrollment_id}::uuid`;
       const unbanned=await admin.auth.admin.updateUserById(invite.rows[0].participant_id,{ban_duration:'none'});
-      if(unbanned.error)return json(500,{message:'De activatie is opgeslagen, maar het account kon niet worden vrijgegeven. Probeer dezelfde activatie opnieuw of neem contact op met de beheerder.'},origin);
-      await connection.queryObject`update public.activation_invites set used_at=now(),session_token_hash=null,session_expires_at=null where id=${inviteId}::uuid`;
+      if(unbanned.error)return json(500,{message:'De activatie is opgeslagen, maar het account kon niet worden vrijgegeven. Neem contact op met de beheerder.'},origin);
       await connection.queryObject`insert into public.audit_log(actor_user_id,enrollment_id,action,data_category,target_table,target_id,metadata) values(${invite.rows[0].participant_id}::uuid,${invite.rows[0].enrollment_id}::uuid,'account_activated','consent','activation_invites',${inviteId},${JSON.stringify({aiAssistantEnabled:!!body.consent.aiAssistantEnabled})}::jsonb)`;
       return json(200,{activated:true},origin);
     }
