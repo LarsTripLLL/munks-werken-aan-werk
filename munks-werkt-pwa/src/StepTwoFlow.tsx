@@ -9,8 +9,6 @@ export function StepTwoFlow({ repository, participantId, trajectoryCode, onClose
   const [choice, setChoice] = useState<'accepted'>();
   const [status, setStatus] = useState<TalentTestStatus>('not_started');
   const [message, setMessage] = useState('');
-  const testUrl = import.meta.env.VITE_TALENT_TEST_URL || 'https://www.dilemmamanager.nl/assessment/Start?code=Edu2394Mk';
-
   useEffect(() => { repository.getStatus(participantId, trajectoryCode).then(current => { setStatus(current); setStage(current === 'released' ? 'released' : current === 'completed' ? 'waiting' : 'intro'); }); }, [participantId, repository, trajectoryCode]);
 
   const openTest = async () => {
@@ -23,6 +21,7 @@ export function StepTwoFlow({ repository, participantId, trajectoryCode, onClose
     testWindow.opener = null;
     try {
       await repository.recordConsent(participantId, trajectoryCode, choice);
+      const testUrl = await repository.getStartUrl(participantId, trajectoryCode);
       testWindow.location.replace(testUrl);
     } catch {
       testWindow.close();

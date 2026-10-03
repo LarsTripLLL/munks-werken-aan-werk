@@ -15,7 +15,7 @@ export class SupabaseTalentTestRepository implements TalentTestRepository {
       const problem = await response.json().catch(() => ({})) as { message?: string };
       throw new Error(problem.message || 'De status van de talententest kon niet worden verwerkt.');
     }
-    return response.json() as Promise<{ status?: TalentTestStatus }>;
+    return response.json() as Promise<{ status?: TalentTestStatus; startUrl?: string }>;
   }
 
   async getStatus(_participantId: string, trajectoryCode: string): Promise<TalentTestStatus> {
@@ -23,6 +23,11 @@ export class SupabaseTalentTestRepository implements TalentTestRepository {
   }
   async recordConsent(_participantId: string, trajectoryCode: string, choice: 'accepted' | 'discuss'): Promise<void> {
     await this.request({ action: 'record_talent_consent', trajectoryCode, choice });
+  }
+  async getStartUrl(_participantId: string, trajectoryCode: string): Promise<string> {
+    const result = await this.request({ action: 'get_talent_test_link', trajectoryCode });
+    if (!result.startUrl) throw new Error('De talententest is tijdelijk niet beschikbaar.');
+    return result.startUrl;
   }
   async markCompleted(): Promise<void> { throw new Error('De test wordt als afgerond geregistreerd zodra de begeleider het rapport uploadt.'); }
   async releaseResults(): Promise<void> { throw new Error('Alleen de begeleider kan de besproken resultaten vrijgeven.'); }

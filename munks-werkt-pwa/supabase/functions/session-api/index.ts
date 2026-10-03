@@ -415,7 +415,7 @@ Deno.serve(async request => {
         `;
         return json(200, { released: true }, origin);
       }
-      if (body.action === 'get_talent_status' || body.action === 'record_talent_consent') {
+      if (body.action === 'get_talent_status' || body.action === 'record_talent_consent' || body.action === 'get_talent_test_link') {
         if (!body.trajectoryCode) return json(400, { message: 'Het traject ontbreekt.' }, origin);
         const enrollmentResult = await connection.queryObject<{ id: string }>`
           select enrollments.id::text
@@ -426,6 +426,13 @@ Deno.serve(async request => {
         `;
         const ownEnrollment = enrollmentResult.rows[0];
         if (!ownEnrollment) return json(403, { message: 'Deze talententest hoort niet bij jouw traject.' }, origin);
+        if (body.action === 'get_talent_test_link') {
+          const configuredUrl = Deno.env.get('TALENT_TEST_URL') ?? '';
+          let startUrl: URL;
+          try { startUrl = new URL(configuredUrl); } catch { return json(503, { message: 'De talententest is tijdelijk niet beschikbaar.' }, origin); }
+          if (startUrl.protocol !== 'https:' || startUrl.hostname !== 'www.dilemmamanager.nl') return json(503, { message: 'De talententest is tijdelijk niet beschikbaar.' }, origin);
+          return json(200, { startUrl: startUrl.toString() }, origin);
+        }
         if (body.action === 'record_talent_consent') {
           if (!['accepted', 'discuss'].includes(body.choice ?? '')) return json(400, { message: 'De toestemmingskeuze is niet geldig.' }, origin);
           await connection.queryObject`

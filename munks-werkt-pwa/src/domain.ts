@@ -155,6 +155,7 @@ export type TalentTestStatus = 'not_started' | 'completed' | 'released';
 export interface TalentTestRepository {
   getStatus(participantId: string, trajectoryCode: string): Promise<TalentTestStatus>;
   recordConsent(participantId: string, trajectoryCode: string, choice: 'accepted' | 'discuss'): Promise<void>;
+  getStartUrl(participantId: string, trajectoryCode: string): Promise<string>;
   markCompleted(participantId: string, trajectoryCode: string): Promise<void>;
   releaseResults(participantId: string, trajectoryCode: string): Promise<void>;
 }
