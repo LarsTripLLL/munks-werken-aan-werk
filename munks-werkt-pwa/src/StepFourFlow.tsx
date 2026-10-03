@@ -25,6 +25,7 @@ export function StepFourFlow({
   onEdit,
   onClose,
   onComplete,
+  completed,
 }: {
   repository: AnswerRepository;
   participantId: string;
@@ -33,6 +34,7 @@ export function StepFourFlow({
   onEdit: () => void;
   onClose: () => void;
   onComplete: () => Promise<void>;
+  completed: boolean;
 }) {
   const [showCv, setShowCv] = useState(false);
   const [data, setData] = useState<CvData>({});
@@ -227,9 +229,13 @@ export function StepFourFlow({
       <button className="flow-secondary" onClick={onEdit}>
         Mijn cv aanpassen
       </button>
-      <button className="flow-primary orange" disabled={completing} onClick={() => void complete()}>
-        {completing ? "Stap afronden…" : "Stap 4 afronden"}
-      </button>
+      {completed ? (
+        <p className="notice-box">Stap 4 is afgerond.</p>
+      ) : (
+        <button className="flow-primary orange" disabled={completing} onClick={() => void complete()}>
+          {completing ? "Stap afronden…" : "Stap 4 afronden"}
+        </button>
+      )}
       <button className="flow-secondary" onClick={onClose}>
         Terug naar mijn route
       </button>

@@ -666,6 +666,7 @@ export function App() {
             onEdit={() => setScreen("step3")}
             onClose={() => setScreen("route")}
             onComplete={() => completeStep(4)}
+            completed={data.currentStep > 4 || data.steps.some((step) => step.number === 4 && step.status === "completed")}
           />
         )}
         {screen === "step5" && (
