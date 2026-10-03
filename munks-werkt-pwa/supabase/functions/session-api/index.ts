@@ -103,14 +103,16 @@ Deno.serve(async request => {
     const profile = profileResult.rows[0];
     if (!profile) return json(403, { message: 'Bij dit account ontbreekt een gebruikersprofiel.' }, origin);
     if (!profile.account_active) return json(403, { message: 'Dit account is niet actief.' }, origin);
-    const securitySettings = await connection.queryObject<{ mfa_required: boolean }>`
-      select mfa_required from public.app_security_settings where singleton limit 1
+    const securitySettings = await connection.queryObject<{ mfa_required: boolean; has_verified_factor: boolean }>`
+      select
+        coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required,
+        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor
     `;
     const mfaRequired = securitySettings.rows[0]?.mfa_required === true;
     if (new URL(request.url).searchParams.get('security') === '1') {
       return json(200, { security: { mfaRequired } }, origin);
     }
-    if (mfaRequired && tokenAssuranceLevel(authorization) !== 'aal2') {
+    if ((mfaRequired || securitySettings.rows[0]?.has_verified_factor) && tokenAssuranceLevel(authorization) !== 'aal2') {
       return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
     }
     const commissionerAccess = await connection.queryObject<{ has_commissioner_role: boolean; has_active_organization: boolean }>`
@@ -157,6 +159,7 @@ Deno.serve(async request => {
       if(body.action==='set_mfa_required'){
         const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
         if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag tweestapsverificatie wijzigen.'},origin);
+        if(tokenAssuranceLevel(authorization)!=='aal2')return json(403,{code:'mfa_required',message:'Bevestig deze beveiligingswijziging eerst met je authenticator.'},origin);
         if(typeof body.required!=='boolean'||body.confirmed!==true)return json(400,{message:'Bevestig deze beveiligingswijziging.'},origin);
         await connection.queryObject`update public.app_security_settings set mfa_required=${body.required},updated_by=${userId}::uuid,updated_at=now() where singleton`;
         await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,${body.required?'mfa_required_enabled':'mfa_required_disabled'},'security','app_security_settings','global',${JSON.stringify({required:body.required})}::jsonb)`;

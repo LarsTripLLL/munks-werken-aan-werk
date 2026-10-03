@@ -20,8 +20,8 @@ Deno.serve(async request=>{
   const token=(request.headers.get('authorization')??'').replace(/^Bearer\s+/i,'');
   const auth=createClient(supabaseUrl,publishableKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await auth.auth.getUser(token);if(error||!data.user)return json(401,{message:'Meld je opnieuw aan.'},origin);
-  const security=await sql<{mfa_required:boolean}[]>`select mfa_required from public.app_security_settings where singleton limit 1`;
-  if(security[0]?.mfa_required&&tokenAssuranceLevel(token)!=='aal2')return json(403,{code:'mfa_required',message:'Voltooi eerst de tweede beveiligingsstap.'},origin);
+  const security=await sql<{mfa_required:boolean;has_verified_factor:boolean}[]>`select coalesce((select mfa_required from public.app_security_settings where singleton limit 1),false) as mfa_required,exists(select 1 from auth.mfa_factors where user_id=${data.user.id}::uuid and status='verified') as has_verified_factor`;
+  if((security[0]?.mfa_required||security[0]?.has_verified_factor)&&tokenAssuranceLevel(token)!=='aal2')return json(403,{code:'mfa_required',message:'Voltooi eerst de tweede beveiligingsstap.'},origin);
   const userId=data.user.id,body=await request.json().catch(()=>({})) as {action?:string;message?:string};
   await sql`delete from public.ai_messages where created_at<now()-interval '90 days'`;
   await sql`delete from public.ai_conversations where updated_at<now()-interval '90 days' and not exists(select 1 from public.ai_messages where ai_messages.conversation_id=ai_conversations.id)`;

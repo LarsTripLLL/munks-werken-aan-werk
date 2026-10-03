@@ -304,12 +304,13 @@ export class SupabaseAuthRepository implements AuthRepository {
   }
 
   private async resolveAuthentication(accessToken: string, authenticatedUserId?: string): Promise<AuthenticationResult> {
-    const mfaRequired = await this.getSecurityStatus(accessToken);
-    if (!mfaRequired || assuranceLevel(accessToken) === 'aal2') return { status: 'authenticated', user: await this.getSessionUser(accessToken, authenticatedUserId) };
+    if (assuranceLevel(accessToken) === 'aal2') return { status: 'authenticated', user: await this.getSessionUser(accessToken, authenticatedUserId) };
     const client = this.mfaClient();
     const factors = await client.listFactors();
     const verified = factors.find(factor => factor.status === 'verified');
     if (verified) return { status: 'mfa_challenge', factorId: verified.id };
+    const mfaRequired = await this.getSecurityStatus(accessToken);
+    if (!mfaRequired) return { status: 'authenticated', user: await this.getSessionUser(accessToken, authenticatedUserId) };
     await client.removeUnverifiedFactors();
     const enrollment = await client.enroll();
     return { status: 'mfa_enroll', factorId: enrollment.id, qrCode: enrollment.totp.qr_code, secret: enrollment.totp.secret };

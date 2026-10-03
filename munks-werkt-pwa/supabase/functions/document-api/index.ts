@@ -55,15 +55,16 @@ Deno.serve(async request => {
 
   const connection = await pool.connect();
   try {
-    const access = await connection.queryObject<{ active_session: boolean; active_profile: boolean; mfa_required: boolean }>`
+    const access = await connection.queryObject<{ active_session: boolean; active_profile: boolean; mfa_required: boolean; has_verified_factor: boolean }>`
       select
         exists(select 1 from auth.sessions where id=${sessionId}::uuid and user_id=${userId}::uuid) as active_session,
         exists(select 1 from public.profiles where id=${userId}::uuid and account_active) as active_profile,
-        coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required
+        coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required,
+        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor
     `;
     if (!access.rows[0]?.active_session) return json(401, { message: 'De sessie is uitgelogd of verlopen.' }, origin);
     if (!access.rows[0]?.active_profile) return json(403, { message: 'Dit account is niet actief.' }, origin);
-    if (access.rows[0]?.mfa_required && assuranceLevel !== 'aal2') return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
+    if ((access.rows[0]?.mfa_required || access.rows[0]?.has_verified_factor) && assuranceLevel !== 'aal2') return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
 
     const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
     if (request.method === 'GET') {
