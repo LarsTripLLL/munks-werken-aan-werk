@@ -147,8 +147,11 @@ Deno.serve(async request => {
         if (body.messageAction === 'list_my_assigned_threads') Object.assign(args, { p_trajectory_code: body.trajectoryCode });
         if (['reply_to_my_thread', 'reply_as_assigned_coach'].includes(body.messageAction)) Object.assign(args, { p_thread_id: body.threadId, p_body: body.messageBody });
         if (['mark_my_thread_read', 'mark_assigned_thread_read', 'mark_assigned_thread_handled'].includes(body.messageAction)) Object.assign(args, { p_thread_id: body.threadId });
-        const { data, error } = await userClient.rpc(body.messageAction, args);
-        if (error) return json(403, { message: 'Het bericht kon niet veilig worden verwerkt.' }, origin);
+        const { data, error } = await userClient.schema('api').rpc(body.messageAction, args);
+        if (error) {
+          console.error('message_rpc failed', { action: body.messageAction, code: error.code, message: error.message, details: error.details, hint: error.hint });
+          return json(403, { message: 'Het bericht kon niet veilig worden verwerkt.' }, origin);
+        }
         return json(200, { data }, origin);
       }
       if(body.action==='set_mfa_required'){
