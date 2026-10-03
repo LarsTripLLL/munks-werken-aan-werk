@@ -25,6 +25,7 @@ const responseHeaders = (origin: string | null) => ({
 
 const json = (status: number, body: unknown, origin: string | null) =>
   new Response(JSON.stringify(body), { status, headers: responseHeaders(origin) });
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const parseDutchDate = (value: string) => {
   const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(value);
@@ -165,7 +166,7 @@ Deno.serve(async request => {
         return json(200,{reset:true},origin);
       }
       if(body.action==='set_appointment_active'){
-        if(!body.appointmentId||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);
+        if(typeof body.appointmentId!=='string'||!uuidPattern.test(body.appointmentId)||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);
         const target=await connection.queryObject<{id:string;trajectory_run_id:string;step_id:string;coach_id:string;starts_at:string;ends_at:string;kind:string;participant_id:string|null;allowed:boolean}>`select appointments.id::text,appointments.trajectory_run_id::text,appointments.step_id::text,appointments.coach_id::text,appointments.starts_at::text,appointments.ends_at::text,appointments.kind::text,(select enrollment_id::text from public.appointment_participants where appointment_id=appointments.id limit 1) as participant_id,(exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) or exists(select 1 from public.trajectory_staff where trajectory_run_id=appointments.trajectory_run_id and user_id=${userId}::uuid and active and role in ('primary_coach','trajectory_coach'))) as allowed from public.appointments where appointments.id=${body.appointmentId}::uuid limit 1`;
         if(!target.rows[0]?.allowed)return json(403,{message:'Je mag deze afspraak niet wijzigen.'},origin);
         if(body.active){
@@ -511,7 +512,7 @@ Deno.serve(async request => {
         return json(400, { message: 'De aangeleverde stap is niet geldig.' }, origin);
       }
       if (body.action === 'set_attendance') {
-        if (!body.enrollmentId || typeof body.present !== 'boolean' || ![1, 2, 4, 6, 7].includes(Number(body.stepNumber))) {
+        if (typeof body.enrollmentId !== 'string' || !uuidPattern.test(body.enrollmentId) || typeof body.present !== 'boolean' || ![1, 2, 4, 6, 7].includes(Number(body.stepNumber))) {
           return json(400, { message: 'De aanwezigheidsregistratie is niet geldig.' }, origin);
         }
         const attendance = await connection.queryObject<{ enrollment_id: string }>`

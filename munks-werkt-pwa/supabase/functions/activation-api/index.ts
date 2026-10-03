@@ -7,6 +7,7 @@ const pool = new Pool(Deno.env.get('SUPABASE_DB_URL') ?? '', 1);
 const allowedOrigins = new Set((Deno.env.get('ALLOWED_ORIGINS') ?? 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:4175,http://127.0.0.1:4175').split(',').map(value => value.trim()).filter(Boolean));
 const headers = (origin: string | null) => ({'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Origin',...(origin&&allowedOrigins.has(origin)?{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}:{})});
 const json = (status:number,body:unknown,origin:string|null)=>new Response(JSON.stringify(body),{status,headers:headers(origin)});
+const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 Deno.serve(async request => {
   const origin=request.headers.get('Origin');
@@ -17,7 +18,7 @@ Deno.serve(async request => {
   const connection=await pool.connect();
   try {
     if(body.action==='begin_activation'){
-      if(!body.email?.trim()||!/^\d{6,8}$/.test(body.code??''))return json(400,{message:'Controleer je e-mailadres en activatiecode.'},origin);
+      if(typeof body.email!=='string'||!emailPattern.test(body.email.trim())||typeof body.code!=='string'||!/^\d{6,8}$/.test(body.code))return json(400,{message:'Controleer je e-mailadres en activatiecode.'},origin);
       const invite=await connection.queryObject<{id:string;matches:boolean;attempts:number}>`
         with candidate as (
           select id, crypt(${body.code},code_hash)=code_hash as matches
