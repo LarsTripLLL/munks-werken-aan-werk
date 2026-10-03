@@ -36,8 +36,8 @@ export class SupabaseParticipantRepository implements ParticipantRepository {
     if (!session.participantHome) throw new Error('Aan dit account is geen actief traject gekoppeld.');
     let unreadMessages = 0;
     try {
-      const messagesResponse = await fetch(`${this.supabaseUrl}/rest/v1/rpc/list_my_message_threads`, { method: 'POST', headers: { apikey: this.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: '{}' });
-      if (messagesResponse.ok) unreadMessages = ((await messagesResponse.json()) as Array<{ unread?: number }>).reduce((total, thread) => total + Number(thread.unread ?? 0), 0);
+      const messagesResponse = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, { method: 'POST', headers: { apikey: this.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'message_rpc', messageAction: 'list_my_message_threads' }) });
+      if (messagesResponse.ok) unreadMessages = (((await messagesResponse.json()) as { data?: Array<{ unread?: number }> }).data ?? []).reduce((total, thread) => total + Number(thread.unread ?? 0), 0);
     } catch { /* Het laden van de startpagina mag niet afhangen van de berichtenlijst. */ }
 
     const appointments=(session.participantHome.appointments??[]).map(item=>({id:item.id,stepNumber:item.stepNumber,title:item.title,dateLabel:new Intl.DateTimeFormat('nl-NL',{weekday:'long',day:'numeric',month:'long'}).format(new Date(`${item.date}T12:00:00`)),timeLabel:`${item.startTime} – ${item.endTime} uur`,coachName:item.coachName,location:item.location,explanation:item.explanation}));

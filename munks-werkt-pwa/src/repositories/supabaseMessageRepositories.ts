@@ -15,10 +15,16 @@ export class SupabaseMessageRepositories {
   private async rpc<T>(name:string, body:Record<string,unknown>={}):Promise<T>{
     const token=localStorage.getItem('munks-werkt-access-token');
     if(!token) throw new Error('Aanmelden is vereist.');
-    const response=await fetch(`${this.supabaseUrl}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const result=await response.json().catch(()=>null) as T|{message?:string}|null;
-    if(!response.ok) throw new Error((result&&typeof result==='object'&&'message' in result&&result.message)||'Het bericht kon niet worden verwerkt.');
-    return result as T;
+    const payload:Record<string,unknown>={action:'message_rpc',messageAction:name};
+    if('p_trajectory_code' in body)payload.trajectoryCode=body.p_trajectory_code;
+    if('p_thread_id' in body)payload.threadId=body.p_thread_id;
+    if('p_kind' in body)payload.kind=body.p_kind;
+    if('p_subject' in body)payload.subject=body.p_subject;
+    if('p_body' in body)payload.messageBody=body.p_body;
+    const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await response.json().catch(()=>null) as {data?:T;message?:string}|null;
+    if(!response.ok) throw new Error(result?.message||'Het bericht kon niet worden verwerkt.');
+    return result?.data as T;
   }
   participant(trajectoryCode:string):MessageRepository{
     const existing = this.participantRepositories.get(trajectoryCode);

@@ -135,7 +135,22 @@ Deno.serve(async request => {
       return json(403, { message: 'Deze opdrachtgever is niet actief.' }, origin);
     }
     if (request.method === 'POST') {
-      const body = await request.json().catch(() => ({})) as { action?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; required?:boolean; confirmed?:boolean; targetUserId?:string; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      const body = await request.json().catch(() => ({})) as { action?: string; messageAction?: string; messageBody?: string; subject?: string; kind?: string; threadId?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; required?:boolean; confirmed?:boolean; targetUserId?:string; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      if (body.action === 'message_rpc') {
+        const allowed = new Set([
+          'list_my_message_threads', 'start_my_thread', 'reply_to_my_thread', 'mark_my_thread_read',
+          'list_my_assigned_threads', 'reply_as_assigned_coach', 'mark_assigned_thread_read', 'mark_assigned_thread_handled',
+        ]);
+        if (!body.messageAction || !allowed.has(body.messageAction)) return json(400, { message: 'Deze berichtenactie is niet geldig.' }, origin);
+        const args: Record<string, unknown> = {};
+        if (body.messageAction === 'start_my_thread') Object.assign(args, { p_trajectory_code: body.trajectoryCode, p_kind: body.kind, p_subject: body.subject, p_body: body.messageBody });
+        if (body.messageAction === 'list_my_assigned_threads') Object.assign(args, { p_trajectory_code: body.trajectoryCode });
+        if (['reply_to_my_thread', 'reply_as_assigned_coach'].includes(body.messageAction)) Object.assign(args, { p_thread_id: body.threadId, p_body: body.messageBody });
+        if (['mark_my_thread_read', 'mark_assigned_thread_read', 'mark_assigned_thread_handled'].includes(body.messageAction)) Object.assign(args, { p_thread_id: body.threadId });
+        const { data, error } = await userClient.rpc(body.messageAction, args);
+        if (error) return json(403, { message: 'Het bericht kon niet veilig worden verwerkt.' }, origin);
+        return json(200, { data }, origin);
+      }
       if(body.action==='set_mfa_required'){
         const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
         if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag tweestapsverificatie wijzigen.'},origin);
