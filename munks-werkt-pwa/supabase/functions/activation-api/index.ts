@@ -42,7 +42,7 @@ Deno.serve(async request => {
       return json(200,{activationSessionId:`${invite.rows[0].id}.${token}`},origin);
     }
     if(body.action==='complete_activation'){
-      if(!body.sessionId||!body.password||body.password.length<8||!body.consent?.privacyAccepted||!body.consent?.consentAccepted)return json(400,{message:'De activatiegegevens of toestemmingen zijn niet compleet.'},origin);
+      if(!body.sessionId||!body.password||body.password.length<12||body.password.length>128||!body.consent?.privacyAccepted||!body.consent?.consentAccepted)return json(400,{message:'De activatiegegevens, het wachtwoord of de toestemmingen zijn niet geldig.'},origin);
       const [inviteId,token]=body.sessionId.split('.',2);if(!inviteId||!token)return json(403,{message:'De activatiesessie is ongeldig.'},origin);
       const invite=await connection.queryObject<{enrollment_id:string;participant_id:string}>`
         select activation_invites.enrollment_id::text,enrollments.participant_id::text from public.activation_invites join public.enrollments on enrollments.id=activation_invites.enrollment_id

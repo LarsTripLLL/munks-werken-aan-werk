@@ -16,19 +16,19 @@ export class DemoAuthRepository implements AuthRepository {
 
   async signIn(email: string, password: string) {
     await wait();
-    if (!email.includes('@') || password.length < 8) throw new Error('Controleer je e-mailadres en wachtwoord.');
+    if (!email.includes('@') || !password) throw new Error('Controleer je e-mailadres en wachtwoord.');
     return { status: 'authenticated' as const, user: { id: 'demo-participant', displayName: 'Sam', role: 'participant' as const, organizationId: 'demo-rsd' } };
   }
 
   async completeStaffInvite(email:string,code:string,password:string){
     await wait();
-    if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.');
+    if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<12||password.length>128)throw new Error('Controleer je e-mailadres, code en wachtwoord.');
     return {status:'authenticated' as const,user:{id:'demo-staff',displayName:'Testgebruiker',role:'coach' as const,organizationId:'demo'}};
   }
 
   async requestPasswordReset(){await wait()}
-  async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<8)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
-  async completePasswordResetMfa(_factorId:string,code:string,password:string){await wait();if(!/^\d{6}$/.test(code)||password.length<8)throw new Error('Controleer de authenticatorcode en het wachtwoord.')}
+  async completePasswordReset(email:string,code:string,password:string){await wait();if(!email.includes('@')||!/^\d{6,8}$/.test(code)||password.length<12||password.length>128)throw new Error('Controleer je e-mailadres, code en wachtwoord.')}
+  async completePasswordResetMfa(_factorId:string,code:string,password:string){await wait();if(!/^\d{6}$/.test(code)||password.length<12||password.length>128)throw new Error('Controleer de authenticatorcode en het wachtwoord.')}
 
   async registerBiometric() {
     await wait();
