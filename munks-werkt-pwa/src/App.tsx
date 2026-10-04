@@ -583,7 +583,7 @@ export function App() {
         )}
         {screen === "documents" &&
           (documentRepository ? (
-            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} personalDetails={data.personalDetails} onClose={() => setScreen("home")} />
+            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} personalDetails={data.personalDetails} showCv={data.currentStep > 3 || data.steps.some((step) => step.number === 3 && step.status === "completed")} onClose={() => setScreen("home")} />
           ) : (
             <section className="screen">
               <span className="eyebrow">Jouw bestanden</span>

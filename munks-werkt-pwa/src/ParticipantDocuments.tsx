@@ -4,7 +4,7 @@ import { downloadCvAsWord, type CvData } from './cvWordDocument';
 
 const cvActivities = ['s3-details', 's3-about', 's3-education', 's3-experience', 's3-extra'];
 
-export function ParticipantDocuments({ repository, answerRepository, participantId, trajectoryCode, personalDetails, onClose }: { repository: ParticipantDocumentRepository; answerRepository: AnswerRepository; participantId: string; trajectoryCode: string; personalDetails?: ParticipantHome['personalDetails']; onClose: () => void }) {
+export function ParticipantDocuments({ repository, answerRepository, participantId, trajectoryCode, personalDetails, showCv, onClose }: { repository: ParticipantDocumentRepository; answerRepository: AnswerRepository; participantId: string; trajectoryCode: string; personalDetails?: ParticipantHome['personalDetails']; showCv: boolean; onClose: () => void }) {
   const [documents, setDocuments] = useState<ParticipantDocument[]>([]);
   const [message, setMessage] = useState('Documenten laden…');
 
@@ -47,5 +47,5 @@ export function ParticipantDocuments({ repository, answerRepository, participant
     }
   };
 
-  return <section className="screen"><span className="eyebrow">Jouw bestanden</span><h1>Mijn documenten</h1><p>Bekijk de documenten die tijdens jouw traject beschikbaar zijn.</p><article className="participant-document-list"><h2>Documenten</h2><div><div><strong>Mijn cv</strong><span>Bewerkbaar Word-bestand op basis van jouw ingevulde gegevens</span></div><button type="button" onClick={() => void downloadCv()}>Download cv</button></div>{documents.filter(document => document.type !== 'cv').map(document => <div key={`${document.type}-${document.storagePath}`}><div><strong>Rapport talententest</strong><span>{document.fileName}</span><small>Toegevoegd op {document.uploadedAt}</small></div><button type="button" onClick={() => void open(document)}>Rapport downloaden</button></div>)}{message && <p className="notice-box">{message}</p>}</article><button type="button" className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button></section>;
+  return <section className="screen"><span className="eyebrow">Jouw bestanden</span><h1>Mijn documenten</h1><p>Bekijk de documenten die tijdens jouw traject beschikbaar zijn.</p><article className="participant-document-list"><h2>Documenten</h2>{showCv && <div><div><strong>Mijn cv</strong><span>Bewerkbaar Word-bestand op basis van jouw ingevulde gegevens</span></div><button type="button" onClick={() => void downloadCv()}>Download cv</button></div>}{documents.filter(document => document.type !== 'cv').map(document => <div key={`${document.type}-${document.storagePath}`}><div><strong>Rapport talententest</strong><span>{document.fileName}</span><small>Toegevoegd op {document.uploadedAt}</small></div><button type="button" onClick={() => void open(document)}>Rapport downloaden</button></div>)}{message && <p className="notice-box">{message}</p>}</article><button type="button" className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button></section>;
 }
