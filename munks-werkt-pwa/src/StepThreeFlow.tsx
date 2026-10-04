@@ -108,6 +108,8 @@ export function StepThreeFlow({
     "idle" | "saving" | "saved" | "error"
   >("idle");
   const [message, setMessage] = useState("");
+  const [completionError, setCompletionError] = useState("");
+  const [completing, setCompleting] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [moving, setMoving] = useState(false);
   const [educationCount, setEducationCount] = useState(1);
@@ -204,7 +206,6 @@ export function StepThreeFlow({
       });
       setSaveState("saved");
       if (direction === 1 && index === parts.length - 1) {
-        await onComplete();
         setStage("preview");
       } else setIndex((current) => current + direction);
     } catch (reason) {
@@ -249,6 +250,23 @@ export function StepThreeFlow({
       setMessage(
         "Het Word-bestand kon niet worden gemaakt. Ververs de pagina en probeer het opnieuw.",
       );
+    }
+  };
+  const complete = async () => {
+    if (completing) return;
+    setCompleting(true);
+    setCompletionError("");
+    try {
+      await onComplete();
+      onClose();
+    } catch (reason) {
+      setCompletionError(
+        reason instanceof Error
+          ? reason.message
+          : "Deze stap kon niet worden afgerond. Probeer het opnieuw.",
+      );
+    } finally {
+      setCompleting(false);
     }
   };
 
@@ -433,6 +451,10 @@ export function StepThreeFlow({
         <button className="flow-primary" onClick={download}>
           Download mijn cv
         </button>
+        <button className="flow-primary orange" disabled={completing} onClick={() => void complete()}>
+          {completing ? "Stap afronden…" : "Stap 3 afronden"}
+        </button>
+        {completionError && <p className="flow-error" role="alert">{completionError}</p>}
         {message && <p className="notice-box">{message}</p>}
         <button
           className="flow-secondary"

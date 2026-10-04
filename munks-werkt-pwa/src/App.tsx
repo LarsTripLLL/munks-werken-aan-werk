@@ -654,7 +654,10 @@ export function App() {
             trajectoryCode={data.trajectoryCode}
             personalDetails={data.personalDetails}
             onClose={() => setScreen("route")}
-            onComplete={() => data.currentStep === 3 ? completeStep(3) : Promise.resolve()}
+            onComplete={() => {
+              if (data.currentStep < 3) return Promise.reject(new Error("Deze stap is nog niet aan de beurt."));
+              return data.currentStep === 3 ? completeStep(3) : Promise.resolve();
+            }}
           />
         )}
         {screen === "step4" && (
