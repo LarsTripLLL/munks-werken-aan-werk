@@ -279,9 +279,8 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async completeStaffInvite(email:string,code:string,password:string):Promise<AuthenticationResult>{
     const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
-    const queryParams=new URLSearchParams(location.search);
-    let token=hashParams.get('access_token')||queryParams.get('access_token');
-    let refreshToken=hashParams.get('refresh_token')||queryParams.get('refresh_token');
+    let token=hashParams.get('access_token');
+    let refreshToken=hashParams.get('refresh_token');
     if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token;refreshToken=verified.refresh_token}
     const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});
     if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');
