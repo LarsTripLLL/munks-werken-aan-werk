@@ -680,7 +680,10 @@ export function App() {
             participantId={data.user.id}
             trajectoryCode={data.trajectoryCode}
             onClose={() => setScreen("route")}
-            onComplete={() => completeStep(5)}
+            onComplete={() => {
+              if (data.currentStep < 5) return Promise.reject(new Error("Rond eerst de eerdere stap af voordat je stap 5 afrondt."));
+              return data.currentStep === 5 ? completeStep(5) : Promise.resolve();
+            }}
           />
         )}
         {screen === "step6" && (
