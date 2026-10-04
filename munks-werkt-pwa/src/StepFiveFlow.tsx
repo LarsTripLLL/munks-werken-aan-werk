@@ -15,7 +15,7 @@ const guidance:Record<string,{explanation:string;example:string;url?:string;link
  'Het bedrijf past bij mij':{explanation:'Niet alleen het werk, maar ook de omgeving is belangrijk. Denk aan de grootte van het bedrijf, de sfeer en hoe collega’s samenwerken.',example:'Werk je liever in een klein team of in een grote winkel? Vraag hoe een gewone werkdag eruitziet.'},
 };
 const ids=['s5-sources','s5-fit','s5-match','s5-reaction-example','s5-reaction'];
-const educationSources=[['Opleidingswebsites','Zoek op onderwerp, plaats en niveau.'],['Bij een school','Bekijk het aanbod of vraag om uitleg.']] as const;
+const educationSources=[['Opleidingswebsites','Zoek op onderwerp, plaats en niveau.']] as const;
 const educationPreferences=[['De inhoud past bij mij','Wat leer je en wat kun je er later mee doen?'],['De manier van leren past bij mij','Kijk of je vooral op school leert of leren en werken combineert.'],['De plek is bereikbaar','Kun je goed bij de opleiding komen?'],['De voorwaarden zijn duidelijk','Bekijk wat je nodig hebt om te kunnen beginnen.']] as const;
 const Eye=()=> <svg className="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.75"/></svg>;
 const Visibility=()=> <div className="visibility-note"><Eye/><span>Alleen jij en de begeleiders kunnen dit antwoord zien.</span></div>;
