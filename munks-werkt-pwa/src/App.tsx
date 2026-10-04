@@ -31,8 +31,6 @@ import { ApiStaffMessageRepository } from "./repositories/apiStaffMessageReposit
 import { ApiDashboardRepository } from "./repositories/apiDashboardRepository";
 import { SupabaseDashboardRepository } from "./repositories/supabaseDashboardRepository";
 import { SupabaseMessageRepositories } from "./repositories/supabaseMessageRepositories";
-import { SupabaseAiRepository } from "./repositories/supabaseAiRepository";
-import { AiAssistant } from "./AiAssistant";
 import logoUrl from "./assets/Munks-Werkt-logo.png";
 import mountainUrl from "./assets/Munks-Werkt-bergachtergrond.png";
 
@@ -88,16 +86,12 @@ const staffMessageRepository = useApi
 const supabaseMessageRepositories = useSupabaseAuth
   ? new SupabaseMessageRepositories(import.meta.env.VITE_SUPABASE_URL ?? "", import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "")
   : undefined;
-const aiRepository = useSupabaseAuth
-  ? new SupabaseAiRepository(import.meta.env.VITE_SUPABASE_URL ?? "", import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "")
-  : undefined;
 type MainScreen = "home" | "route" | "messages" | "environment";
 type Screen =
   | MainScreen
   | "fit"
   | "documents"
   | "appointments"
-  | "assistant"
   | "goals"
   | "step1"
   | "step2"
@@ -231,16 +225,7 @@ export function App() {
   const [data, setData] = useState<ParticipantHome>();
   const [error, setError] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
-  const [aiPrompt, setAiPrompt] = useState("");
   const [idleWarning, setIdleWarning] = useState(false);
-  useEffect(() => {
-    const listener = (event: Event) => {
-      setAiPrompt((event as CustomEvent<string>).detail || "");
-      setScreen("assistant");
-    };
-    window.addEventListener("munks-open-ai", listener);
-    return () => window.removeEventListener("munks-open-ai", listener);
-  }, []);
   const signOut = useCallback(async () => {
     try {
       await authRepository.signOut?.();
@@ -623,9 +608,6 @@ export function App() {
               </button>
             </article>
           </section>
-        )}
-        {screen === "assistant" && aiRepository && (
-          <AiAssistant repository={aiRepository} initialQuestion={aiPrompt} onClose={() => setScreen("home")} />
         )}
         {screen === "step1" && (
           <StepOneFlow
