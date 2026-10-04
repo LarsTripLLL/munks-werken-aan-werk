@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AnswerRepository } from "./domain";
 import { downloadCvAsWord } from "./cvWordDocument";
-import { openAiAssistant } from "./aiNavigation";
 import { saveErrorMessage } from "./saveError";
 
 type CvData = Record<string, string>;
@@ -433,12 +432,6 @@ export function StepThreeFlow({
         </section>
         <button className="flow-primary" onClick={download}>
           Download mijn cv
-        </button>
-        <button
-          className="flow-secondary"
-          onClick={() => openAiAssistant("Geef mij eenvoudige tips om mijn cv duidelijker en sterker te maken. Vraag welk onderdeel ik wil verbeteren.")}
-        >
-          Laat de AI-assistent meekijken
         </button>
         {message && <p className="notice-box">{message}</p>}
         <button
