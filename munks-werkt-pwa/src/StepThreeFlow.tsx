@@ -303,7 +303,7 @@ export function StepThreeFlow({
           Begin met mijn cv
         </button>
         <button className="flow-secondary" onClick={onClose}>
-          Terug naar mijn route
+          Terug naar mijn traject
         </button>
       </section>
     );
@@ -476,7 +476,7 @@ export function StepThreeFlow({
           Gegevens aanpassen
         </button>
         <button className="flow-secondary" onClick={onClose}>
-          Terug naar mijn route
+          Terug naar mijn traject
         </button>
       </section>
     );
@@ -486,7 +486,7 @@ export function StepThreeFlow({
       <h1>{part.heading}</h1>
       <section className="flow-card" role="status">{loadError || "Antwoord laden…"}</section>
       {loadError && <button className="flow-primary" onClick={() => setLoadRevision(current => current + 1)}>Opnieuw proberen</button>}
-      <button className="flow-secondary" onClick={onClose}>Terug naar mijn route</button>
+      <button className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button>
     </section>
   );
   return (

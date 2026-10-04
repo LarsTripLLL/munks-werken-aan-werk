@@ -542,7 +542,7 @@ export function App() {
         {screen === "route" && (
           <section className="screen">
             <span className="eyebrow">Jouw traject</span>
-            <h1>Jouw route</h1>
+            <h1>Jouw traject</h1>
             <p>Bekijk waar je bent en welke stappen nog komen.</p>
             <Mountain data={data} />
             <ol>

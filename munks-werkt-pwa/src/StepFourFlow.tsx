@@ -237,7 +237,7 @@ export function StepFourFlow({
         </button>
       )}
       <button className="flow-secondary" onClick={onClose}>
-        Terug naar mijn route
+        Terug naar mijn traject
       </button>
       {message && <p className="auth-error" role="alert">{message}</p>}
       <p className="attendance-note">

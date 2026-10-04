@@ -106,30 +106,19 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     finally { setMoving(false); }
   };
 
-  const skipAndContinue = async () => {
-    if (moving) return;
-    setMoving(true);
-    try {
-      await saveTextNow(''); setValue('');
-      if (index === questions.length - 1) { await onComplete(); setStage('done'); }
-      else setIndex(current => current + 1);
-    } catch { setSaveState('error'); }
-    finally { setMoving(false); }
-  };
-
   if (stage === 'intro') return <section className="step-flow">
     <span className="eyebrow">Stap 1 · Kennismaken</span><h1>Over jezelf en voor jezelf</h1>
     <p>Met deze vragen bereid je je rustig voor op de kennismaking met de groep.</p>
     <section className="flow-card intro-list"><h2>Goed om te weten</h2><p>Je bent ongeveer 5 minuten bezig.</p><p>Iedere vraag staat op een apart scherm.</p><p className="with-eye"><EyeIcon/>Alleen jij en de begeleiders kunnen je antwoorden zien.</p><p>Er zijn geen goede of foute antwoorden.</p></section>
     <button className="flow-primary" onClick={() => setStage('questions')}>Begin met de vragen</button>
-    <button className="flow-secondary" onClick={onClose}>Terug naar mijn route</button>
+    <button className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button>
   </section>;
 
   if (stage === 'done') return <section className="step-flow">
     <span className="eyebrow">Stap 1 · Kennismaken</span><h1>Je bent voorbereid</h1>
     <p>Je antwoorden zijn automatisch opgeslagen. Je kunt ze tijdens de kennismaking gebruiken.</p>
     <section className="flow-card"><h2>Fijn dat je dit hebt gedaan</h2><p>Je hoeft je antwoorden niet met de groep te delen. Jij bepaalt wat je tijdens de kennismaking vertelt.</p></section>
-    <button className="flow-primary orange" onClick={onClose}>Terug naar mijn route</button>
+    <button className="flow-primary orange" onClick={onClose}>Terug naar mijn traject</button>
     <button className="flow-secondary" onClick={() => { setIndex(0); setStage('questions'); }}>Mijn antwoorden bekijken</button>
   </section>;
 
@@ -138,7 +127,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
     <h1>Over jezelf en voor jezelf</h1>
     <section className="flow-card" role="status">{loadError || 'Antwoord laden…'}</section>
     {loadError && <button className="flow-primary" onClick={() => setLoadRevision(current => current + 1)}>Opnieuw proberen</button>}
-    <button className="flow-secondary" onClick={onClose}>Terug naar mijn route</button>
+    <button className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button>
   </section>;
 
   const scores: ScoreAnswer = typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -154,7 +143,7 @@ export function StepOneFlow({ repository, participantId, trajectoryCode, onClose
       <div className={`save-state ${saveState}`} aria-live="polite">{{idle:'Nog niet ingevuld',saving:'Opslaan…',saved:'Automatisch opgeslagen',error:saveError}[saveState]}</div>
     </section>
     <button className="flow-primary" disabled={moving} onClick={() => void continueAfterSave()}>{moving ? 'Even opslaan…' : index === questions.length - 1 ? 'Voorbereiding afronden' : 'Volgende vraag'}</button>
-    {activity.skippable && <button className="flow-link" disabled={moving} onClick={() => void skipAndContinue()}>Deze vraag overslaan</button>}
     <button className="flow-secondary" onClick={() => { if (activity.kind !== 'measurement') void saveTextNow(); index === 0 ? setStage('intro') : setIndex(current => current - 1); }}>{index === 0 ? 'Terug naar uitleg' : 'Vorige vraag'}</button>
+    <button className="flow-secondary" onClick={onClose}>Terug naar mijn traject</button>
   </section>;
 }
