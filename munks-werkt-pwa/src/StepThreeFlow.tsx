@@ -215,31 +215,6 @@ export function StepThreeFlow({
       setMoving(false);
     }
   };
-  const skip = async () => {
-    if (moving) return;
-    setMoving(true);
-    const cleared = { ...data };
-    activeFields.forEach(([key]) => delete cleared[key]);
-    setData(cleared);
-    try {
-      await repository.save({
-        participantId,
-        trajectoryCode,
-        activityId: part.id,
-        value: {},
-        updatedAt: new Date().toISOString(),
-      });
-      if (index === parts.length - 1) {
-        await onComplete();
-        setStage("preview");
-      } else setIndex((current) => current + 1);
-    } catch (reason) {
-      setSaveError(saveErrorMessage(reason));
-      setSaveState("error");
-    } finally {
-      setMoving(false);
-    }
-  };
   const introduction =
     [data.description, data.strengths, data.energy].filter(Boolean).join(" ") ||
     "Nog niet ingevuld";
@@ -575,16 +550,14 @@ export function StepThreeFlow({
           ? "Opslaan en bekijk mijn cv"
           : "Opslaan en verder"}
       </button>
-      {part.skippable && (
-        <button className="flow-link" disabled={moving} onClick={() => void skip()}>
-          Dit onderdeel overslaan
-        </button>
-      )}
       <button
         className="flow-secondary"
         onClick={() => (index === 0 ? setStage("intro") : void move(-1))}
       >
         {index === 0 ? "Terug naar uitleg" : "Vorig onderdeel"}
+      </button>
+      <button className="flow-secondary" onClick={onClose}>
+        Terug naar mijn traject
       </button>
     </section>
   );
