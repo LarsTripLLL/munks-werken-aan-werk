@@ -583,12 +583,13 @@ export function App() {
         )}
         {screen === "documents" &&
           (documentRepository ? (
-            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} personalDetails={data.personalDetails} />
+            <ParticipantDocuments repository={documentRepository} answerRepository={answerRepository} participantId={data.user.id} trajectoryCode={data.trajectoryCode} personalDetails={data.personalDetails} onClose={() => setScreen("home")} />
           ) : (
             <section className="screen">
               <span className="eyebrow">Jouw bestanden</span>
               <h1>Mijn documenten</h1>
               <p>Er zijn nog geen documenten beschikbaar.</p>
+              <button type="button" className="flow-secondary" onClick={() => setScreen("home")}>Terug naar mijn traject</button>
             </section>
           ))}
         {screen === "appointments" && (
