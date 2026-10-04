@@ -550,7 +550,7 @@ export function App() {
                     onClick={() => setScreen(`step${step.number}` as Screen)}
                   >
                     <span>{step.number}</span>
-                    <strong>{step.title}</strong>
+                    <strong>{step.number === 5 ? "Werk of opleiding zoeken en reageren" : step.title}</strong>
                     <em>Openen</em>
                   </button>
                 </li>
