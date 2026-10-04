@@ -33,7 +33,6 @@ import { SupabaseDashboardRepository } from "./repositories/supabaseDashboardRep
 import { SupabaseMessageRepositories } from "./repositories/supabaseMessageRepositories";
 import { SupabaseAiRepository } from "./repositories/supabaseAiRepository";
 import { AiAssistant } from "./AiAssistant";
-import { openAiAssistant } from "./aiNavigation";
 import logoUrl from "./assets/Munks-Werkt-logo.png";
 import mountainUrl from "./assets/Munks-Werkt-bergachtergrond.png";
 
@@ -534,7 +533,6 @@ export function App() {
                 Mijn afspraken
               </button>
               <button onClick={() => setScreen("goals")}>Mijn doelen</button>
-              <button onClick={() => openAiAssistant()}>AI-assistent</button>
               <button onClick={signOut}>Uitloggen</button>
             </section>
           </>
