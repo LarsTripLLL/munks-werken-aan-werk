@@ -30,6 +30,12 @@ const jwtClaim = (authorization: string, name: string) => {
     return (JSON.parse(atob(encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '='))) as Record<string, unknown>)[name];
   } catch { return undefined; }
 };
+const tokenUsesRecovery = (authorization: string) => {
+  const methods = jwtClaim(authorization, 'amr');
+  return !Array.isArray(methods) || methods.some(entry => (
+    typeof entry === 'object' && entry !== null && (entry as { method?: unknown }).method === 'recovery'
+  ));
+};
 const safeDownloadName = (value: string) => value.replace(/[\r\n"\\/]/g, '_').slice(0, 180) || 'document.pdf';
 const isPdf = (bytes: Uint8Array) => {
   const header = new TextDecoder().decode(bytes.slice(0, 5));
@@ -48,6 +54,7 @@ Deno.serve(async request => {
   const userClient = createClient(supabaseUrl, publishableKey, { global: { headers: { Authorization: authorization } }, auth: { persistSession: false, autoRefreshToken: false } });
   const { data: userData, error: userError } = await userClient.auth.getUser();
   if (userError || !userData.user) return json(401, { message: 'De sessie is ongeldig of verlopen.' }, origin);
+  if (tokenUsesRecovery(authorization)) return json(403, { code: 'recovery_session_restricted', message: 'Rond het wachtwoordherstel af en meld daarna opnieuw aan.' }, origin);
   const userId = userData.user.id;
   const sessionId = jwtClaim(authorization, 'session_id');
   const assuranceLevel = jwtClaim(authorization, 'aal');
@@ -55,15 +62,17 @@ Deno.serve(async request => {
 
   const connection = await pool.connect();
   try {
-    const access = await connection.queryObject<{ active_session: boolean; active_profile: boolean; mfa_required: boolean; has_verified_factor: boolean }>`
+    const access = await connection.queryObject<{ active_session: boolean; active_profile: boolean; mfa_required: boolean; has_verified_factor: boolean; has_approved_factor: boolean }>`
       select
         exists(select 1 from auth.sessions where id=${sessionId}::uuid and user_id=${userId}::uuid) as active_session,
         exists(select 1 from public.profiles where id=${userId}::uuid and account_active) as active_profile,
         coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required,
-        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor
+        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor,
+        exists(select 1 from auth.mfa_factors factor join public.mfa_factor_approvals approval on approval.factor_id=factor.id and approval.user_id=factor.user_id where factor.user_id=${userId}::uuid and factor.status='verified') as has_approved_factor
     `;
     if (!access.rows[0]?.active_session) return json(401, { message: 'De sessie is uitgelogd of verlopen.' }, origin);
     if (!access.rows[0]?.active_profile) return json(403, { message: 'Dit account is niet actief.' }, origin);
+    if (access.rows[0]?.has_verified_factor && !access.rows[0]?.has_approved_factor) return json(403, { code: 'mfa_approval_required', message: 'Je nieuwe authenticator wacht op goedkeuring door een applicatiebeheerder. Meld daarna opnieuw aan.' }, origin);
     if ((access.rows[0]?.mfa_required || access.rows[0]?.has_verified_factor) && assuranceLevel !== 'aal2') return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
 
     const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });

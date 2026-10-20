@@ -50,6 +50,18 @@ const tokenAssuranceLevel = (authorization: string) => {
   }
 };
 
+const tokenUsesRecovery = (authorization: string) => {
+  try {
+    const token = authorization.replace(/^Bearer\s+/i, '');
+    const encoded = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+    const methods = (JSON.parse(atob(padded)) as { amr?: Array<{ method?: unknown }> }).amr;
+    return !Array.isArray(methods) || methods.some(entry => entry?.method === 'recovery');
+  } catch {
+    return true;
+  }
+};
+
 const tokenSessionId = (authorization: string) => {
   try {
     const token = authorization.replace(/^Bearer\s+/i, '');
@@ -77,6 +89,13 @@ Deno.serve(async request => {
   });
   const { data: userData, error: userError } = await userClient.auth.getUser();
   if (userError || !userData.user) return json(401, { message: 'De sessie is ongeldig of verlopen.' }, origin);
+  // Een recoverycode bewijst alleen toegang tot e-mail. Ook wanneer iemand met
+  // zo'n sessie zelf een TOTP-factor koppelt, mag die sessie geen applicatiedata
+  // lezen. Na een geslaagde wachtwoordwijziging moet opnieuw met wachtwoord en
+  // de reeds goedgekeurde factor worden aangemeld.
+  if (tokenUsesRecovery(authorization)) {
+    return json(403, { code: 'recovery_session_restricted', message: 'Rond het wachtwoordherstel af en meld daarna opnieuw aan.' }, origin);
+  }
 
   const userId = userData.user.id;
   const sessionId = tokenSessionId(authorization);
@@ -103,14 +122,22 @@ Deno.serve(async request => {
     const profile = profileResult.rows[0];
     if (!profile) return json(403, { message: 'Bij dit account ontbreekt een gebruikersprofiel.' }, origin);
     if (!profile.account_active) return json(403, { message: 'Dit account is niet actief.' }, origin);
-    const securitySettings = await connection.queryObject<{ mfa_required: boolean; has_verified_factor: boolean }>`
+    const securitySettings = await connection.queryObject<{ mfa_required: boolean; has_verified_factor: boolean; has_approved_factor: boolean }>`
       select
         coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required,
-        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor
+        exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor,
+        exists(
+          select 1 from auth.mfa_factors factor
+          join public.mfa_factor_approvals approval on approval.factor_id=factor.id and approval.user_id=factor.user_id
+          where factor.user_id=${userId}::uuid and factor.status='verified'
+        ) as has_approved_factor
     `;
     const mfaRequired = securitySettings.rows[0]?.mfa_required === true;
     if (new URL(request.url).searchParams.get('security') === '1') {
       return json(200, { security: { mfaRequired } }, origin);
+    }
+    if (securitySettings.rows[0]?.has_verified_factor && !securitySettings.rows[0]?.has_approved_factor) {
+      return json(403, { code: 'mfa_approval_required', message: 'Je nieuwe authenticator wacht op goedkeuring door een applicatiebeheerder. Meld daarna opnieuw aan.' }, origin);
     }
     if ((mfaRequired || securitySettings.rows[0]?.has_verified_factor) && tokenAssuranceLevel(authorization) !== 'aal2') {
       return json(403, { code: 'mfa_required', message: 'Voltooi eerst de tweede beveiligingsstap.' }, origin);
@@ -185,6 +212,21 @@ Deno.serve(async request => {
         if((remainingSessions.rows[0]?.count??0)>0)return json(500,{message:'De authenticator is verwijderd, maar niet alle bestaande sessies zijn beëindigd. Neem direct contact op met technisch beheer.'},origin);
         await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_reset','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.length,identityChecked:true})}::jsonb)`;
         return json(200,{reset:true},origin);
+      }
+      if(body.action==='approve_user_mfa'){
+        const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
+        if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag een authenticator goedkeuren.'},origin);
+        if(tokenAssuranceLevel(authorization)!=='aal2')return json(403,{code:'mfa_required',message:'Bevestig deze beveiligingswijziging eerst met je authenticator.'},origin);
+        if(!body.targetUserId||!uuidPattern.test(body.targetUserId)||body.confirmed!==true)return json(400,{message:'Kies een gebruiker en bevestig de identiteitscontrole.'},origin);
+        if(body.targetUserId===userId)return json(400,{message:'Je kunt je eigen authenticator niet goedkeuren.'},origin);
+        const target=await connection.queryObject<{exists:boolean}>`select exists(select 1 from public.profiles where id=${body.targetUserId}::uuid and account_active) as exists`;
+        if(!target.rows[0]?.exists)return json(404,{message:'De actieve gebruiker is niet gevonden.'},origin);
+        const factors=await connection.queryObject<{id:string}>`select id::text from auth.mfa_factors where user_id=${body.targetUserId}::uuid and status='verified'`;
+        if(!factors.rows.length)return json(400,{message:'Voor deze gebruiker is geen nieuwe geverifieerde authenticator gevonden.'},origin);
+        for(const factor of factors.rows)await connection.queryObject`insert into public.mfa_factor_approvals(factor_id,user_id,approved_by,approved_at) values(${factor.id}::uuid,${body.targetUserId}::uuid,${userId}::uuid,now()) on conflict(factor_id) do update set approved_by=excluded.approved_by,approved_at=excluded.approved_at`;
+        await connection.queryObject`delete from auth.sessions where user_id=${body.targetUserId}::uuid`;
+        await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_approved','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.rows.length,identityChecked:true})}::jsonb)`;
+        return json(200,{approved:true},origin);
       }
       if(body.action==='set_appointment_active'){
         if(typeof body.appointmentId!=='string'||!uuidPattern.test(body.appointmentId)||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);
@@ -937,6 +979,26 @@ Deno.serve(async request => {
     `).rows : [];
     const managedUsersMap=new Map<string,{id:string;name:string;email:string;role:'project_leader'|'coach'|'commissioner';organization:string;commissionerCode?:string;trajectoryCodes:string[];active:boolean}>();
     for(const row of managedUserRows){const role=row.global_role==='functional_admin'?'project_leader':row.staff_role==='rsd_user'?'commissioner':'coach';const current=managedUsersMap.get(row.id)??{id:row.id,name:row.name,email:row.email,role,organization:row.organization??(role==='commissioner'?'Opdrachtgever':'Munks BV'),commissionerCode:role==='commissioner'?(row.commissioner_code??undefined):undefined,trajectoryCodes:[],active:row.active};if(row.trajectory_code&&!current.trajectoryCodes.includes(row.trajectory_code))current.trajectoryCodes.push(row.trajectory_code);managedUsersMap.set(row.id,current)}
+    const pendingMfaApprovals = mayManage ? (await connection.queryObject<{user_id:string;name:string;email:string;account_type:string;factor_created_at:string}>`
+      select profiles.id::text as user_id,
+        trim(profiles.first_name||' '||profiles.last_name) as name,
+        profiles.email,
+        case
+          when exists(select 1 from public.global_user_roles where user_id=profiles.id and role='functional_admin' and active) then 'Applicatiebeheerder'
+          when exists(select 1 from public.trajectory_staff where user_id=profiles.id and role in ('primary_coach','trajectory_coach') and active) then 'Begeleider'
+          when exists(select 1 from public.trajectory_staff where user_id=profiles.id and role='rsd_user' and active) then 'Opdrachtgever'
+          when exists(select 1 from public.enrollments where participant_id=profiles.id and status in ('invited','active','paused')) then 'Deelnemer'
+          else 'Gebruiker'
+        end as account_type,
+        min(factor.created_at)::text as factor_created_at
+      from public.profiles profiles
+      join auth.mfa_factors factor on factor.user_id=profiles.id and factor.status='verified'
+      where profiles.account_active
+        and profiles.id<>${userId}::uuid
+        and not exists(select 1 from public.mfa_factor_approvals approval where approval.factor_id=factor.id and approval.user_id=profiles.id)
+      group by profiles.id,profiles.first_name,profiles.last_name,profiles.email
+      order by factor_created_at
+    `).rows.map(item=>({userId:item.user_id,name:item.name,email:item.email,accountType:item.account_type,factorCreatedAt:item.factor_created_at})) : [];
     const dashboardManagementOptions = mayManage ? {
       coaches: (await connection.queryObject<{ id: string; name: string }>`
         select distinct profiles.id::text as id, trim(profiles.first_name || ' ' || profiles.last_name) as name
@@ -948,6 +1010,7 @@ Deno.serve(async request => {
       commissioners: (await connection.queryObject<{ code: string; name: string }>`select code, name from public.organizations where active order by name`).rows,
       organizations: (await connection.queryObject<{ code:string;name:string;active:boolean }>`select code,name,active from public.organizations order by name`).rows,
       users: [...managedUsersMap.values()],
+      pendingMfaApprovals,
       security: { mfaRequired },
     } : undefined;
 

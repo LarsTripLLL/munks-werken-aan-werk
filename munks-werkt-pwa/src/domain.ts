@@ -210,6 +210,7 @@ export interface DashboardManagementOptions {
   organizations?: Array<{ code: string; name: string; active: boolean }>;
   users?: ManagedUser[];
   security?: { mfaRequired: boolean };
+  pendingMfaApprovals?: Array<{ userId: string; name: string; email: string; accountType: string; factorCreatedAt: string }>;
 }
 export type ManagedRole = 'project_leader' | 'coach' | 'commissioner';
 export interface ManagedUser { id:string; name:string; email:string; role:ManagedRole; organization:string; commissionerCode?:string; trajectoryCodes:string[]; active:boolean }
@@ -231,6 +232,7 @@ export interface DashboardRepository {
   saveManagedUser(user: ManagedUser): Promise<void>;
   setMfaRequired(required: boolean): Promise<void>;
   resetManagedUserMfa(userId: string): Promise<void>;
+  approveUserMfa(userId: string): Promise<void>;
   saveCommissioner(organization: { code:string; name:string; active:boolean }): Promise<void>;
   listAppointments(trajectoryCode: string): Promise<DashboardAppointment[]>;
   saveAppointment(appointment: Omit<DashboardAppointment, 'coachName' | 'cancelled' | 'participantName'>): Promise<void>;
