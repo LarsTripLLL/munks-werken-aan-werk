@@ -28,6 +28,9 @@ verify_jwt = true
 [functions.activation-api]
 verify_jwt = false
 
+[functions.auth-gateway]
+verify_jwt = false
+
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.
 enabled = false

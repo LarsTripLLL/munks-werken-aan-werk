@@ -75,13 +75,13 @@ export class SupabaseAuthRepository implements AuthRepository {
   }
 
   async signIn(email: string, password: string): Promise<AuthenticationResult> {
-    const tokenResponse = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=password`, {
+    const tokenResponse = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
       method: 'POST',
       headers: {
         apikey: this.publishableKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ action: 'sign_in', email, password }),
     });
 
     if (!tokenResponse.ok) {
@@ -176,22 +176,14 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async requestPasswordReset(email: string): Promise<void> {
     const redirectTo = `${location.origin}${location.pathname}`;
-    const response = await fetch(`${this.supabaseUrl}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
       method: 'POST',
       headers: { apikey: this.publishableKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      body: JSON.stringify({ action: 'request_reset', email: email.trim().toLowerCase(), redirectTo }),
     });
     if (!response.ok) {
-      const problem = await response.json().catch(() => ({})) as { code?: string; error_code?: string; msg?: string; message?: string };
-      const code = problem.code ?? problem.error_code ?? '';
-      const detail = [problem.msg, problem.message].filter(Boolean).join(' ');
-      if (response.status === 429 || code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' || /rate limit|too many requests/i.test(detail)) {
-        throw new Error('Er zijn tijdelijk te veel e-mails aangevraagd. Wacht tot de verzendlimiet is hersteld en probeer het dan opnieuw.');
-      }
-      if (/email address not authorized/i.test(detail)) {
-        throw new Error('Supabase mag naar dit e-mailadres nog geen e-mail versturen. Controleer de e-mailinstellingen van het project.');
-      }
-      throw new Error('De resetmail kon niet worden verstuurd. Controleer de e-mailinstellingen of probeer het later opnieuw.');
+      if (response.status === 429) throw new Error('Er zijn tijdelijk te veel aanvragen gedaan. Wacht tien minuten en probeer het daarna opnieuw.');
+      throw new Error('De aanvraag kon tijdelijk niet worden verwerkt. Probeer het later opnieuw.');
     }
   }
 
