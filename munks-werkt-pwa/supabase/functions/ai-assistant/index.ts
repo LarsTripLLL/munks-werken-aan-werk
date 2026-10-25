@@ -10,7 +10,8 @@ const sql=postgres(databaseUrl,{prepare:false});
 const cors=(origin:string)=>({'Access-Control-Allow-Origin':allowedOrigins.has(origin)?origin:'','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'});
 const json=(status:number,data:unknown,origin:string)=>new Response(JSON.stringify(data),{status,headers:{...cors(origin),'Content-Type':'application/json','Cache-Control':'private, no-store'}});
 const tokenAssuranceLevel=(token:string)=>{try{const encoded=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'),padded=encoded.padEnd(Math.ceil(encoded.length/4)*4,'=');return (JSON.parse(atob(padded)) as {aal?:string}).aal==='aal2'?'aal2':'aal1'}catch{return 'aal1'}};
-const tokenUsesRecovery=(token:string)=>{try{const encoded=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'),padded=encoded.padEnd(Math.ceil(encoded.length/4)*4,'='),methods=(JSON.parse(atob(padded)) as {amr?:Array<{method?:unknown}>}).amr;return !Array.isArray(methods)||methods.some(entry=>entry?.method==='recovery')}catch{return true}};
+const tokenClaims=(token:string)=>{try{const encoded=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'),padded=encoded.padEnd(Math.ceil(encoded.length/4)*4,'=');return JSON.parse(atob(padded)) as {amr?:Array<{method?:unknown}>;session_id?:unknown}}catch{return {}}};
+const tokenUsesRecovery=(token:string)=>{const methods=tokenClaims(token).amr;return !Array.isArray(methods)||methods.some(entry=>entry?.method==='recovery')};
 
 Deno.serve(async request=>{
  const origin=request.headers.get('origin')??'';
@@ -22,6 +23,10 @@ Deno.serve(async request=>{
   const auth=createClient(supabaseUrl,publishableKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const {data,error}=await auth.auth.getUser(token);if(error||!data.user)return json(401,{message:'Meld je opnieuw aan.'},origin);
   if(tokenUsesRecovery(token))return json(403,{code:'recovery_session_restricted',message:'Rond het wachtwoordherstel af en meld daarna opnieuw aan.'},origin);
+  const sessionId=tokenClaims(token).session_id;
+  if(typeof sessionId!=='string'||!/^[0-9a-f-]{36}$/i.test(sessionId))return json(401,{message:'De sessie is ongeldig of verlopen.'},origin);
+  const activeSession=await sql<{active:boolean}[]>`select exists(select 1 from auth.sessions where id=${sessionId}::uuid and user_id=${data.user.id}::uuid and created_at>now()-interval '8 hours') as active`;
+  if(!activeSession[0]?.active)return json(401,{message:'De sessie is uitgelogd of verlopen.'},origin);
   const security=await sql<{mfa_required:boolean;has_verified_factor:boolean;has_approved_factor:boolean}[]>`select coalesce((select mfa_required from public.app_security_settings where singleton limit 1),false) as mfa_required,exists(select 1 from auth.mfa_factors where user_id=${data.user.id}::uuid and status='verified') as has_verified_factor,exists(select 1 from auth.mfa_factors factor join public.mfa_factor_approvals approval on approval.factor_id=factor.id and approval.user_id=factor.user_id where factor.user_id=${data.user.id}::uuid and factor.status='verified') as has_approved_factor`;
   if(security[0]?.has_verified_factor&&!security[0]?.has_approved_factor)return json(403,{code:'mfa_approval_required',message:'Je nieuwe authenticator wacht op goedkeuring door een applicatiebeheerder. Meld daarna opnieuw aan.'},origin);
   if((security[0]?.mfa_required||security[0]?.has_verified_factor)&&tokenAssuranceLevel(token)!=='aal2')return json(403,{code:'mfa_required',message:'Voltooi eerst de tweede beveiligingsstap.'},origin);

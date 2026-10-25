@@ -284,11 +284,13 @@ export class SupabaseAuthRepository implements AuthRepository {
     if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token;refreshToken=verified.refresh_token}
     const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});
     if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');
-    const user=await response.json() as {id:string};
-    localStorage.setItem(accessTokenKey,token);
-    if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);
+    const user=await response.json() as {id:string;email?:string};
+    localStorage.removeItem(accessTokenKey);
+    localStorage.removeItem(refreshTokenKey);
     history.replaceState(null,'',location.pathname);
-    return this.resolveAuthentication(token,user.id);
+    const signInEmail=user.email??email;
+    if(!signInEmail)throw new Error('Het account is geactiveerd. Log nu in met je e-mailadres en nieuwe wachtwoord.');
+    return this.signIn(signInEmail,password);
   }
 
   async verifyMfa(factorId: string, code: string): Promise<SessionUser> {

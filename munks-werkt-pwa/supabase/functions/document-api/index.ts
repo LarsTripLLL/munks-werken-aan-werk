@@ -64,7 +64,7 @@ Deno.serve(async request => {
   try {
     const access = await connection.queryObject<{ active_session: boolean; active_profile: boolean; mfa_required: boolean; has_verified_factor: boolean; has_approved_factor: boolean }>`
       select
-        exists(select 1 from auth.sessions where id=${sessionId}::uuid and user_id=${userId}::uuid) as active_session,
+        exists(select 1 from auth.sessions where id=${sessionId}::uuid and user_id=${userId}::uuid and created_at>now()-interval '8 hours') as active_session,
         exists(select 1 from public.profiles where id=${userId}::uuid and account_active) as active_profile,
         coalesce((select mfa_required from public.app_security_settings where singleton limit 1), false) as mfa_required,
         exists(select 1 from auth.mfa_factors where user_id=${userId}::uuid and status='verified') as has_verified_factor,

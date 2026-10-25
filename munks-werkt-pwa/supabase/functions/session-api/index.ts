@@ -105,7 +105,9 @@ Deno.serve(async request => {
     const activeSessionResult = await connection.queryObject<{ active: boolean }>`
       select exists (
         select 1 from auth.sessions
-        where id = ${sessionId}::uuid and user_id = ${userId}::uuid
+        where id = ${sessionId}::uuid
+          and user_id = ${userId}::uuid
+          and created_at > now() - interval '8 hours'
       ) as active
     `;
     if (!activeSessionResult.rows[0]?.active) {
