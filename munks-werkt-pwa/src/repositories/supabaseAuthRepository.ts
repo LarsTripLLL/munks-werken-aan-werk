@@ -190,10 +190,13 @@ export class SupabaseAuthRepository implements AuthRepository {
   private async verifyEmailCode(email:string,code:string,type:'invite'|'recovery'):Promise<TokenResponse>{
     const cleanCode=code.replace(/\s/g,'');
     if(!email.trim()||!/^\d{6,8}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de code uit de nieuwste e-mail in.');
-    const response=await fetch(`${this.supabaseUrl}/auth/v1/verify`,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify({email:email.trim().toLowerCase(),token:cleanCode,type})});
+    const endpoint=type==='recovery'?`${this.supabaseUrl}/functions/v1/auth-gateway`:`${this.supabaseUrl}/auth/v1/verify`;
+    const requestBody=type==='recovery'?{action:'verify_recovery',email:email.trim().toLowerCase(),token:cleanCode}:{email:email.trim().toLowerCase(),token:cleanCode,type};
+    const response=await fetch(endpoint,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(requestBody)});
     const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{code?:string;error_code?:string;message?:string;msg?:string};
     if(!response.ok||!result.access_token||!result.refresh_token){
       const errorCode=result.code??result.error_code??'';
+      if(response.status===429||errorCode==='recovery_attempts_exceeded')throw new Error('De herstelcode is vijf keer geprobeerd. Vraag een nieuwe herstelcode aan.');
       if(errorCode==='otp_expired'||response.status===401||/expired|invalid/i.test(`${result.message??''} ${result.msg??''}`))throw new Error('De code is ongeldig of verlopen. Vraag een nieuwe e-mail aan en gebruik de nieuwste code.');
       throw new Error('De code kon niet worden gecontroleerd. Probeer het opnieuw.');
     }
