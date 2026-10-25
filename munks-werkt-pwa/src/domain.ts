@@ -247,6 +247,7 @@ export interface DashboardRepository {
   renewParticipantActivation(trajectoryCode: string, participantId: string): Promise<{ activationCode: string }>;
   uploadParticipantDocument(trajectoryCode: string, participantId: string, type: 'cv' | 'talent_report', file: File): Promise<void>;
   openParticipantDocument(document: ParticipantDocument): Promise<void>;
+  deleteParticipantDocument(document: ParticipantDocument): Promise<void>;
   releaseTalentResults(trajectoryCode: string, participantId: string): Promise<void>;
 }
 

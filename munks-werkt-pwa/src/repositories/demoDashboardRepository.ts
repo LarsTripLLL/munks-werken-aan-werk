@@ -33,5 +33,6 @@ export class DemoDashboardRepository implements DashboardRepository {
  async renewParticipantActivation(){return {activationCode:'482913'}}
  async uploadParticipantDocument(trajectoryCode:string,participantId:string,type:'cv'|'talent_report',file:File){const participant=trajectories.find(t=>t.code===trajectoryCode)?.participants.find(p=>p.id===participantId);if(!participant)throw new Error('Deelnemer niet gevonden.');participant.documents=(participant.documents||[]).filter(document=>document.type!==type);participant.documents.push({type,fileName:file.name,uploadedAt:new Date().toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit',year:'numeric'}).replaceAll('/','-')})}
  async openParticipantDocument(){throw new Error('Dit demonstratiedocument bevat geen echt bestand.')}
+ async deleteParticipantDocument(document:import('../domain').ParticipantDocument){for(const trajectory of trajectories)for(const participant of trajectory.participants)participant.documents=(participant.documents||[]).filter(item=>item!==document)}
  async releaseTalentResults(trajectoryCode:string,participantId:string){const participant=trajectories.find(t=>t.code===trajectoryCode)?.participants.find(p=>p.id===participantId);if(!participant)throw new Error('Deelnemer niet gevonden.');participant.talentStatus='released'}
 }

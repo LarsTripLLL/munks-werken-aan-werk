@@ -17,7 +17,7 @@ const cors = (origin: string | null) => ({
   ...(origin && allowedOrigins.has(origin) ? {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'authorization, apikey, content-type',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
   } : {}),
 });
 const json = (status: number, body: unknown, origin: string | null) => new Response(JSON.stringify(body), {
@@ -47,7 +47,7 @@ Deno.serve(async request => {
   const origin = request.headers.get('Origin');
   if (origin && !allowedOrigins.has(origin)) return json(403, { message: 'Deze herkomst is niet toegestaan.' }, origin);
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) });
-  if (!['GET', 'POST'].includes(request.method)) return json(405, { message: 'Deze methode is niet toegestaan.' }, origin);
+  if (!['GET', 'POST', 'DELETE'].includes(request.method)) return json(405, { message: 'Deze methode is niet toegestaan.' }, origin);
   const authorization = request.headers.get('Authorization');
   if (!authorization?.startsWith('Bearer ')) return json(401, { message: 'Aanmelden is vereist.' }, origin);
 
@@ -108,6 +108,56 @@ Deno.serve(async request => {
         'X-Content-Type-Options': 'nosniff',
         'Content-Security-Policy': "sandbox; default-src 'none'",
       } });
+    }
+
+    if (request.method === 'DELETE') {
+      const storagePath = new URL(request.url).searchParams.get('path') ?? '';
+      if (!/^[0-9a-f-]{36}\/talent_report\/[a-zA-Z0-9._-]{1,240}$/.test(storagePath)) return json(400, { message: 'Het documentpad is niet geldig.' }, origin);
+      const document = await connection.queryObject<{ id: string; enrollment_id: string; allowed: boolean }>`
+        select documents.id::text,
+          documents.enrollment_id::text,
+          (
+            exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active)
+            or (
+              enrollments.primary_coach_id=${userId}::uuid
+              and exists(select 1 from public.trajectory_staff where trajectory_run_id=enrollments.trajectory_run_id and user_id=${userId}::uuid and active and role in ('primary_coach','trajectory_coach'))
+            )
+          ) as allowed
+        from public.documents
+        join public.enrollments on enrollments.id=documents.enrollment_id
+        where documents.storage_path=${storagePath}
+          and documents.document_type='talent_report'
+          and documents.archived_at is null
+        limit 1
+      `;
+      if (!document.rows[0]) return json(404, { message: 'Het document is niet gevonden.' }, origin);
+      if (!document.rows[0].allowed) return json(403, { message: 'Je mag dit document niet verwijderen.' }, origin);
+      const removed = await admin.storage.from(bucket).remove([storagePath]);
+      if (removed.error) return json(500, { message: 'Het documentbestand kon niet worden verwijderd.' }, origin);
+      try {
+        await connection.queryArray`begin`;
+        await connection.queryObject`update public.documents set archived_at=now() where id=${document.rows[0].id}::uuid and archived_at is null`;
+        await connection.queryObject`
+          update public.talent_test_status set completed_at=null,results_released_at=null,results_released_by=null,updated_at=now()
+          where enrollment_id=${document.rows[0].enrollment_id}::uuid
+        `;
+        await connection.queryObject`
+          update public.enrollment_steps set status='in_progress',completed_at=null,updated_at=now()
+          from public.steps,public.enrollments,public.trajectory_runs
+          where enrollment_steps.enrollment_id=${document.rows[0].enrollment_id}::uuid and enrollment_steps.step_id=steps.id and steps.step_number=2
+            and enrollments.id=enrollment_steps.enrollment_id and trajectory_runs.id=enrollments.trajectory_run_id and steps.program_id=trajectory_runs.program_id
+        `;
+        await connection.queryObject`
+          insert into public.audit_log(actor_user_id,enrollment_id,action,data_category,target_table,target_id,metadata)
+          values(${userId}::uuid,${document.rows[0].enrollment_id}::uuid,'participant_document_deleted','documents','documents',${document.rows[0].id},${JSON.stringify({documentType:'talent_report',storageObjectDeleted:true})}::jsonb)
+        `;
+        await connection.queryArray`commit`;
+      } catch (error) {
+        await connection.queryArray`rollback`.catch(() => undefined);
+        console.error('Documentbestand verwijderd maar registratie bijwerken mislukt', error);
+        return json(500, { message: 'Het bestand is verwijderd, maar de registratie kon niet volledig worden bijgewerkt. Neem contact op met technisch beheer.' }, origin);
+      }
+      return json(200, { deleted: true }, origin);
     }
 
     const form = await request.formData().catch(() => null);

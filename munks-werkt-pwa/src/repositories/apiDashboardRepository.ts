@@ -53,5 +53,9 @@ export class ApiDashboardRepository implements DashboardRepository {
   async openParticipantDocument(_document: ParticipantDocument): Promise<void> {
     throw new Error('Dit document kan via deze serverkoppeling nog niet worden geopend.');
   }
+  deleteParticipantDocument(document: ParticipantDocument): Promise<void> {
+    if (!document.storagePath) return Promise.reject(new Error('Het bestand is niet beschikbaar.'));
+    return this.api.request<void>(`/dashboard/documents?path=${encodeURIComponent(document.storagePath)}`, { method: 'DELETE' });
+  }
   async releaseTalentResults(): Promise<void> { throw new Error('Vrijgeven is via deze serverkoppeling nog niet beschikbaar.'); }
 }

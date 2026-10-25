@@ -105,6 +105,17 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     window.document.body.appendChild(link); link.click(); link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
+  async deleteParticipantDocument(document: ParticipantDocument): Promise<void> {
+    const token = localStorage.getItem('munks-werkt-access-token');
+    if (!token) throw new Error('Aanmelden is vereist.');
+    if (!document.storagePath) throw new Error('Het bestand is niet beschikbaar.');
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/document-api?path=${encodeURIComponent(document.storagePath)}`, {
+      method: 'DELETE',
+      headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` },
+    });
+    const result = await response.json().catch(() => ({})) as { message?: string };
+    if (!response.ok) throw new Error(result.message || 'Het rapport kon niet worden verwijderd.');
+  }
   async releaseTalentResults(trajectoryCode: string, participantId: string): Promise<void> {
     const token = localStorage.getItem('munks-werkt-access-token');
     if (!token) throw new Error('Aanmelden is vereist.');

@@ -596,6 +596,17 @@ export function DashboardPortal({
       );
     }
   };
+  const deleteTalentReport = async () => {
+    const document = detail?.documents?.find((item) => item.type === "talent_report");
+    if (!document || !window.confirm("Verwijder dit talentrapport definitief. De vrijgave aan de deelnemer wordt ook ingetrokken. Doorgaan?")) return;
+    try {
+      await repository.deleteParticipantDocument(document);
+      await reload();
+      setMessage("Het rapport is definitief verwijderd.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Het rapport kon niet worden verwijderd.");
+    }
+  };
   const openCv = (participant: DashboardParticipant) => {
     const cvWindow = window.open("", "_blank");
     if (!cvWindow)
@@ -1150,6 +1161,13 @@ export function DashboardPortal({
                       )}
                       {detail.talentStatus === "released" && (
                         <span>Resultaten vrijgegeven</span>
+                      )}
+                      {detail.documents?.some(
+                        (document) => document.type === "talent_report",
+                      ) && (
+                        <button type="button" onClick={() => void deleteTalentReport()}>
+                          Rapport verwijderen
+                        </button>
                       )}
                     </div>
                   </article>
