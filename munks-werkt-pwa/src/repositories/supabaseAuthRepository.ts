@@ -1,5 +1,6 @@
 import type { AppRole, AuthenticationResult, AuthRepository, ConsentChoice, PendingMfaAuthentication, SessionUser } from '../domain';
 import { MfaAuthClient } from '../mfa/MfaAuthClient';
+import { passwordPolicyError } from '../passwordPolicy';
 
 type TokenResponse = {
   access_token: string;
@@ -216,6 +217,10 @@ export class SupabaseAuthRepository implements AuthRepository {
       token=verified.access_token;
       refreshToken=verified.refresh_token;
     }
+    const accountResponse=await fetch(`${this.supabaseUrl}/auth/v1/user`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});
+    const account=await accountResponse.json().catch(()=>({})) as {email?:string};
+    const policyError=passwordPolicyError(password,[account.email??email]);
+    if(policyError)throw new Error(policyError);
     localStorage.setItem(accessTokenKey,token);
     if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);
     const response = await fetch(`${this.supabaseUrl}/auth/v1/user`, {
@@ -282,6 +287,10 @@ export class SupabaseAuthRepository implements AuthRepository {
     let token=hashParams.get('access_token');
     let refreshToken=hashParams.get('refresh_token');
     if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token;refreshToken=verified.refresh_token}
+    const accountResponse=await fetch(`${this.supabaseUrl}/auth/v1/user`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});
+    const account=await accountResponse.json().catch(()=>({})) as {email?:string};
+    const policyError=passwordPolicyError(password,[account.email??email]);
+    if(policyError)throw new Error(policyError);
     const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});
     if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');
     const user=await response.json() as {id:string;email?:string};

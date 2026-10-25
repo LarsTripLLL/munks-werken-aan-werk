@@ -8,6 +8,17 @@ const allowedOrigins = new Set((Deno.env.get('ALLOWED_ORIGINS') ?? 'http://local
 const headers = (origin: string | null) => ({'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Origin',...(origin&&allowedOrigins.has(origin)?{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}:{})});
 const json = (status:number,body:unknown,origin:string|null)=>new Response(JSON.stringify(body),{status,headers:headers(origin)});
 const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const commonPasswordTerms=['password','wachtwoord','welkom','qwerty','letmein','changeme','admin','administrator','munkswerkt','iloveyou','123456','123456789'];
+const normalizePasswordValue=(value:string)=>value.toLocaleLowerCase('nl-NL').replace(/[^a-z0-9]/g,'');
+const passwordPolicyError=(password:string,accountValues:string[])=>{
+  if(password.length<12||password.length>128)return 'Gebruik een wachtwoord van 12 tot en met 128 tekens.';
+  if(!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)||!/[^A-Za-z0-9]/.test(password))return 'Gebruik minimaal één kleine letter, hoofdletter, cijfer en speciaal teken.';
+  const compact=normalizePasswordValue(password);
+  if(commonPasswordTerms.some(term=>compact.includes(term)))return 'Kies geen veelgebruikt wachtwoord of herkenbare standaardtekst.';
+  if(/^(.)\1+$/.test(compact)||/^(.{1,8})\1+$/.test(compact))return 'Gebruik geen herhaling van steeds dezelfde letters, cijfers of korte tekst.';
+  const derived=accountValues.flatMap(value=>[value,value.split('@')[0]??'']).map(normalizePasswordValue).filter(value=>value.length>=4);
+  if(derived.some(value=>compact.includes(value)))return 'Gebruik geen naam of e-mailadres uit je account in het wachtwoord.';
+};
 
 Deno.serve(async request => {
   const origin=request.headers.get('Origin');
@@ -43,8 +54,22 @@ Deno.serve(async request => {
       return json(200,{activationSessionId:`${invite.rows[0].id}.${token}`},origin);
     }
     if(body.action==='complete_activation'){
-      if(!body.sessionId||!body.password||body.password.length<12||body.password.length>128||!body.consent?.privacyAccepted||!body.consent?.consentAccepted)return json(400,{message:'De activatiegegevens, het wachtwoord of de toestemmingen zijn niet geldig.'},origin);
+      if(!body.sessionId||!body.password||!body.consent?.privacyAccepted||!body.consent?.consentAccepted)return json(400,{message:'De activatiegegevens, het wachtwoord of de toestemmingen zijn niet geldig.'},origin);
       const [inviteId,token]=body.sessionId.split('.',2);if(!inviteId||!token)return json(403,{message:'De activatiesessie is ongeldig.'},origin);
+      const account=await connection.queryObject<{email:string;first_name:string;last_name:string}>`
+        select profiles.email,profiles.first_name,profiles.last_name
+        from public.activation_invites
+        join public.enrollments on enrollments.id=activation_invites.enrollment_id
+        join public.profiles on profiles.id=enrollments.participant_id
+        where activation_invites.id=${inviteId}::uuid
+          and activation_invites.used_at is null
+          and activation_invites.session_expires_at>now()
+          and crypt(${token},activation_invites.session_token_hash)=activation_invites.session_token_hash
+        limit 1
+      `;
+      if(!account.rows.length)return json(403,{message:'De activatiesessie is verlopen. Begin opnieuw.'},origin);
+      const policyError=passwordPolicyError(body.password,[account.rows[0].email,account.rows[0].first_name,account.rows[0].last_name]);
+      if(policyError)return json(400,{message:policyError},origin);
       const invite=await connection.queryObject<{enrollment_id:string;participant_id:string}>`
         with claimed as (
           update public.activation_invites
