@@ -211,6 +211,7 @@ export interface DashboardManagementOptions {
   users?: ManagedUser[];
   security?: { mfaRequired: boolean };
   pendingMfaApprovals?: Array<{ userId: string; name: string; email: string; accountType: string; factorCreatedAt: string }>;
+  participantMfaResetUsers?: Array<{ userId: string; name: string; email: string; active: boolean; trajectoryCodes: string[] }>;
 }
 export type ManagedRole = 'project_leader' | 'coach' | 'commissioner';
 export interface ManagedUser { id:string; name:string; email:string; role:ManagedRole; organization:string; commissionerCode?:string; trajectoryCodes:string[]; active:boolean }

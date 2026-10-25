@@ -197,7 +197,8 @@ Deno.serve(async request => {
       if(body.action==='reset_user_mfa'){
         const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
         if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag een authenticator resetten.'},origin);
-        if(!body.targetUserId||body.confirmed!==true)return json(400,{message:'Kies een gebruiker en bevestig de identiteitscontrole.'},origin);
+        if(tokenAssuranceLevel(authorization)!=='aal2')return json(403,{code:'mfa_required',message:'Bevestig deze beveiligingswijziging eerst met je authenticator.'},origin);
+        if(!body.targetUserId||!uuidPattern.test(body.targetUserId)||body.confirmed!==true)return json(400,{message:'Kies een gebruiker en bevestig de identiteitscontrole.'},origin);
         if(body.targetUserId===userId)return json(400,{message:'Je kunt je eigen authenticator niet vanuit deze beheerdersroute resetten.'},origin);
         const target=await connection.queryObject<{exists:boolean}>`select exists(select 1 from public.profiles where id=${body.targetUserId}::uuid) as exists`;
         if(!target.rows[0]?.exists)return json(404,{message:'De gebruiker is niet gevonden.'},origin);
@@ -1007,6 +1008,18 @@ Deno.serve(async request => {
       group by profiles.id,profiles.first_name,profiles.last_name,profiles.email
       order by factor_created_at
     `).rows.map(item=>({userId:item.user_id,name:item.name,email:item.email,accountType:item.account_type,factorCreatedAt:item.factor_created_at})) : [];
+    const participantMfaResetUsers = mayManage ? (await connection.queryObject<{user_id:string;name:string;email:string;active:boolean;trajectory_codes:string[]}>`
+      select profiles.id::text as user_id,
+        trim(profiles.first_name||' '||profiles.last_name) as name,
+        profiles.email,
+        profiles.account_active as active,
+        array_agg(distinct trajectory_runs.code order by trajectory_runs.code) as trajectory_codes
+      from public.profiles
+      join public.enrollments on enrollments.participant_id=profiles.id
+      join public.trajectory_runs on trajectory_runs.id=enrollments.trajectory_run_id
+      group by profiles.id,profiles.first_name,profiles.last_name,profiles.email,profiles.account_active
+      order by name
+    `).rows.map(item=>({userId:item.user_id,name:item.name,email:item.email,active:item.active,trajectoryCodes:item.trajectory_codes})) : [];
     const dashboardManagementOptions = mayManage ? {
       coaches: (await connection.queryObject<{ id: string; name: string }>`
         select distinct profiles.id::text as id, trim(profiles.first_name || ' ' || profiles.last_name) as name
@@ -1019,6 +1032,7 @@ Deno.serve(async request => {
       organizations: (await connection.queryObject<{ code:string;name:string;active:boolean }>`select code,name,active from public.organizations order by name`).rows,
       users: [...managedUsersMap.values()],
       pendingMfaApprovals,
+      participantMfaResetUsers,
       security: { mfaRequired },
     } : undefined;
 
