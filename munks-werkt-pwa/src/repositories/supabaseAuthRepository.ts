@@ -77,6 +77,7 @@ export class SupabaseAuthRepository implements AuthRepository {
   async signIn(email: string, password: string): Promise<AuthenticationResult> {
     const tokenResponse = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
       method: 'POST',
+      cache: 'no-store',
       headers: {
         apikey: this.publishableKey,
         'Content-Type': 'application/json',
@@ -154,10 +155,11 @@ export class SupabaseAuthRepository implements AuthRepository {
   private async exchangeRefreshToken(): Promise<string> {
     const refreshToken = localStorage.getItem(refreshTokenKey);
     if (!refreshToken) throw new ExpiredSessionError('De sessie is verlopen.');
-    const response = await fetch(`${this.supabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+    const response = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
       method: 'POST',
+      cache: 'no-store',
       headers: { apikey: this.publishableKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      body: JSON.stringify({ action: 'refresh_session', refreshToken }),
     });
     if (!response.ok) {
       if (response.status === 400 || response.status === 401) {
@@ -178,6 +180,7 @@ export class SupabaseAuthRepository implements AuthRepository {
     const redirectTo = `${location.origin}${location.pathname}`;
     const response = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
       method: 'POST',
+      cache: 'no-store',
       headers: { apikey: this.publishableKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'request_reset', email: email.trim().toLowerCase(), redirectTo }),
     });
@@ -190,9 +193,9 @@ export class SupabaseAuthRepository implements AuthRepository {
   private async verifyEmailCode(email:string,code:string,type:'invite'|'recovery'):Promise<TokenResponse>{
     const cleanCode=code.replace(/\s/g,'');
     if(!email.trim()||!/^\d{6,8}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de code uit de nieuwste e-mail in.');
-    const endpoint=type==='recovery'?`${this.supabaseUrl}/functions/v1/auth-gateway`:`${this.supabaseUrl}/auth/v1/verify`;
-    const requestBody=type==='recovery'?{action:'verify_recovery',email:email.trim().toLowerCase(),token:cleanCode}:{email:email.trim().toLowerCase(),token:cleanCode,type};
-    const response=await fetch(endpoint,{method:'POST',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(requestBody)});
+    const endpoint=`${this.supabaseUrl}/functions/v1/auth-gateway`;
+    const requestBody={action:type==='recovery'?'verify_recovery':'verify_invite',email:email.trim().toLowerCase(),token:cleanCode};
+    const response=await fetch(endpoint,{method:'POST',cache:'no-store',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(requestBody)});
     const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{code?:string;error_code?:string;message?:string;msg?:string};
     if(!response.ok||!result.access_token||!result.refresh_token){
       const errorCode=result.code??result.error_code??'';

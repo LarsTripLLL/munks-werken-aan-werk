@@ -16,15 +16,15 @@ Deno.serve(async request=>{
   if(origin&&!allowedOrigins.has(origin))return json(403,{message:'Deze herkomst is niet toegestaan.'},origin);
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors(origin)});
   if(request.method!=='POST')return json(405,{message:'Deze methode is niet toegestaan.'},origin);
-  const body=await request.json().catch(()=>({})) as {action?:string;email?:string;password?:string;redirectTo?:string;token?:string};
+  const body=await request.json().catch(()=>({})) as {action?:string;email?:string;password?:string;redirectTo?:string;token?:string;refreshToken?:string};
   const email=typeof body.email==='string'?body.email.trim().toLowerCase():'';
   const action=body.action;
-  if(!['sign_in','request_reset','verify_recovery'].includes(action??'')||!emailPattern.test(email)){
+  if(!['sign_in','request_reset','verify_recovery','verify_invite','refresh_session'].includes(action??'')||(action!=='refresh_session'&&!emailPattern.test(email))){
     await delay(Math.max(0,2500-Date.now()+started));
     return json(400,{message:'De aanvraag is niet geldig.'},origin);
   }
   const emailKey=await hash(email);
-  if(action!=='verify_recovery'){
+  if(action!=='verify_recovery'&&action!=='refresh_session'){
     const forwarded=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||request.headers.get('cf-connecting-ip')||'unknown';
     const key=await hash(`${action}|${email}|${forwarded}`);
     const connection=await pool.connect();
@@ -50,6 +50,24 @@ Deno.serve(async request=>{
     const result=await response.json().catch(()=>({}));
     await delay(Math.max(0,2500-Date.now()+started));
     return response.ok?json(200,result,origin):json(400,{message:'Het e-mailadres of wachtwoord is niet juist.'},origin);
+  }
+
+  if(action==='refresh_session'){
+    if(typeof body.refreshToken!=='string'||body.refreshToken.length<20)return json(401,{message:'De sessie is verlopen.'},origin);
+    response=await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:publishableKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:body.refreshToken})});
+    const result=await response.json().catch(()=>({}));
+    return response.ok?json(200,result,origin):json(401,{message:'De sessie is verlopen.'},origin);
+  }
+
+  if(action==='verify_invite'){
+    if(typeof body.token!=='string'||!/^[0-9]{6,8}$/.test(body.token)){
+      await delay(Math.max(0,2500-Date.now()+started));
+      return json(403,{code:'otp_expired',message:'De code is ongeldig of verlopen.'},origin);
+    }
+    response=await fetch(`${supabaseUrl}/auth/v1/verify`,{method:'POST',headers:{apikey:publishableKey,'Content-Type':'application/json'},body:JSON.stringify({email,token:body.token,type:'invite'})});
+    const result=await response.json().catch(()=>({}));
+    await delay(Math.max(0,2500-Date.now()+started));
+    return response.ok?json(200,result,origin):json(403,{code:'otp_expired',message:'De code is ongeldig of verlopen.'},origin);
   }
 
   if(action==='verify_recovery'){
