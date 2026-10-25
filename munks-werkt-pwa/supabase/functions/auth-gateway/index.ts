@@ -4,7 +4,7 @@ const supabaseUrl=Deno.env.get('SUPABASE_URL')??'';
 const publishableKey=Deno.env.get('SUPABASE_ANON_KEY')??'';
 const pool=new Pool(Deno.env.get('SUPABASE_DB_URL')??'',1);
 const allowedOrigins=new Set((Deno.env.get('ALLOWED_ORIGINS')??'http://localhost:5173,http://127.0.0.1:5173,http://localhost:4175,http://127.0.0.1:4175').split(',').map(value=>value.trim()).filter(Boolean));
-const cors=(origin:string|null)=>({'Content-Type':'application/json','Cache-Control':'private, no-store','Vary':'Origin',...(origin&&allowedOrigins.has(origin)?{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}:{})});
+const cors=(origin:string|null)=>({'Content-Type':'application/json','Cache-Control':'private, no-store','Permissions-Policy':'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()','Cross-Origin-Opener-Policy':'same-origin','Cross-Origin-Resource-Policy':'same-origin','Vary':'Origin',...(origin&&allowedOrigins.has(origin)?{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}:{})});
 const json=(status:number,body:unknown,origin:string|null)=>new Response(JSON.stringify(body),{status,headers:cors(origin)});
 const emailPattern=/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const delay=(milliseconds:number)=>new Promise(resolve=>setTimeout(resolve,milliseconds));

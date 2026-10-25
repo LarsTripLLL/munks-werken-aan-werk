@@ -15,6 +15,9 @@ const allowedOrigins = new Set(
 const responseHeaders = (origin: string | null) => ({
   'Content-Type': 'application/json',
   'Cache-Control': 'private, no-store',
+  'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin',
   'Vary': 'Origin',
   ...(origin && allowedOrigins.has(origin) ? {
     'Access-Control-Allow-Origin': origin,
