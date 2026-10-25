@@ -234,6 +234,7 @@ export interface DashboardRepository {
   setMfaRequired(required: boolean): Promise<void>;
   resetManagedUserMfa(userId: string): Promise<void>;
   approveUserMfa(userId: string): Promise<void>;
+  eraseParticipant(userId: string, confirmationEmail: string): Promise<void>;
   saveCommissioner(organization: { code:string; name:string; active:boolean }): Promise<void>;
   listAppointments(trajectoryCode: string): Promise<DashboardAppointment[]>;
   saveAppointment(appointment: Omit<DashboardAppointment, 'coachName' | 'cancelled' | 'participantName'>): Promise<void>;

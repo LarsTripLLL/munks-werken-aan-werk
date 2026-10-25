@@ -29,6 +29,7 @@ const responseHeaders = (origin: string | null) => ({
 const json = (status: number, body: unknown, origin: string | null) =>
   new Response(JSON.stringify(body), { status, headers: responseHeaders(origin) });
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const sha256Hex = async (value: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)))).map(byte => byte.toString(16).padStart(2, '0')).join('');
 
 const parseDutchDate = (value: string) => {
   const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(value);
@@ -169,7 +170,7 @@ Deno.serve(async request => {
       return json(403, { message: 'Deze opdrachtgever is niet actief.' }, origin);
     }
     if (request.method === 'POST') {
-      const body = await request.json().catch(() => ({})) as { action?: string; messageAction?: string; messageBody?: string; subject?: string; kind?: string; threadId?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; required?:boolean; confirmed?:boolean; targetUserId?:string; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
+      const body = await request.json().catch(() => ({})) as { action?: string; messageAction?: string; messageBody?: string; subject?: string; kind?: string; threadId?: string; stepNumber?: number; enrollmentId?: string; present?: boolean; active?:boolean; appointmentId?:string; trajectoryCode?: string; activityId?: string; value?: unknown; documentType?: string; displayName?: string; storagePath?: string; mimeType?: string; fileSize?: number; choice?: string; category?: string; summary?: string; status?: string; goals?: string; code?: string; name?: string; email?: string; phone?: string; city?: string; birthDate?: string; coachId?: string; commissionerName?: string; startDate?: string; endDate?: string; coachIds?: unknown; required?:boolean; confirmed?:boolean; targetUserId?:string; confirmationEmail?:string; managedUser?: {id?:string;name?:string;email?:string;role?:string;organization?:string;commissionerCode?:string;trajectoryCodes?:string[];active?:boolean}; appointment?:{id?:string;trajectoryCode?:string;stepNumber?:number;title?:string;date?:string;startTime?:string;endTime?:string;location?:string;explanation?:string;coachId?:string;participantId?:string} };
       if (body.action === 'message_rpc') {
         const allowed = new Set([
           'list_my_message_threads', 'start_my_thread', 'reply_to_my_thread', 'mark_my_thread_read',
@@ -233,6 +234,56 @@ Deno.serve(async request => {
         await connection.queryObject`delete from auth.sessions where user_id=${body.targetUserId}::uuid`;
         await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'mfa_factor_approved','security','profiles',${body.targetUserId},${JSON.stringify({factorCount:factors.rows.length,identityChecked:true})}::jsonb)`;
         return json(200,{approved:true},origin);
+      }
+      if(body.action==='erase_participant'){
+        const adminRole=await connection.queryObject<{allowed:boolean}>`select exists(select 1 from public.global_user_roles where user_id=${userId}::uuid and role='functional_admin' and active) as allowed`;
+        if(!adminRole.rows[0]?.allowed)return json(403,{message:'Alleen een applicatiebeheerder mag deelnemergegevens verwijderen.'},origin);
+        if(tokenAssuranceLevel(authorization)!=='aal2')return json(403,{code:'mfa_required',message:'Bevestig deze definitieve verwijdering eerst met je authenticator.'},origin);
+        if(!body.targetUserId||!uuidPattern.test(body.targetUserId)||body.confirmed!==true||typeof body.confirmationEmail!=='string')return json(400,{message:'Kies een deelnemer en bevestig de verwijdering met het e-mailadres.'},origin);
+        if(body.targetUserId===userId)return json(400,{message:'Je kunt je eigen account niet via de deelnemerroute verwijderen.'},origin);
+        const target=await connection.queryObject<{email:string;enrollment_count:number;has_staff_role:boolean}>`
+          select profiles.email,
+            (select count(*)::int from public.enrollments where participant_id=profiles.id) as enrollment_count,
+            (exists(select 1 from public.global_user_roles where user_id=profiles.id) or exists(select 1 from public.trajectory_staff where user_id=profiles.id)) as has_staff_role
+          from public.profiles where profiles.id=${body.targetUserId}::uuid limit 1
+        `;
+        const participant=target.rows[0];
+        if(!participant||participant.enrollment_count<1)return json(404,{message:'De deelnemer is niet gevonden.'},origin);
+        if(participant.has_staff_role)return json(409,{message:'Dit account heeft ook een medewerkersrol en kan daarom niet via de deelnemerroute worden verwijderd.'},origin);
+        if(participant.email.trim().toLocaleLowerCase('nl-NL')!==body.confirmationEmail.trim().toLocaleLowerCase('nl-NL'))return json(400,{message:'Het bevestigde e-mailadres komt niet overeen. Er is niets verwijderd.'},origin);
+
+        const documents=await connection.queryObject<{storage_path:string}>`select storage_path from public.documents where enrollment_id in(select id from public.enrollments where participant_id=${body.targetUserId}::uuid)`;
+        const admin=createClient(supabaseUrl,serviceRoleKey,{auth:{persistSession:false,autoRefreshToken:false}});
+        const storagePaths=documents.rows.map(row=>row.storage_path);
+        for(let offset=0;offset<storagePaths.length;offset+=100){
+          const removed=await admin.storage.from('participant-documents').remove(storagePaths.slice(offset,offset+100));
+          if(removed.error){console.error('Participant storage erasure failed',{targetUserId:body.targetUserId,message:removed.error.message});return json(500,{message:'De documenten konden niet volledig worden verwijderd. De overige gegevens zijn niet gewijzigd.'},origin)}
+        }
+
+        const erasureReference=crypto.randomUUID();
+        const recoveryHash=await sha256Hex(participant.email.trim().toLocaleLowerCase('en-US'));
+        try{
+          await connection.queryArray`begin`;
+          await connection.queryObject`delete from public.password_recovery_attempts where email_hash=${recoveryHash}`;
+          await connection.queryObject`delete from public.audit_log where actor_user_id=${body.targetUserId}::uuid or enrollment_id in(select id from public.enrollments where participant_id=${body.targetUserId}::uuid) or target_id=${body.targetUserId}`;
+          await connection.queryObject`delete from public.appointments where kind='individual' and id in(select appointment_id from public.appointment_participants join public.enrollments on enrollments.id=appointment_participants.enrollment_id where enrollments.participant_id=${body.targetUserId}::uuid)`;
+          await connection.queryObject`delete from public.consents where user_id=${body.targetUserId}::uuid or enrollment_id in(select id from public.enrollments where participant_id=${body.targetUserId}::uuid)`;
+          await connection.queryObject`delete from public.messages where sender_id=${body.targetUserId}::uuid`;
+          await connection.queryObject`delete from public.message_threads where enrollment_id in(select id from public.enrollments where participant_id=${body.targetUserId}::uuid)`;
+          await connection.queryObject`delete from public.ai_daily_usage where scope='user' and owner=${body.targetUserId}`;
+          await connection.queryObject`delete from public.ai_conversations where user_id=${body.targetUserId}::uuid`;
+          await connection.queryObject`delete from public.ai_preferences where user_id=${body.targetUserId}::uuid`;
+          await connection.queryObject`delete from public.enrollments where participant_id=${body.targetUserId}::uuid`;
+          await connection.queryObject`delete from public.profiles where id=${body.targetUserId}::uuid`;
+          await connection.queryObject`delete from auth.users where id=${body.targetUserId}::uuid`;
+          await connection.queryObject`insert into public.audit_log(actor_user_id,action,data_category,target_table,target_id,metadata) values(${userId}::uuid,'participant_erased','privacy','profiles',${erasureReference},${JSON.stringify({enrollmentCount:participant.enrollment_count,storageObjectCount:storagePaths.length,identifiersRetained:false})}::jsonb)`;
+          await connection.queryArray`commit`;
+        }catch(error){
+          await connection.queryArray`rollback`.catch(()=>undefined);
+          console.error('Participant data erasure failed',{erasureReference,error});
+          return json(500,{message:storagePaths.length?'De documenten zijn verwijderd, maar de overige gegevens konden niet volledig worden gewist. Neem direct contact op met technisch beheer.':'De deelnemergegevens konden niet volledig worden verwijderd.'},origin);
+        }
+        return json(200,{deleted:true,erasureReference},origin);
       }
       if(body.action==='set_appointment_active'){
         if(typeof body.appointmentId!=='string'||!uuidPattern.test(body.appointmentId)||typeof body.active!=='boolean')return json(400,{message:'De afspraakstatus is niet geldig.'},origin);

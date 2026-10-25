@@ -13,6 +13,7 @@ export class ApiDashboardRepository implements DashboardRepository {
   setMfaRequired(required:boolean){return this.api.request<void>('/dashboard/security/mfa',{method:'POST',body:JSON.stringify({required})})}
   resetManagedUserMfa(userId:string){return this.api.request<void>(`/dashboard/security/mfa/${userId}/reset`,{method:'POST'})}
   approveUserMfa(userId:string){return this.api.request<void>(`/dashboard/security/mfa/${userId}/approve`,{method:'POST'})}
+  eraseParticipant(userId:string,confirmationEmail:string){return this.api.request<void>(`/dashboard/participants/${userId}`,{method:'DELETE',body:JSON.stringify({confirmationEmail})})}
   saveCommissioner(organization:{code:string;name:string;active:boolean}){return this.api.request<void>('/dashboard/commissioners',{method:'POST',body:JSON.stringify(organization)})}
   listAppointments(trajectoryCode:string){return this.api.request<import('../domain').DashboardAppointment[]>(`/dashboard/trajectories/${encodeURIComponent(trajectoryCode)}/appointments`)}
   saveAppointment(appointment:Omit<import('../domain').DashboardAppointment,'coachName'|'cancelled'>){return this.api.request<void>('/dashboard/appointments',{method:'POST',body:JSON.stringify(appointment)})}

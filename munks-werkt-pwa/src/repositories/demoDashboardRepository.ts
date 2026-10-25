@@ -21,6 +21,7 @@ export class DemoDashboardRepository implements DashboardRepository {
  async setMfaRequired(){return}
  async resetManagedUserMfa(){return}
  async approveUserMfa(){return}
+ async eraseParticipant(userId:string){for(const trajectory of trajectories)trajectory.participants=trajectory.participants.filter(participant=>participant.id!==userId)}
  async saveCommissioner(){return}
  async listManagementOptions(){return {coaches:[{id:'c1',name:'Eva Jansen'},{id:'c2',name:'Mohammed El Idrissi'},{id:'c3',name:'Sanne Vos'}],commissioners:[{code:'RSDZEIST',name:'Regionale Sociale Dienst Kromme Rijn Heuvelrug'}]}}
  async listTrajectories(_role:Exclude<AppRole,'participant'>){return structuredClone(trajectories)}
