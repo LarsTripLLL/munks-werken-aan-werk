@@ -1,5 +1,6 @@
 import type { MessageRepository, MessageThread, StaffMessageRepository, StaffMessageThread } from '../domain';
 import { formatDateTime } from '../formatDateTime';
+import { getAccessToken } from '../sessionTokens';
 
 const formatThreads = <T extends MessageThread | StaffMessageThread>(threads: T[]): T[] =>
   threads.map(thread => ({
@@ -13,7 +14,7 @@ export class SupabaseMessageRepositories {
   private staffRepository?: StaffMessageRepository;
   constructor(private readonly supabaseUrl:string, private readonly publishableKey:string) {}
   private async rpc<T>(name:string, body:Record<string,unknown>={}):Promise<T>{
-    const token=localStorage.getItem('munks-werkt-access-token');
+    const token=getAccessToken();
     if(!token) throw new Error('Aanmelden is vereist.');
     const payload:Record<string,unknown>={action:'message_rpc',messageAction:name};
     if('p_trajectory_code' in body)payload.trajectoryCode=body.p_trajectory_code;

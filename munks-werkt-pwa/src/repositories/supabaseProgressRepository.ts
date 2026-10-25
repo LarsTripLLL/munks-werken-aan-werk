@@ -1,4 +1,5 @@
 import type { ProgressRepository } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 export class SupabaseProgressRepository implements ProgressRepository {
   constructor(
@@ -7,7 +8,7 @@ export class SupabaseProgressRepository implements ProgressRepository {
   ) {}
 
   async completeStep(stepNumber: number): Promise<void> {
-    const accessToken = localStorage.getItem('munks-werkt-access-token');
+    const accessToken = getAccessToken();
     if (!accessToken) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',

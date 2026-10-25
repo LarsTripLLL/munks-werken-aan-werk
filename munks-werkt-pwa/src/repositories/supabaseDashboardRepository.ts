@@ -1,4 +1,5 @@
 import type { AppRole, DashboardAppointment, DashboardManagementOptions, DashboardParticipant, DashboardRepository, DashboardTrajectory, ManagedUser, ParticipantDocument } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 type DashboardResponse = { dashboardTrajectories?: DashboardTrajectory[]; dashboardManagementOptions?: DashboardManagementOptions };
 
@@ -6,32 +7,32 @@ export class SupabaseDashboardRepository implements DashboardRepository {
   constructor(private readonly supabaseUrl: string, private readonly publishableKey: string) {}
 
   async listTrajectories(_role: Exclude<AppRole, 'participant'>): Promise<DashboardTrajectory[]> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, { headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error('De trajectgegevens konden niet worden geladen.');
     return ((await response.json()) as DashboardResponse).dashboardTrajectories ?? [];
   }
   async listManagementOptions(): Promise<DashboardManagementOptions> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, { headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error('De beheeropties konden niet worden geladen.');
     return ((await response.json()) as DashboardResponse).dashboardManagementOptions ?? { coaches: [], commissioners: [] };
   }
-  async saveManagedUser(user:ManagedUser):Promise<void>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_managed_user',managedUser:user})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De gebruiker kon niet worden opgeslagen.')}}
+  async saveManagedUser(user:ManagedUser):Promise<void>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_managed_user',managedUser:user})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De gebruiker kon niet worden opgeslagen.')}}
   async setMfaRequired(required:boolean):Promise<void>{await this.securityAction({action:'set_mfa_required',required,confirmed:true},'De instelling voor tweestapsverificatie kon niet worden gewijzigd.')}
   async resetManagedUserMfa(userId:string):Promise<void>{await this.securityAction({action:'reset_user_mfa',targetUserId:userId,confirmed:true},'Tweestapsverificatie kon niet worden gereset.')}
   async approveUserMfa(userId:string):Promise<void>{await this.securityAction({action:'approve_user_mfa',targetUserId:userId,confirmed:true},'De authenticator kon niet worden goedgekeurd.')}
   async eraseParticipant(userId:string,confirmationEmail:string):Promise<void>{await this.securityAction({action:'erase_participant',targetUserId:userId,confirmationEmail,confirmed:true},'De deelnemer kon niet volledig worden verwijderd.')}
-  private async securityAction(body:Record<string,unknown>,fallback:string):Promise<void>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json().catch(()=>({})) as {message?:string};if(!response.ok)throw new Error(result.message||fallback)}
-  async saveCommissioner(organization:{code:string;name:string;active:boolean}):Promise<void>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_commissioner',organization})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De opdrachtgever kon niet worden opgeslagen.')}}
-  async listAppointments(trajectoryCode:string):Promise<DashboardAppointment[]>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api?appointments=${encodeURIComponent(trajectoryCode)}`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});const result=await response.json().catch(()=>({})) as {message?:string;dashboardAppointments?:DashboardAppointment[]};if(!response.ok)throw new Error(result.message||'De afspraken konden niet worden geladen.');return result.dashboardAppointments??[]}
-  async saveAppointment(appointment:Omit<DashboardAppointment,'coachName'|'cancelled'>):Promise<void>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_appointment',appointment})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De afspraak kon niet worden opgeslagen.')}}
-  async setAppointmentActive(appointmentId:string,active:boolean):Promise<void>{const token=localStorage.getItem('munks-werkt-access-token');if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'set_appointment_active',appointmentId,active})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De afspraakstatus kon niet worden gewijzigd.')}}
+  private async securityAction(body:Record<string,unknown>,fallback:string):Promise<void>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json().catch(()=>({})) as {message?:string};if(!response.ok)throw new Error(result.message||fallback)}
+  async saveCommissioner(organization:{code:string;name:string;active:boolean}):Promise<void>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_commissioner',organization})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De opdrachtgever kon niet worden opgeslagen.')}}
+  async listAppointments(trajectoryCode:string):Promise<DashboardAppointment[]>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api?appointments=${encodeURIComponent(trajectoryCode)}`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});const result=await response.json().catch(()=>({})) as {message?:string;dashboardAppointments?:DashboardAppointment[]};if(!response.ok)throw new Error(result.message||'De afspraken konden niet worden geladen.');return result.dashboardAppointments??[]}
+  async saveAppointment(appointment:Omit<DashboardAppointment,'coachName'|'cancelled'>):Promise<void>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'save_appointment',appointment})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De afspraak kon niet worden opgeslagen.')}}
+  async setAppointmentActive(appointmentId:string,active:boolean):Promise<void>{const token=getAccessToken();if(!token)throw new Error('Aanmelden is vereist.');const response=await fetch(`${this.supabaseUrl}/functions/v1/session-api`,{method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action:'set_appointment_active',appointmentId,active})});if(!response.ok){const problem=await response.json().catch(()=>({})) as {message?:string};throw new Error(problem.message||'De afspraakstatus kon niet worden gewijzigd.')}}
 
   async updateAttendance(_trajectoryCode: string, participantId: string, stepIndex: number, present: boolean): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',
@@ -44,7 +45,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     }
   }
   async releaseOutcome(trajectoryCode: string, participantId: string, category: string, summary: string, status: 'provisional' | 'final', goals: DashboardParticipant['goals']): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',
@@ -59,7 +60,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
   async createTrajectory(input: Pick<DashboardTrajectory, 'code' | 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void> { await this.saveTrajectory('create_trajectory', input.code, input); }
   async updateTrajectory(code: string, input: Pick<DashboardTrajectory, 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void> { await this.saveTrajectory('update_trajectory', code, input); }
   private async saveTrajectory(action: 'create_trajectory' | 'update_trajectory', code: string, input: Pick<DashboardTrajectory, 'name' | 'commissionerName' | 'startDate' | 'endDate' | 'coaches'>): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, { method: 'POST', headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action, code, ...input, coachIds: input.coaches.map(coach => coach.id) }) });
     if (!response.ok) { const problem = await response.json().catch(() => ({})) as { message?: string }; throw new Error(problem.message || 'Het traject kon niet worden opgeslagen.'); }
@@ -68,13 +69,13 @@ export class SupabaseDashboardRepository implements DashboardRepository {
   async updateParticipant(trajectoryCode: string, participantId: string, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'city' | 'birthDate' | 'coachId' | 'active'>): Promise<void> { await this.saveParticipant('update_participant', trajectoryCode, participantId, input); }
   async renewParticipantActivation(trajectoryCode: string, participantId: string): Promise<{ activationCode: string }> { return this.saveParticipant('renew_participant_activation', trajectoryCode, participantId, {name:'-',email:'-',phone:'',coachId:'-'}) as Promise<{ activationCode: string }>; }
   private async saveParticipant(action: 'create_participant' | 'update_participant' | 'renew_participant_activation', trajectoryCode: string, enrollmentId: string | undefined, input: Pick<DashboardParticipant, 'name' | 'email' | 'phone' | 'coachId'> & { city?: string; birthDate?: string; active?: boolean }): Promise<void | { activationCode: string }> {
-    const token = localStorage.getItem('munks-werkt-access-token'); if (!token) throw new Error('Aanmelden is vereist.');
+    const token = getAccessToken(); if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {method:'POST',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({action,trajectoryCode,enrollmentId,...input})});
     const result = await response.json().catch(()=>({})) as {message?:string;activationCode?:string}; if(!response.ok)throw new Error(result.message||'De deelnemer kon niet worden opgeslagen.');
     return result.activationCode ? {activationCode:result.activationCode} : undefined;
   }
   async uploadParticipantDocument(trajectoryCode: string, participantId: string, type: 'cv' | 'talent_report', file: File): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     if (type !== 'talent_report' || file.type !== 'application/pdf') throw new Error('Kies een pdf-bestand van de talententest.');
     if (file.size > 10 * 1024 * 1024) throw new Error('Het bestand mag maximaal 10 MB zijn.');
@@ -93,7 +94,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     }
   }
   async openParticipantDocument(document: ParticipantDocument): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     if (!document.storagePath) throw new Error('Het bestand is niet beschikbaar.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/document-api?path=${encodeURIComponent(document.storagePath)}`, {
@@ -107,7 +108,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
   async deleteParticipantDocument(document: ParticipantDocument): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     if (!document.storagePath) throw new Error('Het bestand is niet beschikbaar.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/document-api?path=${encodeURIComponent(document.storagePath)}`, {
@@ -118,7 +119,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
     if (!response.ok) throw new Error(result.message || 'Het rapport kon niet worden verwijderd.');
   }
   async releaseTalentResults(trajectoryCode: string, participantId: string): Promise<void> {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',

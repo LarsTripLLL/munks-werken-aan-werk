@@ -1,10 +1,11 @@
 import type { ParticipantDocument, ParticipantDocumentRepository } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 export class SupabaseDocumentRepository implements ParticipantDocumentRepository {
   constructor(private readonly supabaseUrl: string, private readonly publishableKey: string) {}
 
   private token() {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     return token;
   }

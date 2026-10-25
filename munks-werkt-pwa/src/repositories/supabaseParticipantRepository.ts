@@ -1,4 +1,5 @@
 import type { ParticipantHome, ParticipantRepository, StepStatus } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 type SessionHomeResponse = {
   user: { id: string; displayName: string };
@@ -22,7 +23,7 @@ export class SupabaseParticipantRepository implements ParticipantRepository {
   ) {}
 
   async getHome(signal?: AbortSignal): Promise<ParticipantHome> {
-    const accessToken = localStorage.getItem('munks-werkt-access-token');
+    const accessToken = getAccessToken();
     if (!accessToken) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       signal,

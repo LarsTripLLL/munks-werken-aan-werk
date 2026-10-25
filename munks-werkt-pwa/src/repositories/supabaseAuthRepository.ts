@@ -1,15 +1,13 @@
 import type { AppRole, AuthenticationResult, AuthRepository, ConsentChoice, PendingMfaAuthentication, SessionUser } from '../domain';
 import { MfaAuthClient } from '../mfa/MfaAuthClient';
 import { passwordPolicyError } from '../passwordPolicy';
+import { clearAccessToken, getAccessToken, setAccessToken } from '../sessionTokens';
 
 type TokenResponse = {
   access_token: string;
-  refresh_token: string;
+  refresh_token?: string;
   user: { id: string; email?: string };
 };
-
-const accessTokenKey = 'munks-werkt-access-token';
-const refreshTokenKey = 'munks-werkt-refresh-token';
 
 class ExpiredSessionError extends Error {}
 
@@ -75,11 +73,11 @@ export class SupabaseAuthRepository implements AuthRepository {
   }
 
   async signIn(email: string, password: string): Promise<AuthenticationResult> {
-    const tokenResponse = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
+    const tokenResponse = await fetch('/api/auth', {
       method: 'POST',
       cache: 'no-store',
+      credentials: 'same-origin',
       headers: {
-        apikey: this.publishableKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ action: 'sign_in', email, password }),
@@ -90,36 +88,35 @@ export class SupabaseAuthRepository implements AuthRepository {
     }
 
     const token = await tokenResponse.json() as TokenResponse;
-    localStorage.setItem(accessTokenKey, token.access_token);
-    localStorage.setItem(refreshTokenKey, token.refresh_token);
+    setAccessToken(token.access_token);
     return this.resolveAuthentication(token.access_token, token.user.id);
   }
 
   async signOut(): Promise<void> {
-    const token = localStorage.getItem(accessTokenKey);
-    if (!token) return;
-    const response = await fetch(`${this.supabaseUrl}/auth/v1/logout?scope=global`, {
+    const token = getAccessToken();
+    const response = await fetch('/api/auth', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: {
-        apikey: this.publishableKey,
-        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
+      body: JSON.stringify({ action: 'logout' }),
     });
+    clearAccessToken();
     if (!response.ok && response.status !== 401) {
       throw new Error('De sessie kon niet aan de serverzijde worden beëindigd.');
     }
   }
 
   async restoreSession(): Promise<AuthenticationResult | undefined> {
-    const token = localStorage.getItem(accessTokenKey);
-    if (!token && !localStorage.getItem(refreshTokenKey)) return undefined;
+    const token = getAccessToken();
     const lastActivity = Number(localStorage.getItem('munks-werkt-last-activity'));
     if (Number.isFinite(lastActivity) && lastActivity > 0 && Date.now() - lastActivity >= 15 * 60 * 1000) {
       try {
         await this.signOut();
       } finally {
-        localStorage.removeItem(accessTokenKey);
-        localStorage.removeItem(refreshTokenKey);
+        clearAccessToken();
         localStorage.removeItem('munks-werkt-last-activity');
       }
       return undefined;
@@ -130,16 +127,11 @@ export class SupabaseAuthRepository implements AuthRepository {
         return await this.resolveAuthentication(accessToken);
       } catch (error) {
         if (!(error instanceof ExpiredSessionError)) throw error;
-        if (!localStorage.getItem(refreshTokenKey)) {
-          localStorage.removeItem(accessTokenKey);
-          return undefined;
-        }
         return await this.resolveAuthentication(await this.refreshAccessToken());
       }
     } catch (error) {
       if (error instanceof ExpiredSessionError) {
-        localStorage.removeItem(accessTokenKey);
-        localStorage.removeItem(refreshTokenKey);
+        clearAccessToken();
         return undefined;
       }
       throw error;
@@ -153,26 +145,23 @@ export class SupabaseAuthRepository implements AuthRepository {
   }
 
   private async exchangeRefreshToken(): Promise<string> {
-    const refreshToken = localStorage.getItem(refreshTokenKey);
-    if (!refreshToken) throw new ExpiredSessionError('De sessie is verlopen.');
-    const response = await fetch(`${this.supabaseUrl}/functions/v1/auth-gateway`, {
+    const response = await fetch('/api/auth', {
       method: 'POST',
       cache: 'no-store',
-      headers: { apikey: this.publishableKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'refresh_session', refreshToken }),
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'refresh' }),
     });
     if (!response.ok) {
       if (response.status === 400 || response.status === 401) {
-        localStorage.removeItem(accessTokenKey);
-        localStorage.removeItem(refreshTokenKey);
+        clearAccessToken();
         throw new ExpiredSessionError('De sessie is verlopen.');
       }
       throw new Error('De aanmelding kon tijdelijk niet worden vernieuwd.');
     }
     const refreshed = await response.json() as TokenResponse;
-    if (!refreshed.access_token || !refreshed.refresh_token) throw new Error('De aanmelding kon tijdelijk niet worden vernieuwd.');
-    localStorage.setItem(accessTokenKey, refreshed.access_token);
-    localStorage.setItem(refreshTokenKey, refreshed.refresh_token);
+    if (!refreshed.access_token) throw new Error('De aanmelding kon tijdelijk niet worden vernieuwd.');
+    setAccessToken(refreshed.access_token);
     return refreshed.access_token;
   }
 
@@ -193,11 +182,11 @@ export class SupabaseAuthRepository implements AuthRepository {
   private async verifyEmailCode(email:string,code:string,type:'invite'|'recovery'):Promise<TokenResponse>{
     const cleanCode=code.replace(/\s/g,'');
     if(!email.trim()||!/^\d{6,8}$/.test(cleanCode))throw new Error('Vul je e-mailadres en de code uit de nieuwste e-mail in.');
-    const endpoint=`${this.supabaseUrl}/functions/v1/auth-gateway`;
+    const endpoint='/api/auth';
     const requestBody={action:type==='recovery'?'verify_recovery':'verify_invite',email:email.trim().toLowerCase(),token:cleanCode};
-    const response=await fetch(endpoint,{method:'POST',cache:'no-store',headers:{apikey:this.publishableKey,'Content-Type':'application/json'},body:JSON.stringify(requestBody)});
+    const response=await fetch(endpoint,{method:'POST',cache:'no-store',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(requestBody)});
     const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{code?:string;error_code?:string;message?:string;msg?:string};
-    if(!response.ok||!result.access_token||!result.refresh_token){
+    if(!response.ok||!result.access_token){
       const errorCode=result.code??result.error_code??'';
       if(response.status===429||errorCode==='recovery_attempts_exceeded')throw new Error('De herstelcode is vijf keer geprobeerd. Vraag een nieuwe herstelcode aan.');
       if(errorCode==='otp_expired'||response.status===401||/expired|invalid/i.test(`${result.message??''} ${result.msg??''}`))throw new Error('De code is ongeldig of verlopen. Vraag een nieuwe e-mail aan en gebruik de nieuwste code.');
@@ -209,18 +198,15 @@ export class SupabaseAuthRepository implements AuthRepository {
   async completePasswordReset(email:string,code:string,password: string): Promise<PendingMfaAuthentication | void> {
     const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
     let token=hashParams.get('access_token');
-    let refreshToken=hashParams.get('refresh_token');
     if(!token){
       const verified=await this.verifyEmailCode(email,code,'recovery');
       token=verified.access_token;
-      refreshToken=verified.refresh_token;
     }
     const accountResponse=await fetch(`${this.supabaseUrl}/auth/v1/user`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});
     const account=await accountResponse.json().catch(()=>({})) as {email?:string};
     const policyError=passwordPolicyError(password,[account.email??email]);
     if(policyError)throw new Error(policyError);
-    localStorage.setItem(accessTokenKey,token);
-    if(refreshToken)localStorage.setItem(refreshTokenKey,refreshToken);
+    setAccessToken(token);
     const response = await fetch(`${this.supabaseUrl}/auth/v1/user`, {
       method: 'PUT',
       headers: { apikey: this.publishableKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -250,8 +236,8 @@ export class SupabaseAuthRepository implements AuthRepository {
     try {
       await this.revokeAllSessions(token);
     } finally {
-      localStorage.removeItem(accessTokenKey);
-      localStorage.removeItem(refreshTokenKey);
+      clearAccessToken();
+      await fetch('/api/auth',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})}).catch(()=>undefined);
       history.replaceState(null, '', location.pathname);
     }
   }
@@ -274,8 +260,8 @@ export class SupabaseAuthRepository implements AuthRepository {
     try {
       await this.revokeAllSessions(session.access_token);
     } finally {
-      localStorage.removeItem(accessTokenKey);
-      localStorage.removeItem(refreshTokenKey);
+      clearAccessToken();
+      await fetch('/api/auth',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})}).catch(()=>undefined);
       history.replaceState(null,'',location.pathname);
     }
   }
@@ -283,8 +269,7 @@ export class SupabaseAuthRepository implements AuthRepository {
   async completeStaffInvite(email:string,code:string,password:string):Promise<AuthenticationResult>{
     const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
     let token=hashParams.get('access_token');
-    let refreshToken=hashParams.get('refresh_token');
-    if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token;refreshToken=verified.refresh_token}
+    if(!token){const verified=await this.verifyEmailCode(email,code,'invite');token=verified.access_token}
     const accountResponse=await fetch(`${this.supabaseUrl}/auth/v1/user`,{headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`}});
     const account=await accountResponse.json().catch(()=>({})) as {email?:string};
     const policyError=passwordPolicyError(password,[account.email??email]);
@@ -292,8 +277,7 @@ export class SupabaseAuthRepository implements AuthRepository {
     const response=await fetch(`${this.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:this.publishableKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password})});
     if(!response.ok)throw new Error('Het wachtwoord kon niet worden ingesteld. Vraag zo nodig een nieuwe uitnodiging aan.');
     const user=await response.json() as {id:string;email?:string};
-    localStorage.removeItem(accessTokenKey);
-    localStorage.removeItem(refreshTokenKey);
+    clearAccessToken();
     history.replaceState(null,'',location.pathname);
     const signInEmail=user.email??email;
     if(!signInEmail)throw new Error('Het account is geactiveerd. Log nu in met je e-mailadres en nieuwe wachtwoord.');
@@ -302,14 +286,15 @@ export class SupabaseAuthRepository implements AuthRepository {
 
   async verifyMfa(factorId: string, code: string): Promise<SessionUser> {
     const session = await this.mfaClient().verify(factorId, code);
-    localStorage.setItem(accessTokenKey, session.access_token);
-    localStorage.setItem(refreshTokenKey, session.refresh_token);
-    return this.getSessionUser(session.access_token);
+    const accessToken=await this.adoptRefreshToken(session.refresh_token);
+    return this.getSessionUser(accessToken);
   }
 
   private mfaClient() {
-    return new MfaAuthClient(this.supabaseUrl, this.publishableKey, () => localStorage.getItem(accessTokenKey));
+    return new MfaAuthClient(this.supabaseUrl, this.publishableKey, getAccessToken);
   }
+
+  private async adoptRefreshToken(refreshToken:string):Promise<string>{const response=await fetch('/api/auth',{method:'POST',cache:'no-store',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'adopt',refreshToken})});const result=await response.json().catch(()=>({})) as Partial<TokenResponse>&{message?:string};if(!response.ok||!result.access_token)throw new Error(result.message||'De beveiligde sessie kon niet worden geopend.');setAccessToken(result.access_token);return result.access_token}
 
   private async resolveAuthentication(accessToken: string, authenticatedUserId?: string): Promise<AuthenticationResult> {
     if (assuranceLevel(accessToken) === 'aal2') return { status: 'authenticated', user: await this.getSessionUser(accessToken, authenticatedUserId) };

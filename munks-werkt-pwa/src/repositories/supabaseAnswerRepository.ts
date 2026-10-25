@@ -1,4 +1,5 @@
 import type { AnswerRepository, ParticipantAnswer } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 type AnswerResponse = {
   answer: null | {
@@ -14,7 +15,7 @@ export class SupabaseAnswerRepository implements AnswerRepository {
   ) {}
 
   private async request<T>(body: Record<string, unknown>): Promise<T> {
-    const accessToken = localStorage.getItem('munks-werkt-access-token');
+    const accessToken = getAccessToken();
     if (!accessToken) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',

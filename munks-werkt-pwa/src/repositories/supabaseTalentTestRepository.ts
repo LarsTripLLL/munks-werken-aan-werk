@@ -1,10 +1,11 @@
 import type { TalentTestRepository, TalentTestStatus } from '../domain';
+import { getAccessToken } from '../sessionTokens';
 
 export class SupabaseTalentTestRepository implements TalentTestRepository {
   constructor(private readonly supabaseUrl: string, private readonly publishableKey: string) {}
 
   private async request(body: Record<string, unknown>) {
-    const token = localStorage.getItem('munks-werkt-access-token');
+    const token = getAccessToken();
     if (!token) throw new Error('Aanmelden is vereist.');
     const response = await fetch(`${this.supabaseUrl}/functions/v1/session-api`, {
       method: 'POST',
