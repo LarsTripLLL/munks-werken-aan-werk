@@ -663,7 +663,13 @@ Deno.serve(async request => {
         and (trajectory_staff.role <> 'rsd_user' or organizations.active)
     `;
     const enrollmentResult = await connection.queryObject<{ id: string; trajectory_run_id: string; status: string; exit_category: string | null; exit_advice_summary: string | null; exit_advice_status: string | null }>`
-      select id::text, trajectory_run_id::text, status::text as status, exit_category, exit_advice_summary, exit_advice_status
+      select
+        id::text,
+        trajectory_run_id::text,
+        status::text as status,
+        case when exit_advice_status = 'final' then exit_category end as exit_category,
+        case when exit_advice_status = 'final' then exit_advice_summary end as exit_advice_summary,
+        case when exit_advice_status = 'final' then exit_advice_status::text end as exit_advice_status
       from public.enrollments
       where participant_id = ${userId}::uuid
     `;
