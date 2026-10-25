@@ -51,7 +51,7 @@ export const onRequestPost = async ({ request, env }: PagesContext) => {
     try{refreshToken=decodeURIComponent(encoded)}catch{return reply(401,{message:'De sessie is verlopen.'},clearCookie)}
     upstream = await fetch(gateway, { method: 'POST', headers: gatewayHeaders, body: JSON.stringify({ action: 'refresh_session', refreshToken }) });
   } else if (body.action === 'adopt') {
-    if (typeof body.refreshToken !== 'string' || body.refreshToken.length < 20) return reply(400, { message: 'De sessie is niet geldig.' });
+    if (typeof body.refreshToken !== 'string' || !/^[^\s]{8,4096}$/.test(body.refreshToken)) return reply(400, { message: 'De sessie is niet geldig.' });
     upstream = await fetch(gateway, { method: 'POST', headers: gatewayHeaders, body: JSON.stringify({ action: 'refresh_session', refreshToken: body.refreshToken }) });
   } else if (body.action === 'sign_in') {
     upstream = await fetch(gateway, { method: 'POST', headers: gatewayHeaders, body: JSON.stringify({ action: 'sign_in', email: body.email, password: body.password }) });

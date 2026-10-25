@@ -53,7 +53,7 @@ Deno.serve(async request=>{
   }
 
   if(action==='refresh_session'){
-    if(typeof body.refreshToken!=='string'||body.refreshToken.length<20)return json(401,{message:'De sessie is verlopen.'},origin);
+    if(typeof body.refreshToken!=='string'||!/^[^\s]{8,4096}$/.test(body.refreshToken))return json(401,{message:'De sessie is verlopen.'},origin);
     response=await fetch(`${supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:publishableKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:body.refreshToken})});
     const result=await response.json().catch(()=>({}));
     return response.ok?json(200,result,origin):json(401,{message:'De sessie is verlopen.'},origin);
